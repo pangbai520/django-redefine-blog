@@ -1,0 +1,40 @@
+let scrollToolsController = null;
+
+const initScrollTopBottom = () => {
+  scrollToolsController?.abort();
+  scrollToolsController = new AbortController();
+  const { signal } = scrollToolsController;
+
+  const backToTopButton_dom = document.querySelector(".tool-scroll-to-top");
+  const backToBottomButton_dom = document.querySelector(
+    ".tool-scroll-to-bottom",
+  );
+
+  const backToTop = () => {
+    window.scrollTo({
+      top: 0, // scrolls to the top of the page
+      behavior: "smooth",
+    });
+  };
+
+  const backToBottom = () => {
+    const docHeight = document.body.scrollHeight;
+    window.scrollTo({
+      top: docHeight, // scrolls to the bottom of the page
+      behavior: "smooth",
+    });
+  };
+
+  const initBackToTop = () => {
+    backToTopButton_dom?.addEventListener("click", backToTop, { signal });
+  };
+
+  const initBackToBottom = () => {
+    backToBottomButton_dom?.addEventListener("click", backToBottom, { signal });
+  };
+
+  initBackToTop();
+  initBackToBottom();
+};
+
+export default initScrollTopBottom;

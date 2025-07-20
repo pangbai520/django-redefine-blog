@@ -1,0 +1,27 @@
+<div class="archive-list-container">
+    {% regroup posts by created_at.year as year_list %}
+    {% for year_group in year_list %}
+        <section class="archive-item mb-spacing-unit last:mb-0">
+            <div class="archive-item-header flex flex-row items-center mb-2">
+                <span class="archive-year font-semibold text-3xl mr-2">{{ year_group.grouper }}</span>
+                <span class="archive-year-post-count text-xs md:text-sm font-bold rounded-small bg-third-background-color py-[2px] px-[10px] border border-border-color">{{ year_group.list|length }}</span>
+            </div>
+            <ul class="article-list pl-0 md:pl-8 text-lg leading-[1.5]">
+
+        {% for article in year_group.list %}
+            {% ifchanged article.created_at|date:"m-d" %}
+                {% if not forloop.first %}</li>{% endif %}
+                <li class="article-item space-y-2 px-6 pt-10 pb-2 text-xl relative border-l-2 border-border-color"
+                    date-is='{{ article.created_at|date:"m-d" }}'>
+            {% endifchanged %}
+
+                <a href="{{ article.get_absolute_url }}" class="block w-fit">
+                    <span class="article-title my-0.5 text-2xl">{{ article.title }}</span>
+                </a>
+
+            {% if forloop.last %}
+                </li></ul></section>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+</div>

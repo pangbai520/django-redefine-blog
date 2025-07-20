@@ -1,0 +1,7 @@
+{% load i18n %}{% blocktranslate with site_name=site.site_name %}Verify your account on {{ site_name }}{% endblocktranslate %}
+
+{% translate "Thanks for registering. Open the link below, then confirm activation on the website:" %}
+
+{{ verify_url }}
+
+{% translate "If you did not create this account, you can safely ignore this email." %}

@@ -1,0 +1,5 @@
+{% if standalone_page.rendered_content %}
+<div class="page-template-content markdown-body">
+    {{ standalone_page.rendered_content|safe }}
+</div>
+{% endif %}

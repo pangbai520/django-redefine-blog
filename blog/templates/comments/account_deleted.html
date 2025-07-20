@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block page_content %}
+<div class="page-template-container profile-page">
+    <div class="page-template-content profile-account-deleted">
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+        <h1 class="page-title-header">{% translate "Your account has been deleted" %}</h1>
+        <p>{% translate "Your comments have been kept anonymously." %}</p>
+        <a class="profile-primary-button" href="{% url 'index' %}" data-skip-preloader>{% translate "Return to site" %}</a>
+    </div>
+</div>
+{% endblock %}

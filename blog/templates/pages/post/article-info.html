@@ -1,0 +1,74 @@
+{% load i18n %}
+<div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">{{ article.created_at_display }}</span>
+        <span class="mobile">{{ article.created_at_display }}</span>
+        <span class="hover-info">{% translate "Created" %}</span>
+    </span>
+
+    {% if article.has_meaningful_update %}
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-wrench"></i>&nbsp;
+        <span class="desktop">
+            {{ article.updated_at_display }}
+        </span>
+        <span class="mobile">
+            {{ article.updated_at_display }}
+        </span>
+        <span class="hover-info">{% translate "Updated" %}</span>
+    </span>
+    {% endif %}
+
+    {% if article.detail_meta.categories %}
+    <span class="article-categories article-meta-item">
+        <i class="fa-regular fa-folders"></i>&nbsp;
+        <ul>
+            {% for cat in article.detail_meta.categories %}
+                <li>
+                    {% if not forloop.first and cat.new_parent %}> {% elif not forloop.first %}| {% endif %}
+                    <a href="{{ cat.url }}">{{ cat.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </span>
+    {% endif %}
+
+    {% if article.detail_meta.tags %}
+    <span class="article-tags article-meta-item">
+        <i class="fa-regular fa-tags"></i>&nbsp;
+        <ul>
+            {% for tag in article.detail_meta.tags %}
+                <li>
+                    {% if not tag.first %}| {% endif %}
+                    <a href="{{ tag.url }}">{{ tag.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </span>
+    {% endif %}
+
+    {% if site.counter_enabled %}
+        {% if site.show_word_counter and article.word_counter %}
+        <span class="article-wordcount article-meta-item">
+            <i class="fa-regular fa-typewriter"></i>&nbsp;
+            <span>{{ article.word_counter }} {% translate "Words" %}</span>
+        </span>
+        {% endif %}
+
+        {% if site.show_reading_time and article.reading_time %}
+        <span class="article-min2read article-meta-item">
+            <i class="fa-regular fa-clock"></i>&nbsp;
+            <span>{{ article.reading_time }} {% translate "Mins" %}</span>
+        </span>
+        {% endif %}
+
+    {% endif %}
+
+    {% if site.website_counter_enabled and site.website_counter_post_pv %}
+    <span class="article-pv article-meta-item">
+        <i class="fa-regular fa-eye"></i>&nbsp;
+        <span>{{ article_pv|default:0 }}</span>
+    </span>
+    {% endif %}
+</div>

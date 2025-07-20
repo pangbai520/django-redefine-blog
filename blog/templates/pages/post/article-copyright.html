@@ -1,0 +1,22 @@
+{% load i18n %}
+<div class="article-copyright-info-container">
+    <ul>
+        <li><strong>{% translate "Title" %}:</strong> {{ article.title }}</li>
+        <li><strong>{% translate "Author" %}:</strong> {% firstof article.writer blog_author_name site.site_author %}</li>
+        <li><strong>{% translate "Created at" %}:</strong> {{ article.created_at|date:"Y-m-d H:i:s" }}</li>
+        {% if article.updated_at and article.updated_at != article.created_at %}
+            <li>
+                <strong>{% translate "Updated at" %}:</strong> {{ article.updated_at|date:"Y-m-d H:i:s" }}
+            </li>
+        {% endif %}
+        <li>
+            <strong>{% translate "Link" %}:</strong> {{ full_url }}
+        </li>
+        <li>
+            <strong>
+                {% translate "License" %}:
+            </strong>
+            {{ article.licence_label|safe }}
+        </li>
+    </ul>
+</div>
