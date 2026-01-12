@@ -213,8 +213,11 @@ class RuntimeRegressionTests(TestCase):
         self.assertIn(".bookmark-nav-item.active", css)
         self.assertIn("background-color: var(--second-background-color)", css)
         self.assertIn("transform: scale(1.02)", css)
+        self.assertIn(".bookmarks-page .flex-shrink-0", css)
         self.assertNotIn(".bookmarks-page .bookmark-card-link:hover", css)
-        self.assertIn('item.classList.toggle(\n                "active"', controller)
+        self.assertIn('item.classList.remove("bg-second-background-color")', controller)
+        self.assertIn('item.classList.add("bg-second-background-color")', controller)
+        self.assertNotIn('item.classList.toggle(\n                "active"', controller)
 
     def test_normal_daily(self):
         orphan = CommentImage.objects.create(image="comment-images/orphan-auto.png")

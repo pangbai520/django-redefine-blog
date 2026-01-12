@@ -331,7 +331,10 @@ class RedefineParityTests(TestCase):
             Path(__file__).parent.parent / "static" / "css" / "style.css"
         ).read_text(encoding="utf-8")
 
-        self.assertIn('item.classList.toggle(\n                "active"', script)
+        self.assertIn('item.classList.remove("bg-second-background-color")', script)
+        self.assertIn('item.classList.add("bg-second-background-color")', script)
+        self.assertNotIn('item.classList.toggle(\n                "active"', script)
+        self.assertNotIn('item.addEventListener(\n            "click"', script)
         self.assertIn(
             'import initBookmarkNav from "./layouts/bookmarkNav.js";', main_script
         )

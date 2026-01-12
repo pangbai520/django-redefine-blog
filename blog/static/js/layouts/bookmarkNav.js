@@ -14,59 +14,48 @@ export default function initBookmarkNav() {
     );
     if (!navItems.length || !sections.length) return;
 
-    let frameId = 0;
-    const setActiveNavItem = (preferredSectionId = null) => {
-        const fromTop = window.scrollY + 100;
-        let currentSection = sections[0];
+    const throttle = (callback, delay) => {
+        let waiting = false;
+        return () => {
+            if (waiting) return;
+            callback();
+            waiting = true;
+            window.setTimeout(() => {
+                waiting = false;
+            }, delay);
+        };
+    };
 
-        if (preferredSectionId) {
-            currentSection = sections.find(
-                (section) => section.id === preferredSectionId,
-            ) || currentSection;
-        } else if (
-            window.scrollY > 0 &&
-            window.scrollY + window.innerHeight >=
-                document.documentElement.scrollHeight - 2
-        ) {
-            currentSection = sections.at(-1);
-        } else {
-            for (const section of sections) {
-                if (fromTop >= section.offsetTop) currentSection = section;
+    // Redefine 2.8.2 only applies the muted background while scrolling.
+    // Do not replace this with the later active/scale interaction.
+    const setActiveNavItem = () => {
+        const fromTop = window.scrollY + 100;
+        let currentSection = null;
+
+        for (const section of sections) {
+            const sectionTop = section.offsetTop;
+            const sectionBottom = sectionTop + section.offsetHeight;
+            if (fromTop >= sectionTop && fromTop < sectionBottom) {
+                currentSection = section;
             }
         }
 
         for (const item of navItems) {
-            item.classList.toggle(
-                "active",
-                item.dataset.category === currentSection.id,
-            );
+            item.classList.remove("bg-second-background-color");
+            if (
+                currentSection &&
+                item.dataset.category === currentSection.id
+            ) {
+                item.classList.add("bg-second-background-color");
+            }
         }
     };
 
-    for (const item of navItems) {
-        item.addEventListener(
-            "click",
-            () => setActiveNavItem(item.dataset.category),
-            { signal },
-        );
-    }
-
     window.addEventListener(
         "scroll",
-        () => {
-            if (frameId) return;
-            frameId = window.requestAnimationFrame(() => {
-                frameId = 0;
-                setActiveNavItem();
-            });
-        },
+        throttle(setActiveNavItem, 100),
         { passive: true, signal },
     );
-    signal.addEventListener(
-        "abort",
-        () => window.cancelAnimationFrame(frameId),
-        { once: true },
-    );
 
-    setActiveNavItem(window.location.hash.slice(1) || null);
+    setActiveNavItem();
 }

@@ -132,7 +132,7 @@ test("article avatars use the generated non-shrinking utility from upstream", ()
   assert.match(tailwind, /\.shrink-0\{flex-shrink:0\}/);
 });
 
-test("bookmarks retain upstream radii, utility motion, and Chinese font fallback", () => {
+test("bookmarks stay pinned to the Redefine 2.8.2 layout", () => {
   const bookmarks = readFileSync(
     path.join(blogRoot, "templates/pages/bookmarks/bookmarks.html"),
     "utf8",
@@ -143,6 +143,8 @@ test("bookmarks retain upstream radii, utility motion, and Chinese font fallback
   );
   assert.match(bookmarks, /bookmark-card-link/);
   assert.match(bookmarks, /bookmark-card-image/);
+  assert.match(bookmarks, /md:w-48 flex-shrink-0 md:sticky/);
+  assert.match(bookmarks, /hover:scale-102 transition-all duration-200/);
   assert.match(overrides, /--radius-lg: \.5rem;/);
   assert.match(overrides, /--radius-xl: \.75rem;/);
   assert.match(overrides, /--radius-2xl: 1rem;/);
@@ -480,7 +482,7 @@ test("tabs respond to icon clicks, preserve nested tabs, and bind once across re
   assert.equal(nested.classList.contains("active"), true);
 });
 
-test("bookmark navigation selects the first section and updates immediately on click", () => {
+test("bookmark navigation keeps the Redefine 2.8.2 scroll behavior", () => {
   const firstNav = new Element();
   const secondNav = new Element();
   firstNav.attributes["data-category"] = "first";
@@ -489,17 +491,14 @@ test("bookmark navigation selects the first section and updates immediately on c
   secondNav.dataset.category = "second";
 
   const window = new Element();
-  window.scrollY = 0;
+  window.scrollY = 150;
   window.innerHeight = 500;
   window.location = { hash: "" };
-  window.requestAnimationFrame = (callback) => {
-    callback();
-    return 1;
-  };
-  window.cancelAnimationFrame = () => {};
+  window.setTimeout = (callback) => callback();
   const section = (id, top) => ({
     id,
-    getBoundingClientRect: () => ({ top: top - window.scrollY }),
+    offsetTop: top,
+    offsetHeight: 300,
   });
   const sections = [section("first", 200), section("second", 600)];
   const page = {
@@ -507,7 +506,6 @@ test("bookmark navigation selects the first section and updates immediately on c
       selector === ".bookmark-nav-item" ? [firstNav, secondNav] : sections,
   };
   const document = {
-    documentElement: { scrollHeight: 1200 },
     querySelector: (selector) => (selector === ".bookmarks-page" ? page : null),
   };
   const context = vm.createContext({
@@ -523,21 +521,18 @@ test("bookmark navigation selects the first section and updates immediately on c
   );
 
   context.initBookmarkNav();
-  assert.equal(firstNav.classList.contains("active"), true);
-  assert.equal(secondNav.classList.contains("active"), false);
+  assert.equal(firstNav.classList.contains("bg-second-background-color"), true);
+  assert.equal(secondNav.classList.contains("bg-second-background-color"), false);
+  assert.equal(firstNav.listeners.has("click"), false);
+  assert.equal(secondNav.listeners.has("click"), false);
 
-  secondNav.emit("click");
-  assert.equal(firstNav.classList.contains("active"), false);
-  assert.equal(secondNav.classList.contains("active"), true);
-
-  window.scrollY = 700;
+  window.scrollY = 550;
   window.emit("scroll");
-  assert.equal(firstNav.classList.contains("active"), false);
-  assert.equal(secondNav.classList.contains("active"), true);
+  assert.equal(firstNav.classList.contains("bg-second-background-color"), false);
+  assert.equal(secondNav.classList.contains("bg-second-background-color"), true);
 
   context.initBookmarkNav();
-  assert.equal(firstNav.listeners.get("click").size, 1);
-  assert.equal(secondNav.listeners.get("click").size, 1);
+  assert.equal(window.listeners.get("scroll").size, 1);
 });
 
 test("disabling code copying does not disable highlighting or folding during page refresh", () => {

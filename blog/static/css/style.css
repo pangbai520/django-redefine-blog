@@ -2138,6 +2138,9 @@ html.is-animating .transition-navbar {
   border-color: var(--second-background-color);
   transform: scale(1.02);
 }
+.bookmarks-page .flex-shrink-0 {
+  flex-shrink: 0;
+}
 .page-template-container .page-template-content h1:first-child,
 .page-template-container .page-template-content h2:first-child,
 .page-template-container .page-template-content h3:first-child,
