@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block page_content %}
+<link rel="stylesheet" href="{% static 'css/layout/bookmarks.css' %}">
 <div class="bookmarks-page py-8 sm:py-0">
     {% if standalone_page.show_title %}<h1 class="page-title-header">{{ page_title }}</h1>{% endif %}
 

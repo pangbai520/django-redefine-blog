@@ -137,6 +137,10 @@ test("bookmarks stay pinned to the Redefine 2.8.2 layout", () => {
     path.join(blogRoot, "templates/pages/bookmarks/bookmarks.html"),
     "utf8",
   );
+  const bookmarkCss = readFileSync(
+    path.join(blogRoot, "static/css/layout/bookmarks.css"),
+    "utf8",
+  );
   const overrides = readFileSync(
     path.join(blogRoot, "templates/components/header/theme-overrides.html"),
     "utf8",
@@ -150,6 +154,9 @@ test("bookmarks stay pinned to the Redefine 2.8.2 layout", () => {
   assert.match(overrides, /--radius-2xl: 1rem;/);
   assert.match(bookmarks, /hover:-translate-y-1[^\"]*bookmark-card/);
   assert.match(bookmarks, /group-hover:scale-105[^\"]*bookmark-card-image/);
+  assert.match(bookmarks, /css\/layout\/bookmarks\.css/);
+  assert.match(bookmarkCss, /\.bookmarks-page \.bookmark-card/);
+  assert.match(bookmarkCss, /transition-duration:\s*0\.3s/);
   assert.match(
     overrides,
     /'Geist Variable', 'Noto Sans SC', -apple-system, system-ui/,
