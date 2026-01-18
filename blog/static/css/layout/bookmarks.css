@@ -5,9 +5,14 @@
  */
 .bookmarks-page .bookmark-nav-item,
 .bookmarks-page .bookmark-nav-item:hover {
-  transition: none;
   transform: none;
   scale: 1;
+}
+
+.bookmarks-page .bookmark-nav-item {
+  transition-property: color;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
 }
 
 .bookmarks-page .bookmark-nav-item:hover {
