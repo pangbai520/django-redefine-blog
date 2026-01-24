@@ -148,16 +148,17 @@ test("bookmarks stay pinned to the Redefine 2.8.2 layout", () => {
   assert.match(bookmarks, /bookmark-card-link/);
   assert.match(bookmarks, /bookmark-card-image/);
   assert.match(bookmarks, /md:w-48 flex-shrink-0 md:sticky/);
-  assert.match(bookmarks, /hover:scale-102 transition-all duration-200/);
+  assert.match(bookmarks, /hover:text-primary transition-all duration-200/);
+  assert.doesNotMatch(bookmarks, /hover:scale-102/);
   assert.match(overrides, /--radius-lg: \.5rem;/);
   assert.match(overrides, /--radius-xl: \.75rem;/);
   assert.match(overrides, /--radius-2xl: 1rem;/);
   assert.match(bookmarks, /hover:-translate-y-1[^\"]*bookmark-card/);
   assert.match(bookmarks, /group-hover:scale-105[^\"]*bookmark-card-image/);
   assert.match(bookmarks, /css\/layout\/bookmarks\.css/);
-  assert.match(bookmarkCss, /\.bookmark-nav-item \{[\s\S]*?transition-property:\s*color/);
+  assert.match(bookmarkCss, /\.bookmark-nav-item \{[\s\S]*?transition-property:\s*all/);
   assert.match(bookmarkCss, /\.bookmark-nav-item \{[\s\S]*?transition-duration:\s*0\.2s/);
-  assert.match(bookmarkCss, /\.bookmark-nav-item:hover[\s\S]*?scale:\s*1/);
+  assert.doesNotMatch(bookmarkCss, /\.bookmark-nav-item:hover[\s\S]*?scale:/);
   assert.match(bookmarkCss, /\.bookmarks-page \.bookmark-card/);
   assert.match(bookmarkCss, /transition-duration:\s*0\.3s/);
   assert.match(

@@ -3,16 +3,10 @@
  * The Django build uses Tailwind 4, so the legacy global transition rule in
  * style.css otherwise wins over the layered transition utilities.
  */
-.bookmarks-page .bookmark-nav-item,
-.bookmarks-page .bookmark-nav-item:hover {
-  transform: none;
-  scale: 1;
-}
-
 .bookmarks-page .bookmark-nav-item {
-  transition-property: color;
+  transition-property: all;
   transition-duration: 0.2s;
-  transition-timing-function: ease;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bookmarks-page .bookmark-nav-item:hover {
