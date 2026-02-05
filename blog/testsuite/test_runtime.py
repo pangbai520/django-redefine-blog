@@ -209,7 +209,8 @@ class RuntimeRegressionTests(TestCase):
             / "bookmarkNav.js"
         ).read_text(encoding="utf-8")
 
-        self.assertIn("hover:scale-102 transition-all duration-200", template)
+        self.assertIn("hover:text-primary transition-all duration-200", template)
+        self.assertNotIn("hover:scale-102", template)
         self.assertIn(".bookmark-nav-item.active", css)
         self.assertIn("background-color: var(--second-background-color)", css)
         self.assertIn("transform: scale(1.02)", css)
