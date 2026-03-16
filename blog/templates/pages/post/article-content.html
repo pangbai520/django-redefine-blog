@@ -154,6 +154,9 @@
 		</div>
 		{% endif %}
 
+		{% if site.article_reaction_enabled and article.show_reaction %}
+		{% include "components/comments/reaction.html" %}
+		{% endif %}
 
 		{% if article.show_comment and site.comment_enabled and comment_system_configured %}
 		{% render_blog_hook "article_before_comments" %}

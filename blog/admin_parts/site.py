@@ -588,6 +588,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             {
                 "classes": ("collapse",),
                 "fields": (
+                    "article_reaction_enabled",
                     ("article_dateformat", "article_excerpt_length"),
                     ("article_categories_enabled", "article_categories_limit"),
                     ("counter_enabled", "show_word_counter", "show_reading_time"),

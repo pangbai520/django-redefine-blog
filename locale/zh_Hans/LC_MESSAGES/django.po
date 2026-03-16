@@ -2225,5 +2225,26 @@ msgstr "页面"
 msgid "Skipped %(count)d duplicate selection because only one comment can be pinned per page."
 msgstr "已跳过 %(count)d 个重复选择，因为每个页面只能置顶一条评论。"
 
+msgid "What do you think?"
+msgstr "你认为这篇文章怎么样？"
+
+msgid "Enable article reactions"
+msgstr "启用文章反馈"
+
+msgid "Show Waline-style reactions below articles. Individual articles can disable them."
+msgstr "在文章下方显示 Waline 风格的反馈；可为单篇文章关闭。"
+
+msgid "Article reaction vote"
+msgstr "文章反馈投票"
+
+msgid "Article reaction votes"
+msgstr "文章反馈投票"
+
+msgid "Enable reactions on selected articles"
+msgstr "为所选文章启用反馈"
+
+msgid "Disable reactions on selected articles"
+msgstr "为所选文章关闭反馈"
+
 msgid "Skipped %(count)d duplicate selections because only one comment can be pinned per page."
 msgstr "已跳过 %(count)d 个重复选择，因为每个页面只能置顶一条评论。"

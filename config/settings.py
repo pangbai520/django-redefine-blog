@@ -374,7 +374,9 @@ IP2REGION_DB_V4 = os.getenv(
     "IP2REGION_DB_V4",
     str(_default_ip2region_dir / "ip2region_v4.xdb"),
 )
-IP2REGION_DB_V6 = os.getenv("IP2REGION_DB_V6", "")
+IP2REGION_DB_V6 = os.getenv(
+    "IP2REGION_DB_V6", str(_default_ip2region_dir / "ip2region_v6.xdb")
+)
 
 LOGGING = {
     "version": 1,

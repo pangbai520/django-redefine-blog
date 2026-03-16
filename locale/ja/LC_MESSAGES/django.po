@@ -2227,5 +2227,26 @@ msgstr "ページ"
 msgid "Skipped %(count)d duplicate selection because only one comment can be pinned per page."
 msgstr "各ページで固定できるコメントは一件だけのため、重複した %(count)d 件を除外しました。"
 
+msgid "What do you think?"
+msgstr "この記事をどう思いますか？"
+
+msgid "Enable article reactions"
+msgstr "記事リアクションを有効にする"
+
+msgid "Show Waline-style reactions below articles. Individual articles can disable them."
+msgstr "記事の下に Waline 形式のリアクションを表示します。記事ごとに無効にできます。"
+
+msgid "Article reaction vote"
+msgstr "記事リアクション投票"
+
+msgid "Article reaction votes"
+msgstr "記事リアクション投票"
+
+msgid "Enable reactions on selected articles"
+msgstr "選択した記事のリアクションを有効にする"
+
+msgid "Disable reactions on selected articles"
+msgstr "選択した記事のリアクションを無効にする"
+
 msgid "Skipped %(count)d duplicate selections because only one comment can be pinned per page."
 msgstr "各ページで固定できるコメントは一件だけのため、重複した %(count)d 件を除外しました。"

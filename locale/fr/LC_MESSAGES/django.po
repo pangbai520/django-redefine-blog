@@ -2274,3 +2274,24 @@ msgstr "%(count)d sélection en double a été ignorée, car un seul commentaire
 
 msgid "Skipped %(count)d duplicate selections because only one comment can be pinned per page."
 msgstr "%(count)d sélections en double ont été ignorées, car un seul commentaire peut être épinglé par page."
+
+msgid "What do you think?"
+msgstr "Qu’en pensez-vous ?"
+
+msgid "Enable article reactions"
+msgstr "Activer les réactions aux articles"
+
+msgid "Show Waline-style reactions below articles. Individual articles can disable them."
+msgstr "Afficher les réactions de style Waline sous les articles. Elles peuvent être désactivées article par article."
+
+msgid "Article reaction vote"
+msgstr "Vote de réaction à l’article"
+
+msgid "Article reaction votes"
+msgstr "Votes de réaction aux articles"
+
+msgid "Enable reactions on selected articles"
+msgstr "Activer les réactions sur les articles sélectionnés"
+
+msgid "Disable reactions on selected articles"
+msgstr "Désactiver les réactions sur les articles sélectionnés"

@@ -36,6 +36,7 @@ from .entities.comments import (
 )
 from .entities.navigation import Font, MenuLink, MenuLinkTranslation
 from .entities.pages import StandalonePage, StandalonePageTranslation
+from .entities.reactions import ArticleReactionVote
 from .entities.site import SiteConfiguration
 
 

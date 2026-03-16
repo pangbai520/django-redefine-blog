@@ -2267,3 +2267,24 @@ msgstr "Se omitió %(count)d selección duplicada porque solo puede fijarse un c
 
 msgid "Skipped %(count)d duplicate selections because only one comment can be pinned per page."
 msgstr "Se omitieron %(count)d selecciones duplicadas porque solo puede fijarse un comentario por página."
+
+msgid "What do you think?"
+msgstr "¿Qué te parece?"
+
+msgid "Enable article reactions"
+msgstr "Activar reacciones en los artículos"
+
+msgid "Show Waline-style reactions below articles. Individual articles can disable them."
+msgstr "Muestra reacciones al estilo de Waline debajo de los artículos. Se pueden desactivar en cada artículo."
+
+msgid "Article reaction vote"
+msgstr "Voto de reacción del artículo"
+
+msgid "Article reaction votes"
+msgstr "Votos de reacción de los artículos"
+
+msgid "Enable reactions on selected articles"
+msgstr "Activar reacciones en los artículos seleccionados"
+
+msgid "Disable reactions on selected articles"
+msgstr "Desactivar reacciones en los artículos seleccionados"

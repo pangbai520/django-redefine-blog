@@ -45,6 +45,7 @@ urlpatterns = [
     path("friends/", views.friends, name="friends"),
     path("", include("blog.routes.accounts")),
     path("", include("blog.routes.comments")),
+    path("", include("blog.routes.reactions")),
     # Keep this last: fixed application routes take precedence over custom pages.
     path("<str:slug>/", views.standalone_page, name="standalone_page"),
 ]

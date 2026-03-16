@@ -187,6 +187,7 @@ class SiteConfiguration(models.Model):
     sidebar_announcement = models.CharField(max_length=200, blank=True)
     sidebar_on_mobile = models.BooleanField(default=True)
     comment_enabled = models.BooleanField(default=False)
+    article_reaction_enabled = models.BooleanField(default=False)
     comment_system = models.CharField(
         max_length=20,
         choices=[

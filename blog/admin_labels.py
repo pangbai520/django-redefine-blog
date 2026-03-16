@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 MODEL_LABELS = {
     "ArticleModel": (_("Article"), _("Articles")),
+    "ArticleReactionVote": (_("Article reaction vote"), _("Article reaction votes")),
     "AudioTrack": (_("Audio track"), _("Audio tracks")),
     "BookmarkCategory": (_("Bookmark category"), _("Bookmark categories")),
     "Bookmark": (_("Bookmark"), _("Bookmarks")),
@@ -110,6 +111,7 @@ SITE_CONFIGURATION_FIELD_LABELS = {
     "sidebar_announcement": _("Sidebar announcement"),
     "sidebar_on_mobile": _("Show sidebar on mobile"),
     "comment_enabled": _("Enable comments"),
+    "article_reaction_enabled": _("Enable article reactions"),
     "comment_system": _("Comment provider"),
     "comment_require_login": _("Require sign-in to comment"),
     "comment_auto_approve": _("Approve new comments automatically"),
@@ -188,6 +190,9 @@ SITE_CONFIGURATION_FIELD_LABELS = {
 SITE_CONFIGURATION_HELP_TEXTS = {
     "site_keywords": _("Separate keywords with commas."),
     "colour_primary": _("Used by links, buttons, pagination, and status indicators."),
+    "article_reaction_enabled": _(
+        "Show Waline-style reactions below articles. Individual articles can disable them."
+    ),
     "navbar_lcolor": _("The navigation gradient is independent of the primary colour."),
     "navbar_rcolor": _("The navigation gradient is independent of the primary colour."),
     "navbar_transparency": _("Enter a value from 0 to 100."),

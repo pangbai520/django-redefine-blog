@@ -2227,5 +2227,26 @@ msgstr "頁面"
 msgid "Skipped %(count)d duplicate selection because only one comment can be pinned per page."
 msgstr "已略過 %(count)d 個重複選取，因為每個頁面只能置頂一則留言。"
 
+msgid "What do you think?"
+msgstr "你認為這篇文章怎麼樣？"
+
+msgid "Enable article reactions"
+msgstr "啟用文章反應"
+
+msgid "Show Waline-style reactions below articles. Individual articles can disable them."
+msgstr "在文章下方顯示 Waline 風格的反應；可為個別文章關閉。"
+
+msgid "Article reaction vote"
+msgstr "文章反應投票"
+
+msgid "Article reaction votes"
+msgstr "文章反應投票"
+
+msgid "Enable reactions on selected articles"
+msgstr "為所選文章啟用反應"
+
+msgid "Disable reactions on selected articles"
+msgstr "為所選文章關閉反應"
+
 msgid "Skipped %(count)d duplicate selections because only one comment can be pinned per page."
 msgstr "已略過 %(count)d 個重複選取，因為每個頁面只能置頂一則留言。"

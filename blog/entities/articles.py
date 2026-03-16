@@ -142,6 +142,7 @@ class ArticleModel(models.Model):
     )
     # override the site comment switch only for this article
     show_comment = models.BooleanField(default=True)
+    show_reaction = models.BooleanField(default=True)
 
     # cache counters; archive and footer pages should not render every article body
     word_counter = models.PositiveIntegerField(default=0, editable=False)

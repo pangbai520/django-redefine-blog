@@ -1,0 +1,96 @@
+/* ArticleReaction-compatible presentation. See https://waline.js.org/guide/features/reaction.html */
+.wl-reaction {
+  overflow: auto hidden;
+  margin-bottom: 1.75em;
+  text-align: center;
+  --waline-theme-color: var(--primary-color);
+  --waline-bg-color: var(--background-color);
+}
+
+.wl-reaction img {
+  width: 100%;
+  height: 100%;
+  transition: all 250ms ease-in-out;
+}
+
+.wl-reaction-title {
+  margin: 16px auto;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.wl-reaction-list {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  justify-content: center;
+  margin: 0;
+  padding: 8px;
+  list-style-type: none;
+}
+
+.wl-reaction-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.wl-reaction-item:hover img,
+.wl-reaction-item.active img {
+  transform: scale(1.15);
+}
+
+.wl-reaction-item:focus-visible {
+  outline: 2px solid var(--waline-theme-color);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.wl-reaction-img {
+  position: relative;
+  width: 42px;
+  height: 42px;
+}
+
+.wl-reaction-loading {
+  position: absolute;
+  inset-inline-end: -5px;
+  top: -4px;
+  width: 18px;
+  height: 18px;
+  color: var(--waline-theme-color);
+}
+
+.wl-reaction-votes {
+  position: absolute;
+  inset-inline-end: -9px;
+  top: -9px;
+  min-width: 1em;
+  padding: 2px;
+  border: 1px solid var(--waline-theme-color);
+  border-radius: 1em;
+  background: var(--waline-bg-color);
+  color: var(--waline-theme-color);
+  font-weight: 700;
+  font-size: .75em;
+  line-height: 1;
+}
+
+.wl-reaction-item.active .wl-reaction-votes {
+  background: var(--waline-theme-color);
+  color: var(--waline-bg-color);
+}
+
+.wl-reaction-text {
+  font-size: .875em;
+}
+
+.wl-reaction-item.active .wl-reaction-text {
+  color: var(--waline-theme-color);
+}
+
+@media (max-width: 580px) {
+  .wl-reaction-list { gap: 12px; }
+  .wl-reaction-img { width: 32px; height: 32px; }
+}

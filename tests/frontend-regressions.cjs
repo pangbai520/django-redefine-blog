@@ -20,6 +20,27 @@ const loadThemeState = (context) =>
     context,
   );
 
+test("article reactions keep Waline's default layout and vote behavior", () => {
+  const script = source("article-reaction.js");
+  const styles = readFileSync(
+    path.join(blogRoot, "static/css/article-reaction.css"),
+    "utf8",
+  );
+  const template = readFileSync(
+    path.join(blogRoot, "templates/components/comments/reaction.html"),
+    "utf8",
+  );
+
+  assert.match(script, /STORAGE_KEY = "WALINE_REACTION"/);
+  assert.match(script, /body: JSON\.stringify\(\{ index: index \}\)/);
+  assert.match(script, /delete reactions\[path\]/);
+  assert.equal((template.match(/class="wl-reaction-item"/g) || []).length, 6);
+  assert.match(template, /tieba_agree\.png/);
+  assert.match(template, /tieba_sleep\.png/);
+  assert.match(styles, /\.wl-reaction-item:hover img,[\s\S]*?transform: scale\(1\.15\)/);
+  assert.match(styles, /\.wl-reaction-img \{[\s\S]*?width: 42px;[\s\S]*?height: 42px;/);
+});
+
 test("standalone-page translation editors initialize existing and newly added inline rows", () => {
   const editor = source("admin/standalone-page-translations.js");
   const listeners = new Map();

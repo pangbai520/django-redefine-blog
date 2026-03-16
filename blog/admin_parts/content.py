@@ -35,6 +35,7 @@ class ArticleAdmin(admin.ModelAdmin):
         "reading_time",
         "view_count",
         "show_comment",
+        "show_reaction",
     )
     list_filter = ("is_published", "created_at", "category", "tags")
     search_fields = ("title", "slug", "writer", "excerpt", "content")
@@ -55,6 +56,8 @@ class ArticleAdmin(admin.ModelAdmin):
         "unpublish_articles",
         "enable_comments",
         "disable_comments",
+        "enable_reactions",
+        "disable_reactions",
     )
 
     @admin.display(description=_("Publication status"), ordering="is_published")
@@ -128,6 +131,16 @@ class ArticleAdmin(admin.ModelAdmin):
             )
             % {"count": updated},
         )
+
+    @admin.action(description=_("Enable reactions on selected articles"))
+    def enable_reactions(self, request, queryset):
+        queryset.update(show_reaction=True)
+        self.message_user(request, _("Enabled"))
+
+    @admin.action(description=_("Disable reactions on selected articles"))
+    def disable_reactions(self, request, queryset):
+        queryset.update(show_reaction=False)
+        self.message_user(request, _("Disabled"))
 
 
 @admin.register(AudioTrack)
