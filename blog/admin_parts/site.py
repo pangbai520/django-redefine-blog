@@ -178,6 +178,15 @@ class SiteConfigurationForm(forms.ModelForm):
             ]
         raw_config = self.instance.comment_config if self.instance.pk else {}
         raw_config = raw_config if isinstance(raw_config, dict) else {}
+        reaction_pack = self.fields.get("article_reaction_emoji_pack")
+        if reaction_pack is not None:
+            if self.instance.pk:
+                reaction_pack.queryset = CommentEmojiPack.objects.filter(
+                    config_id=self.instance.pk,
+                    enabled=True,
+                ).order_by("order", "id")
+            else:
+                reaction_pack.queryset = CommentEmojiPack.objects.none()
         for provider, fields in self.PROVIDER_FIELDS.items():
             options = raw_config.get(provider, {})
             if provider == self.instance.comment_system and not isinstance(
@@ -588,7 +597,11 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             {
                 "classes": ("collapse",),
                 "fields": (
-                    "article_reaction_enabled",
+                    (
+                        "article_reaction_enabled",
+                        "article_reaction_emoji_pack",
+                        "article_reaction_limit",
+                    ),
                     ("article_dateformat", "article_excerpt_length"),
                     ("article_categories_enabled", "article_categories_limit"),
                     ("counter_enabled", "show_word_counter", "show_reading_time"),

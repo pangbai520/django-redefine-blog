@@ -2,13 +2,20 @@ from pathlib import Path
 from unittest.mock import patch
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
 from django.utils import translation
 
 from blog.management.commands.install_ip_geolocation import DATABASES
-from blog.models import ArticleModel, ArticleReactionVote, SiteConfiguration
+from blog.models import (
+    ArticleModel,
+    ArticleReactionVote,
+    CommentEmoji,
+    CommentEmojiPack,
+    SiteConfiguration,
+)
 from blog.services.geo import get_ip_location
 
 
@@ -63,6 +70,57 @@ class ArticleReactionTests(TestCase):
         )
         self.assertEqual(cancelled.json(), {"counts": [0, 0, 0, 0, 0, 0], "active": None})
         self.assertFalse(ArticleReactionVote.objects.exists())
+
+    def test_pack_customization(self):
+        pack = CommentEmojiPack.objects.create(
+            config=self.site,
+            name="Bilibili",
+        )
+        for index in range(3):
+            CommentEmoji.objects.create(
+                pack=pack,
+                name=f"Bili {index}",
+                image_url=f"https://example.com/bili-{index}.png",
+                order=index,
+            )
+        self.site.article_reaction_emoji_pack = pack
+        self.site.article_reaction_limit = 2
+        self.site.save()
+
+        response = self.client.get(reverse("article", args=[self.article.slug]))
+        self.assertContains(response, "https://example.com/bili-0.png")
+        self.assertContains(response, "https://example.com/bili-1.png")
+        self.assertNotContains(response, "https://example.com/bili-2.png")
+        self.assertNotContains(response, "tieba_agree.png")
+
+        counts = self.client.get(self.url)
+        self.assertEqual(counts.json()["counts"], [0, 0])
+        invalid = self.client.post(
+            self.url,
+            data='{"index": 2}',
+            content_type="application/json",
+        )
+        self.assertEqual(invalid.status_code, 400)
+
+    def test_vote_audit(self):
+        user = get_user_model().objects.create_user(
+            username="reaction-user",
+            password="not-used",
+        )
+        self.client.force_login(user)
+        self.client.get(self.url)
+        self.client.post(
+            self.url,
+            data='{"index": 1}',
+            content_type="application/json",
+            REMOTE_ADDR="2001:db8::42",
+            HTTP_USER_AGENT="Reaction browser",
+        )
+
+        vote = ArticleReactionVote.objects.get()
+        self.assertEqual(vote.user, user)
+        self.assertEqual(vote.ip_address, "2001:db8::42")
+        self.assertEqual(vote.user_agent, "Reaction browser")
 
     def test_browser_counts(self):
         self.client.get(self.url)

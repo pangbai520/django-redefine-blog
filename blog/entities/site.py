@@ -4,6 +4,7 @@ from functools import cached_property
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
@@ -188,6 +189,17 @@ class SiteConfiguration(models.Model):
     sidebar_on_mobile = models.BooleanField(default=True)
     comment_enabled = models.BooleanField(default=False)
     article_reaction_enabled = models.BooleanField(default=False)
+    article_reaction_emoji_pack = models.ForeignKey(
+        "blog.CommentEmojiPack",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="reaction_sites",
+    )
+    article_reaction_limit = models.PositiveSmallIntegerField(
+        default=6,
+        validators=[MinValueValidator(1), MaxValueValidator(9)],
+    )
     comment_system = models.CharField(
         max_length=20,
         choices=[
@@ -508,6 +520,31 @@ class SiteConfiguration(models.Model):
     def server_comment_options(self):
         """Return provider credentials for trusted server-side code."""
         return self._comment_opts(secrets=True)
+
+    @property
+    def article_reaction_options(self):
+        """Return Waline-compatible reaction icons for the active site."""
+        if self.article_reaction_emoji_pack_id:
+            from blog.models import CommentEmoji
+
+            items = CommentEmoji.objects.filter(
+                pack_id=self.article_reaction_emoji_pack_id
+            ).order_by("order", "id")[: self.article_reaction_limit]
+            options = [
+                {"image_url": item.image_url, "name": item.name} for item in items
+            ]
+            if options:
+                return options
+
+        urls = (
+            "https://unpkg.com/@waline/emojis/tieba/tieba_agree.png",
+            "https://unpkg.com/@waline/emojis/tieba/tieba_look_down.png",
+            "https://unpkg.com/@waline/emojis/tieba/tieba_sunglasses.png",
+            "https://unpkg.com/@waline/emojis/tieba/tieba_pick_nose.png",
+            "https://unpkg.com/@waline/emojis/tieba/tieba_awkward.png",
+            "https://unpkg.com/@waline/emojis/tieba/tieba_sleep.png",
+        )
+        return [{"image_url": url, "name": ""} for url in urls]
 
     @property
     def social_layout(self):

@@ -2225,6 +2225,31 @@ msgstr "页面"
 msgid "Skipped %(count)d duplicate selection because only one comment can be pinned per page."
 msgstr "已跳过 %(count)d 个重复选择，因为每个页面只能置顶一条评论。"
 
+msgid "Article reaction emoji pack"
+msgstr "文章反馈表情包"
+
+msgid "Article reaction count"
+msgstr "文章反馈数量"
+
+msgid "Choose an existing comment emoji pack, such as Bilibili. Leave empty to use Waline's default Tieba reactions."
+msgstr "选择已有的评论表情包，例如 Bilibili；留空则使用 Waline 默认的贴吧表情。"
+
+msgid "Use the first 1 to 9 emoji in the selected pack, following its configured order."
+msgstr "按照表情包中配置的顺序，使用前 1 至 9 个表情。"
+
+msgid "Reaction"
+msgstr "反馈"
+
+msgid "Visitor"
+msgstr "访客"
+
+#, python-format
+msgid "Anonymous browser %(identifier)s"
+msgstr "匿名浏览器 %(identifier)s"
+
+msgid "IP address / location"
+msgstr "IP 地址 / 归属地"
+
 msgid "What do you think?"
 msgstr "你认为这篇文章怎么样？"
 

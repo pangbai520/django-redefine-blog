@@ -8,56 +8,17 @@
        data-path="{{ request.path }}">
     <div class="wl-reaction-title">{% translate "What do you think?" %}</div>
     <ul class="wl-reaction-list">
-      <li class="wl-reaction-item" data-reaction-index="0">
+      {% for option in site.article_reaction_options %}
+      <li class="wl-reaction-item" data-reaction-index="{{ forloop.counter0 }}">
         <div class="wl-reaction-img">
-          <img src="https://unpkg.com/@waline/emojis/tieba/tieba_agree.png" alt="">
+          <img src="{{ option.image_url }}" alt="{{ option.name }}">
           <svg class="wl-reaction-loading" hidden aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><circle cx="50" cy="50" fill="none" stroke="currentColor" stroke-width="4" r="40" stroke-dasharray="85 30"><animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform></circle></svg>
           <div class="wl-reaction-votes">0</div>
         </div>
-        <div class="wl-reaction-text"></div>
+        <div class="wl-reaction-text">{{ option.name }}</div>
       </li>
-      <li class="wl-reaction-item" data-reaction-index="1">
-        <div class="wl-reaction-img">
-          <img src="https://unpkg.com/@waline/emojis/tieba/tieba_look_down.png" alt="">
-          <svg class="wl-reaction-loading" hidden aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><circle cx="50" cy="50" fill="none" stroke="currentColor" stroke-width="4" r="40" stroke-dasharray="85 30"><animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform></circle></svg>
-          <div class="wl-reaction-votes">0</div>
-        </div>
-        <div class="wl-reaction-text"></div>
-      </li>
-      <li class="wl-reaction-item" data-reaction-index="2">
-        <div class="wl-reaction-img">
-          <img src="https://unpkg.com/@waline/emojis/tieba/tieba_sunglasses.png" alt="">
-          <svg class="wl-reaction-loading" hidden aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><circle cx="50" cy="50" fill="none" stroke="currentColor" stroke-width="4" r="40" stroke-dasharray="85 30"><animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform></circle></svg>
-          <div class="wl-reaction-votes">0</div>
-        </div>
-        <div class="wl-reaction-text"></div>
-      </li>
-      <li class="wl-reaction-item" data-reaction-index="3">
-        <div class="wl-reaction-img">
-          <img src="https://unpkg.com/@waline/emojis/tieba/tieba_pick_nose.png" alt="">
-          <svg class="wl-reaction-loading" hidden aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><circle cx="50" cy="50" fill="none" stroke="currentColor" stroke-width="4" r="40" stroke-dasharray="85 30"><animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform></circle></svg>
-          <div class="wl-reaction-votes">0</div>
-        </div>
-        <div class="wl-reaction-text"></div>
-      </li>
-      <li class="wl-reaction-item" data-reaction-index="4">
-        <div class="wl-reaction-img">
-          <img src="https://unpkg.com/@waline/emojis/tieba/tieba_awkward.png" alt="">
-          <svg class="wl-reaction-loading" hidden aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><circle cx="50" cy="50" fill="none" stroke="currentColor" stroke-width="4" r="40" stroke-dasharray="85 30"><animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform></circle></svg>
-          <div class="wl-reaction-votes">0</div>
-        </div>
-        <div class="wl-reaction-text"></div>
-      </li>
-      <li class="wl-reaction-item" data-reaction-index="5">
-        <div class="wl-reaction-img">
-          <img src="https://unpkg.com/@waline/emojis/tieba/tieba_sleep.png" alt="">
-          <svg class="wl-reaction-loading" hidden aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><circle cx="50" cy="50" fill="none" stroke="currentColor" stroke-width="4" r="40" stroke-dasharray="85 30"><animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform></circle></svg>
-          <div class="wl-reaction-votes">0</div>
-        </div>
-        <div class="wl-reaction-text"></div>
-      </li>
+      {% endfor %}
     </ul>
   </div>
 </div>
 <script src="{% static 'js/article-reaction.js' %}" defer data-swup-reload-script></script>
-

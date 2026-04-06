@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _, ngettext
 
 from blog.models import (
     ArticleModel,
+    ArticleReactionVote,
     AudioTrack,
     Bookmark,
     BookmarkCategory,
@@ -14,9 +15,11 @@ from blog.models import (
     FriendCategory,
     FriendLink,
     MasonryImage,
+    SiteConfiguration,
     Tag,
     TrafficModel,
 )
+from blog.services.geo import get_ip_location
 
 
 @admin.register(ArticleModel)
@@ -141,6 +144,72 @@ class ArticleAdmin(admin.ModelAdmin):
     def disable_reactions(self, request, queryset):
         queryset.update(show_reaction=False)
         self.message_user(request, _("Disabled"))
+
+
+@admin.register(ArticleReactionVote)
+class ArticleReactionVoteAdmin(admin.ModelAdmin):
+    list_display = (
+        "article",
+        "reaction_preview",
+        "viewer",
+        "source",
+        "updated_at",
+    )
+    list_filter = ("reaction", "updated_at")
+    search_fields = (
+        "article__title",
+        "user__username",
+        "ip_address",
+        "visitor",
+        "user_agent",
+    )
+    readonly_fields = (
+        "article",
+        "reaction",
+        "user",
+        "ip_address",
+        "user_agent",
+        "visitor",
+        "updated_at",
+    )
+    ordering = ("-updated_at",)
+    date_hierarchy = "updated_at"
+    list_select_related = ("article", "user")
+
+    @admin.display(description=_("Reaction"), ordering="reaction")
+    def reaction_preview(self, obj):
+        options = SiteConfiguration.get_config().article_reaction_options
+        if obj.reaction >= len(options):
+            return f"#{obj.reaction + 1}"
+        option = options[obj.reaction]
+        return format_html(
+            '<span class="admin-reaction-preview"><img src="{}" alt=""> {}</span>',
+            option["image_url"],
+            option["name"] or f"#{obj.reaction + 1}",
+        )
+
+    @admin.display(description=_("Visitor"), ordering="user__username")
+    def viewer(self, obj):
+        if obj.user_id:
+            return obj.user.get_username()
+        return _("Anonymous browser %(identifier)s") % {
+            "identifier": obj.visitor[:10]
+        }
+
+    @admin.display(description=_("IP address / location"), ordering="ip_address")
+    def source(self, obj):
+        if not obj.ip_address:
+            return "-"
+        location = get_ip_location(obj.ip_address)
+        if location:
+            return f"{location} ({obj.ip_address})"
+        return obj.ip_address
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(AudioTrack)

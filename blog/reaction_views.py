@@ -8,12 +8,12 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 
 from .models import ArticleModel, ArticleReactionVote, SiteConfiguration
+from .middleware import get_client_ip
 from .services.throttle import rate_limited
 
 COOKIE_NAME = "article_reaction_id"
 COOKIE_SALT = "blog.article-reaction"
 COOKIE_AGE = 60 * 60 * 24 * 365
-REACTION_COUNT = 6
 
 
 def _visitor(request):
@@ -28,16 +28,16 @@ def _visitor(request):
     return secrets.token_urlsafe(32), True
 
 
-def _counts(article):
+def _counts(article, size):
     rows = (
         article.reaction_votes.values("reaction")
         .annotate(total=Count("id"))
         .order_by()
     )
-    counts = [0] * REACTION_COUNT
+    counts = [0] * size
     for row in rows:
         index = row["reaction"]
-        if index < REACTION_COUNT:
+        if index < size:
             counts[index] = row["total"]
     return counts
 
@@ -70,6 +70,7 @@ def article_reactions(request, slug):
 
     token, is_new = _visitor(request)
     visitor = ArticleReactionVote.visitor_hash(token)
+    reaction_count = len(site.article_reaction_options)
 
     if request.method == "POST":
         if rate_limited(request, "article-reaction", limit=60, period=60):
@@ -93,7 +94,7 @@ def article_reactions(request, slug):
                 is_new,
                 status=400,
             )
-        if index < 0 or index >= REACTION_COUNT:
+        if index < 0 or index >= reaction_count:
             return _response(
                 {"detail": "Invalid reaction."},
                 request,
@@ -116,13 +117,27 @@ def article_reactions(request, slug):
                 active = None
             elif vote:
                 vote.reaction = index
-                vote.save(update_fields=("reaction", "updated_at"))
+                vote.user = request.user if request.user.is_authenticated else None
+                vote.ip_address = get_client_ip(request)
+                vote.user_agent = request.headers.get("User-Agent", "")[:255]
+                vote.save(
+                    update_fields=(
+                        "reaction",
+                        "user",
+                        "ip_address",
+                        "user_agent",
+                        "updated_at",
+                    )
+                )
                 active = index
             else:
                 ArticleReactionVote.objects.create(
                     article=article,
                     visitor=visitor,
                     reaction=index,
+                    user=request.user if request.user.is_authenticated else None,
+                    ip_address=get_client_ip(request),
+                    user_agent=request.headers.get("User-Agent", "")[:255],
                 )
                 active = index
     else:
@@ -133,7 +148,7 @@ def article_reactions(request, slug):
         )
 
     return _response(
-        {"counts": _counts(article), "active": active},
+        {"counts": _counts(article, reaction_count), "active": active},
         request,
         token,
         is_new,

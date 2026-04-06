@@ -2288,3 +2288,28 @@ msgstr "Activar reacciones en los artículos seleccionados"
 
 msgid "Disable reactions on selected articles"
 msgstr "Desactivar reacciones en los artículos seleccionados"
+
+msgid "Article reaction emoji pack"
+msgstr "Paquete de emojis para reacciones del artículo"
+
+msgid "Article reaction count"
+msgstr "Cantidad de reacciones del artículo"
+
+msgid "Choose an existing comment emoji pack, such as Bilibili. Leave empty to use Waline's default Tieba reactions."
+msgstr "Elige un paquete de emojis existente, como Bilibili. Déjalo vacío para usar las reacciones Tieba predeterminadas de Waline."
+
+msgid "Use the first 1 to 9 emoji in the selected pack, following its configured order."
+msgstr "Usa los primeros 1 a 9 emojis del paquete seleccionado según el orden configurado."
+
+msgid "Reaction"
+msgstr "Reacción"
+
+msgid "Visitor"
+msgstr "Visitante"
+
+#, python-format
+msgid "Anonymous browser %(identifier)s"
+msgstr "Navegador anónimo %(identifier)s"
+
+msgid "IP address / location"
+msgstr "Dirección IP / ubicación"

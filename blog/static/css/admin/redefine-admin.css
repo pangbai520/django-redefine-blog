@@ -645,6 +645,18 @@ html[data-theme="dark"] .admin-status-active {
   color: #55d6a5;
 }
 
+.admin-reaction-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.admin-reaction-preview img {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+}
+
 .redefine-dashboard-heading {
   display: flex;
   align-items: baseline;

@@ -2227,6 +2227,31 @@ msgstr "ページ"
 msgid "Skipped %(count)d duplicate selection because only one comment can be pinned per page."
 msgstr "各ページで固定できるコメントは一件だけのため、重複した %(count)d 件を除外しました。"
 
+msgid "Article reaction emoji pack"
+msgstr "記事リアクション絵文字パック"
+
+msgid "Article reaction count"
+msgstr "記事リアクション数"
+
+msgid "Choose an existing comment emoji pack, such as Bilibili. Leave empty to use Waline's default Tieba reactions."
+msgstr "Bilibili など既存のコメント絵文字パックを選択します。空欄の場合は Waline 既定の Tieba リアクションを使用します。"
+
+msgid "Use the first 1 to 9 emoji in the selected pack, following its configured order."
+msgstr "設定された順序に従い、選択したパックの先頭 1～9 個の絵文字を使用します。"
+
+msgid "Reaction"
+msgstr "リアクション"
+
+msgid "Visitor"
+msgstr "訪問者"
+
+#, python-format
+msgid "Anonymous browser %(identifier)s"
+msgstr "匿名ブラウザー %(identifier)s"
+
+msgid "IP address / location"
+msgstr "IP アドレス / 所在地"
+
 msgid "What do you think?"
 msgstr "この記事をどう思いますか？"
 

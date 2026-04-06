@@ -2409,9 +2409,6 @@ html.is-animating .transition-navbar {
 .post-tools-container .article-tools-list li:hover {
   box-shadow: var(--redefine-box-shadow-hover);
 }
-.post-tools-container .article-tools-list li.page-aside-toggle {
-  display: none;
-}
 @media (max-width: 768px) {
   .post-tools-container .article-tools-list li.page-aside-toggle {
     display: none !important;

@@ -1,7 +1,7 @@
 <div class="post-tools-container">
 	<ul class="article-tools-list">
 		<!-- keep the TOC toggle in page tools, so it follows the original desktop layout -->
-		{% if site.toc_enabled %}
+		{% if site.toc_enabled and article.toc %}
         <li class="right-bottom-tools page-aside-toggle">
 			<i class="fa-regular fa-outdent"></i>
 		</li>

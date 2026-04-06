@@ -1,5 +1,6 @@
 import hashlib
 
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -14,6 +15,15 @@ class ArticleReactionVote(models.Model):
     )
     visitor = models.CharField(max_length=64)
     reaction = models.PositiveSmallIntegerField()
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="article_reaction_votes",
+    )
+    ip_address = models.GenericIPAddressField(blank=True, null=True, db_index=True)
+    user_agent = models.CharField(max_length=255, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

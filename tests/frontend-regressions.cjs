@@ -34,11 +34,26 @@ test("article reactions keep Waline's default layout and vote behavior", () => {
   assert.match(script, /STORAGE_KEY = "WALINE_REACTION"/);
   assert.match(script, /body: JSON\.stringify\(\{ index: index \}\)/);
   assert.match(script, /delete reactions\[path\]/);
-  assert.equal((template.match(/class="wl-reaction-item"/g) || []).length, 6);
-  assert.match(template, /tieba_agree\.png/);
-  assert.match(template, /tieba_sleep\.png/);
+  assert.match(template, /for option in site\.article_reaction_options/);
+  assert.match(template, /class="wl-reaction-item"/);
+  assert.match(template, /option\.image_url/);
   assert.match(styles, /\.wl-reaction-item:hover img,[\s\S]*?transform: scale\(1\.15\)/);
   assert.match(styles, /\.wl-reaction-img \{[\s\S]*?width: 42px;[\s\S]*?height: 42px;/);
+});
+
+test("TOC toggle is visible on desktop and hidden where the TOC itself is hidden", () => {
+  const styles = readFileSync(path.join(blogRoot, "static/css/style.css"), "utf8");
+  const tools = readFileSync(
+    path.join(blogRoot, "templates/pages/post/post-tools.html"),
+    "utf8",
+  );
+
+  assert.doesNotMatch(
+    styles,
+    /\.post-tools-container \.article-tools-list li\.page-aside-toggle \{\s*display: none;\s*\}/,
+  );
+  assert.match(styles, /@media \(max-width: 768px\)[\s\S]*?page-aside-toggle[\s\S]*?display: none !important/);
+  assert.match(tools, /site\.toc_enabled and article\.toc/);
 });
 
 test("standalone-page translation editors initialize existing and newly added inline rows", () => {
