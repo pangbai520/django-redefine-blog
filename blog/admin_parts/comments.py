@@ -22,7 +22,7 @@ from .forms import UniqueLanguageInlineFormSet
 class CommentEmojiInline(admin.TabularInline):
     model = CommentEmoji
     extra = 0
-    fields = ("name", "image_url", "order")
+    fields = ("name", "image_url", "reaction_order", "order")
 
 
 @admin.register(Comment)
@@ -239,7 +239,8 @@ class CommentEmojiPackAdmin(admin.ModelAdmin):
 
 @admin.register(CommentEmoji)
 class CommentEmojiAdmin(admin.ModelAdmin):
-    list_display = ("name", "pack", "order")
+    list_display = ("name", "pack", "reaction_order", "order")
+    list_editable = ("reaction_order", "order")
     list_filter = ("pack",)
     search_fields = ("name", "image_url", "pack__name")
     list_select_related = ("pack",)

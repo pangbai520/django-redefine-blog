@@ -113,7 +113,6 @@ SITE_CONFIGURATION_FIELD_LABELS = {
     "comment_enabled": _("Enable comments"),
     "article_reaction_enabled": _("Enable article reactions"),
     "article_reaction_emoji_pack": _("Article reaction emoji pack"),
-    "article_reaction_limit": _("Article reaction count"),
     "comment_system": _("Comment provider"),
     "comment_require_login": _("Require sign-in to comment"),
     "comment_auto_approve": _("Approve new comments automatically"),
@@ -197,10 +196,8 @@ SITE_CONFIGURATION_HELP_TEXTS = {
     ),
     "article_reaction_emoji_pack": _(
         "Choose an existing comment emoji pack, such as Bilibili. "
+        "Then assign slots 1 to 9 to the exact emoji in Comment emojis. "
         "Leave empty to use Waline's default Tieba reactions."
-    ),
-    "article_reaction_limit": _(
-        "Use the first 1 to 9 emoji in the selected pack, following its configured order."
     ),
     "navbar_lcolor": _("The navigation gradient is independent of the primary colour."),
     "navbar_rcolor": _("The navigation gradient is independent of the primary colour."),

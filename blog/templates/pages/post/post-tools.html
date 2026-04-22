@@ -1,9 +1,12 @@
+{% load i18n %}
 <div class="post-tools-container">
 	<ul class="article-tools-list">
 		<!-- keep the TOC toggle in page tools, so it follows the original desktop layout -->
 		{% if site.toc_enabled and article.toc %}
         <li class="right-bottom-tools page-aside-toggle">
-			<i class="fa-regular fa-outdent"></i>
+			<button type="button" class="page-aside-toggle-button" aria-label="{% translate 'Toggle table of contents' %}" aria-expanded="false">
+				<i class="fa-regular fa-outdent" aria-hidden="true"></i>
+			</button>
 		</li>
         {% endif %}
 

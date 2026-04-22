@@ -37,6 +37,7 @@ test("article reactions keep Waline's default layout and vote behavior", () => {
   assert.match(template, /for option in site\.article_reaction_options/);
   assert.match(template, /class="wl-reaction-item"/);
   assert.match(template, /option\.image_url/);
+  assert.match(template, /referrerpolicy="no-referrer"/);
   assert.match(styles, /\.wl-reaction-item:hover img,[\s\S]*?transform: scale\(1\.15\)/);
   assert.match(styles, /\.wl-reaction-img \{[\s\S]*?width: 42px;[\s\S]*?height: 42px;/);
 });
@@ -54,6 +55,8 @@ test("TOC toggle is visible on desktop and hidden where the TOC itself is hidden
   );
   assert.match(styles, /@media \(max-width: 768px\)[\s\S]*?page-aside-toggle[\s\S]*?display: none !important/);
   assert.match(tools, /site\.toc_enabled and article\.toc/);
+  assert.match(tools, /button type="button" class="page-aside-toggle-button"/);
+  assert.match(styles, /\.page-container \.post-tools \{[\s\S]*?z-index: 1005;/);
 });
 
 test("standalone-page translation editors initialize existing and newly added inline rows", () => {
@@ -325,6 +328,47 @@ class Element {
     return [];
   }
 }
+
+test("TOC toggle uses one real button listener and changes the article layout", () => {
+  const button = new Element();
+  const icon = new Element(["fa-regular", "fa-outdent"]);
+  const bar = new Element(["page-aside-toggle"]);
+  bar.querySelector = (selector) =>
+    selector === ".page-aside-toggle-button" ? button : null;
+  const post = new Element(["post-page-container"]);
+  const main = new Element(["main-content"]);
+  const document = {
+    querySelector: (selector) =>
+      ({
+        ".page-aside-toggle": bar,
+        ".page-aside-toggle i": icon,
+        ".post-page-container": post,
+        ".article-content-container": new Element(),
+        ".main-content": main,
+      })[selector] || null,
+  };
+  const styleStatus = { isOpenPageAside: false };
+  const context = vm.createContext({
+    document,
+    AbortController,
+    styleStatus,
+    setStyleStatus() {},
+  });
+  vm.runInContext(
+    withoutImports(source("tools/tocToggle.js")).replace(
+      "export function initTocToggle",
+      "function initTocToggle",
+    ),
+    context,
+  );
+  context.initTocToggle();
+  context.initTocToggle();
+  assert.equal(button.listeners.get("click").size, 1);
+  button.emit("click");
+  assert.equal(post.classList.contains("show-toc"), true);
+  assert.equal(main.classList.contains("has-toc"), true);
+  assert.equal(button.getAttribute("aria-expanded"), "true");
+});
 
 function searchFixture(fetch) {
   const input = new Element();

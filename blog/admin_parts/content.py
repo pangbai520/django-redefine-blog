@@ -183,7 +183,7 @@ class ArticleReactionVoteAdmin(admin.ModelAdmin):
             return f"#{obj.reaction + 1}"
         option = options[obj.reaction]
         return format_html(
-            '<span class="admin-reaction-preview"><img src="{}" alt=""> {}</span>',
+            '<span class="admin-reaction-preview"><img src="{}" alt="" referrerpolicy="no-referrer" loading="lazy"> {}</span>',
             option["image_url"],
             option["name"] or f"#{obj.reaction + 1}",
         )

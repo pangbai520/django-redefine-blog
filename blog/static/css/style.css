@@ -2393,6 +2393,16 @@ html.is-animating .transition-navbar {
   transition-duration: 0.2s, 0.2s, 0.2s, 0.2s, 0.2s;
   transition-timing-function: ease, ease, ease, ease, linear;
 }
+.post-tools-container .page-aside-toggle-button {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
 .post-tools-container .article-tools-list li i {
   color: var(--default-text-color);
 }
@@ -5457,6 +5467,7 @@ div.tabs .tab-content .tab-pane .note:last-child {
   position: fixed;
   top: 108px;
   right: 38px;
+  z-index: 1005;
   transition-property: color, background, box-shadow, border-color, top;
   transition-delay: 0s, 0s, 0s, 0s, 0s;
   transition-duration: 0.2s, 0.2s, 0.2s, 0.2s, 0.2s;

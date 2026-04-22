@@ -4,7 +4,6 @@ from functools import cached_property
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
@@ -195,10 +194,6 @@ class SiteConfiguration(models.Model):
         blank=True,
         null=True,
         related_name="reaction_sites",
-    )
-    article_reaction_limit = models.PositiveSmallIntegerField(
-        default=6,
-        validators=[MinValueValidator(1), MaxValueValidator(9)],
     )
     comment_system = models.CharField(
         max_length=20,
@@ -521,15 +516,18 @@ class SiteConfiguration(models.Model):
         """Return provider credentials for trusted server-side code."""
         return self._comment_opts(secrets=True)
 
-    @property
+    @cached_property
     def article_reaction_options(self):
         """Return Waline-compatible reaction icons for the active site."""
-        if self.article_reaction_emoji_pack_id:
+        if self.pk and self.article_reaction_emoji_pack_id:
             from blog.models import CommentEmoji
 
             items = CommentEmoji.objects.filter(
-                pack_id=self.article_reaction_emoji_pack_id
-            ).order_by("order", "id")[: self.article_reaction_limit]
+                pack_id=self.article_reaction_emoji_pack_id,
+                pack__config_id=self.pk,
+                pack__enabled=True,
+                reaction_order__isnull=False,
+            ).order_by("reaction_order", "id")
             options = [
                 {"image_url": item.image_url, "name": item.name} for item in items
             ]
@@ -651,6 +649,15 @@ class SiteConfiguration(models.Model):
             errors["icp_number"] = (
                 "An ICP number is required when ICP information is enabled."
             )
+        if self.article_reaction_emoji_pack_id and self.pk:
+            valid_pack = self.comment_emoji_packs.filter(
+                pk=self.article_reaction_emoji_pack_id,
+                enabled=True,
+            ).exists()
+            if not valid_pack:
+                errors["article_reaction_emoji_pack"] = (
+                    "请选择属于当前站点且已启用的表情包。"
+                )
 
         ranges = {
             "navbar_transparency": (0, 100),

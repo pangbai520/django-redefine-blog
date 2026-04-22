@@ -2275,3 +2275,15 @@ msgstr "為所選文章關閉反應"
 
 msgid "Skipped %(count)d duplicate selections because only one comment can be pinned per page."
 msgstr "已略過 %(count)d 個重複選取，因為每個頁面只能置頂一則留言。"
+
+msgid "Toggle table of contents"
+msgstr "展開或收合目錄"
+
+msgid "Article reaction slot"
+msgstr "文章反應位置"
+
+msgid "Set a unique slot from 1 to 9, or leave empty to hide it."
+msgstr "填寫不重複的 1 至 9；留空則不會在文章反應中顯示。"
+
+msgid "Choose an existing comment emoji pack, such as Bilibili. Then assign slots 1 to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's default Tieba reactions."
+msgstr "選擇既有的留言表情包（例如 Bilibili），再到「留言表情」為需要的表情分配 1 至 9 的位置。留空則使用 Waline 預設的貼吧反應。"

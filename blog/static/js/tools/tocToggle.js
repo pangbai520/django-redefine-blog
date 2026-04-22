@@ -7,6 +7,7 @@ let tocToggleController = null;
 
 export function initTocToggle() {
   const toggleBar = document.querySelector(".page-aside-toggle");
+  const toggleButton = toggleBar?.querySelector(".page-aside-toggle-button");
   if (activeTocToggle?.toggleBar === toggleBar) return activeTocToggle;
 
   tocToggleController?.abort();
@@ -15,6 +16,7 @@ export function initTocToggle() {
 
   const TocToggle = {
     toggleBar,
+    toggleButton,
     postPageContainerDom: document.querySelector(".post-page-container"),
     toggleBarIcon: document.querySelector(".page-aside-toggle i"),
     articleContentContainerDom: document.querySelector(
@@ -25,8 +27,8 @@ export function initTocToggle() {
     isOpenPageAside: false,
 
     initToggleBarButton() {
-      this.toggleBar &&
-        this.toggleBar.addEventListener("click", () => {
+      this.toggleButton &&
+        this.toggleButton.addEventListener("click", () => {
           this.isOpenPageAside = !this.isOpenPageAside;
           styleStatus.isOpenPageAside = this.isOpenPageAside;
           setStyleStatus();
@@ -45,6 +47,7 @@ export function initTocToggle() {
       this.toggleClassName(this.toggleBarIcon, "fa-outdent", !isOpen);
       this.toggleClassName(this.postPageContainerDom, "show-toc", isOpen);
       this.toggleClassName(this.mainContentDom, "has-toc", isOpen);
+      this.toggleButton?.setAttribute("aria-expanded", String(isOpen));
     },
 
     pageAsideHandleOfTOC(isOpen) {

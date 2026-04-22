@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib import messages
 from django import forms
+from django.db.models import Q
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from ..admin_labels import (
@@ -181,9 +182,17 @@ class SiteConfigurationForm(forms.ModelForm):
         reaction_pack = self.fields.get("article_reaction_emoji_pack")
         if reaction_pack is not None:
             if self.instance.pk:
-                reaction_pack.queryset = CommentEmojiPack.objects.filter(
+                pack_query = Q(
                     config_id=self.instance.pk,
                     enabled=True,
+                )
+                if self.instance.article_reaction_emoji_pack_id:
+                    pack_query |= Q(
+                        pk=self.instance.article_reaction_emoji_pack_id,
+                        config_id=self.instance.pk,
+                    )
+                reaction_pack.queryset = CommentEmojiPack.objects.filter(
+                    pack_query
                 ).order_by("order", "id")
             else:
                 reaction_pack.queryset = CommentEmojiPack.objects.none()
@@ -600,7 +609,6 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
                     (
                         "article_reaction_enabled",
                         "article_reaction_emoji_pack",
-                        "article_reaction_limit",
                     ),
                     ("article_dateformat", "article_excerpt_length"),
                     ("article_categories_enabled", "article_categories_limit"),

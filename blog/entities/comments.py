@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
@@ -337,10 +338,31 @@ class CommentEmoji(models.Model):
     )
     name = models.CharField(max_length=80)
     image_url = models.URLField()
+    reaction_order = models.PositiveSmallIntegerField(
+        _("Article reaction slot"),
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1), MaxValueValidator(9)],
+        help_text=_("Set a unique slot from 1 to 9, or leave empty to hide it."),
+    )
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ("order", "id")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("pack", "reaction_order"),
+                condition=Q(reaction_order__isnull=False),
+                name="unique_reaction_slot_per_pack",
+            ),
+            models.CheckConstraint(
+                condition=(
+                    Q(reaction_order__isnull=True)
+                    | Q(reaction_order__gte=1, reaction_order__lte=9)
+                ),
+                name="comment_emoji_reaction_slot_range",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.pack.name}: {self.name}"

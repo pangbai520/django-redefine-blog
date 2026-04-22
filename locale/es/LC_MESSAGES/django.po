@@ -2313,3 +2313,15 @@ msgstr "Navegador anónimo %(identifier)s"
 
 msgid "IP address / location"
 msgstr "Dirección IP / ubicación"
+
+msgid "Toggle table of contents"
+msgstr "Mostrar u ocultar la tabla de contenido"
+
+msgid "Article reaction slot"
+msgstr "Posición de reacción del artículo"
+
+msgid "Set a unique slot from 1 to 9, or leave empty to hide it."
+msgstr "Asigna una posición única del 1 al 9 o déjala vacía para ocultarla."
+
+msgid "Choose an existing comment emoji pack, such as Bilibili. Then assign slots 1 to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's default Tieba reactions."
+msgstr "Elige un paquete de emojis, como Bilibili, y asigna posiciones del 1 al 9 a los emojis exactos. Déjalo vacío para usar las reacciones de Tieba predeterminadas de Waline."

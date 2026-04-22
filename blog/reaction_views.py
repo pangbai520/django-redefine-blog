@@ -1,6 +1,7 @@
 import json
 import secrets
 
+from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Count
 from django.http import JsonResponse
@@ -14,6 +15,8 @@ from .services.throttle import rate_limited
 COOKIE_NAME = "article_reaction_id"
 COOKIE_SALT = "blog.article-reaction"
 COOKIE_AGE = 60 * 60 * 24 * 365
+MAX_BODY_SIZE = 1024
+COUNT_CACHE_SECONDS = 10
 
 
 def _visitor(request):
@@ -29,6 +32,11 @@ def _visitor(request):
 
 
 def _counts(article, size):
+    key = f"article-reactions:{article.pk}:counts"
+    saved = cache.get(key)
+    if isinstance(saved, list) and len(saved) == size:
+        return saved
+
     rows = (
         article.reaction_votes.values("reaction")
         .annotate(total=Count("id"))
@@ -39,12 +47,13 @@ def _counts(article, size):
         index = row["reaction"]
         if index < size:
             counts[index] = row["total"]
+    cache.set(key, counts, COUNT_CACHE_SECONDS)
     return counts
 
 
 def _response(payload, request, token, is_new, *, status=200):
     response = JsonResponse(payload, status=status)
-    if is_new:
+    if is_new and request.method == "POST":
         response.set_signed_cookie(
             COOKIE_NAME,
             token,
@@ -53,6 +62,7 @@ def _response(payload, request, token, is_new, *, status=200):
             secure=request.is_secure(),
             httponly=True,
             samesite="Lax",
+            path="/",
         )
     return response
 
@@ -73,7 +83,27 @@ def article_reactions(request, slug):
     reaction_count = len(site.article_reaction_options)
 
     if request.method == "POST":
-        if rate_limited(request, "article-reaction", limit=60, period=60):
+        if request.content_type != "application/json":
+            return _response(
+                {"detail": "JSON content type required."},
+                request,
+                token,
+                is_new,
+                status=415,
+            )
+        try:
+            declared_size = int(request.headers.get("Content-Length") or 0)
+        except (TypeError, ValueError):
+            declared_size = 0
+        if declared_size > MAX_BODY_SIZE or len(request.body) > MAX_BODY_SIZE:
+            return _response(
+                {"detail": "Request body is too large."},
+                request,
+                token,
+                is_new,
+                status=413,
+            )
+        if rate_limited(request, "article-reaction", limit=20, period=60):
             return _response(
                 {"detail": "Too many requests."},
                 request,
@@ -107,15 +137,22 @@ def article_reactions(request, slug):
             # Lock the article row as well as an existing vote. The extra lock
             # also serializes the first vote from two simultaneous tabs.
             ArticleModel.objects.select_for_update().get(pk=article.pk)
-            vote = (
-                ArticleReactionVote.objects.select_for_update()
-                .filter(article=article, visitor=visitor)
-                .first()
+            votes = ArticleReactionVote.objects.select_for_update().filter(
+                article=article
             )
+            visitor_vote = votes.filter(visitor=visitor).first()
+            if request.user.is_authenticated:
+                user_vote = votes.filter(user=request.user).first()
+                if user_vote and visitor_vote and user_vote.pk != visitor_vote.pk:
+                    visitor_vote.delete()
+                vote = user_vote or visitor_vote
+            else:
+                vote = visitor_vote
             if vote and vote.reaction == index:
                 vote.delete()
                 active = None
             elif vote:
+                vote.visitor = visitor
                 vote.reaction = index
                 vote.user = request.user if request.user.is_authenticated else None
                 vote.ip_address = get_client_ip(request)
@@ -123,6 +160,7 @@ def article_reactions(request, slug):
                 vote.save(
                     update_fields=(
                         "reaction",
+                        "visitor",
                         "user",
                         "ip_address",
                         "user_agent",
@@ -140,12 +178,17 @@ def article_reactions(request, slug):
                     user_agent=request.headers.get("User-Agent", "")[:255],
                 )
                 active = index
+        cache.delete(f"article-reactions:{article.pk}:counts")
     else:
-        active = (
-            ArticleReactionVote.objects.filter(article=article, visitor=visitor)
-            .values_list("reaction", flat=True)
-            .first()
-        )
+        votes = ArticleReactionVote.objects.filter(article=article)
+        if request.user.is_authenticated:
+            active = votes.filter(user=request.user).values_list(
+                "reaction", flat=True
+            ).first()
+        else:
+            active = votes.filter(visitor=visitor).values_list(
+                "reaction", flat=True
+            ).first()
 
     return _response(
         {"counts": _counts(article, reaction_count), "active": active},

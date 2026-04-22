@@ -43,11 +43,12 @@ class ArticleReactionTests(TestCase):
         self.assertContains(response, "tieba_agree.png")
         self.assertContains(response, "tieba_sleep.png")
         self.assertContains(response, "What do you think?")
+        self.assertContains(response, 'referrerpolicy="no-referrer"')
 
     def test_vote_switch(self):
         initial = self.client.get(self.url)
         self.assertEqual(initial.json(), {"counts": [0, 0, 0, 0, 0, 0], "active": None})
-        self.assertIn("article_reaction_id", initial.cookies)
+        self.assertNotIn("article_reaction_id", initial.cookies)
 
         first = self.client.post(
             self.url,
@@ -55,6 +56,7 @@ class ArticleReactionTests(TestCase):
             content_type="application/json",
         )
         self.assertEqual(first.json(), {"counts": [0, 0, 1, 0, 0, 0], "active": 2})
+        self.assertIn("article_reaction_id", first.cookies)
 
         switched = self.client.post(
             self.url,
@@ -82,15 +84,15 @@ class ArticleReactionTests(TestCase):
                 name=f"Bili {index}",
                 image_url=f"https://example.com/bili-{index}.png",
                 order=index,
+                reaction_order=index + 1 if index != 1 else None,
             )
         self.site.article_reaction_emoji_pack = pack
-        self.site.article_reaction_limit = 2
         self.site.save()
 
         response = self.client.get(reverse("article", args=[self.article.slug]))
         self.assertContains(response, "https://example.com/bili-0.png")
-        self.assertContains(response, "https://example.com/bili-1.png")
-        self.assertNotContains(response, "https://example.com/bili-2.png")
+        self.assertNotContains(response, "https://example.com/bili-1.png")
+        self.assertContains(response, "https://example.com/bili-2.png")
         self.assertNotContains(response, "tieba_agree.png")
 
         counts = self.client.get(self.url)
@@ -101,6 +103,24 @@ class ArticleReactionTests(TestCase):
             content_type="application/json",
         )
         self.assertEqual(invalid.status_code, 400)
+
+    def test_pack_scope(self):
+        other = SiteConfiguration.objects.create(config_name="Other")
+        pack = CommentEmojiPack.objects.create(config=other, name="Foreign")
+        CommentEmoji.objects.create(
+            pack=pack,
+            name="Foreign emoji",
+            image_url="https://example.com/foreign.png",
+            reaction_order=1,
+        )
+        SiteConfiguration.objects.filter(pk=self.site.pk).update(
+            article_reaction_emoji_pack=pack
+        )
+        cache.clear()
+
+        response = self.client.get(reverse("article", args=[self.article.slug]))
+        self.assertNotContains(response, "https://example.com/foreign.png")
+        self.assertContains(response, "tieba_agree.png")
 
     def test_vote_audit(self):
         user = get_user_model().objects.create_user(
@@ -135,6 +155,43 @@ class ArticleReactionTests(TestCase):
         )
 
         self.assertEqual(response.json()["counts"], [2, 0, 0, 0, 0, 0])
+
+    def test_account_vote(self):
+        user = get_user_model().objects.create_user(
+            username="one-vote",
+            password="not-used",
+        )
+        self.client.force_login(user)
+        first = self.client.post(
+            self.url,
+            data='{"index": 0}',
+            content_type="application/json",
+        )
+        self.assertEqual(first.json()["counts"], [1, 0, 0, 0, 0, 0])
+
+        other = self.client_class()
+        other.force_login(user)
+        switched = other.post(
+            self.url,
+            data='{"index": 1}',
+            content_type="application/json",
+        )
+        self.assertEqual(switched.json()["counts"], [0, 1, 0, 0, 0, 0])
+        self.assertEqual(
+            ArticleReactionVote.objects.filter(article=self.article, user=user).count(),
+            1,
+        )
+
+    def test_request_guard(self):
+        wrong_type = self.client.post(self.url, data={"index": 0})
+        self.assertEqual(wrong_type.status_code, 415)
+
+        oversized = self.client.post(
+            self.url,
+            data='{"index": 0, "padding": "' + ("x" * 1100) + '"}',
+            content_type="application/json",
+        )
+        self.assertEqual(oversized.status_code, 413)
 
     def test_invalid_reaction(self):
         self.client.get(self.url)

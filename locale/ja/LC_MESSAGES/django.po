@@ -2275,3 +2275,15 @@ msgstr "選択した記事のリアクションを無効にする"
 
 msgid "Skipped %(count)d duplicate selections because only one comment can be pinned per page."
 msgstr "各ページで固定できるコメントは一件だけのため、重複した %(count)d 件を除外しました。"
+
+msgid "Toggle table of contents"
+msgstr "目次を開閉"
+
+msgid "Article reaction slot"
+msgstr "記事リアクションの表示順"
+
+msgid "Set a unique slot from 1 to 9, or leave empty to hide it."
+msgstr "1〜9 の重複しない番号を設定してください。空欄にすると表示されません。"
+
+msgid "Choose an existing comment emoji pack, such as Bilibili. Then assign slots 1 to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's default Tieba reactions."
+msgstr "Bilibili などの絵文字パックを選び、使用する絵文字に 1〜9 の表示順を設定します。空欄の場合は Waline 標準の Tieba リアクションを使用します。"

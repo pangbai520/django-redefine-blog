@@ -34,6 +34,11 @@ class ArticleReactionVote(models.Model):
                 fields=("article", "visitor"),
                 name="unique_article_reaction_visitor",
             ),
+            models.UniqueConstraint(
+                fields=("article", "user"),
+                condition=models.Q(user__isnull=False),
+                name="unique_article_reaction_user",
+            ),
             models.CheckConstraint(
                 condition=models.Q(reaction__gte=0, reaction__lte=8),
                 name="article_reaction_index_range",

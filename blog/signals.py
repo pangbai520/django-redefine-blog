@@ -9,6 +9,8 @@ from .models import (
     ArticleModel,
     Category,
     CommentImage,
+    CommentEmoji,
+    CommentEmojiPack,
     CommentBadge,
     CommentBadgeTranslation,
     CommentBadgeAssignment,
@@ -156,6 +158,27 @@ def touch_site(sender, instance, **kwargs):
     SiteConfiguration.objects.filter(pk=instance.config_id).update(
         updated_at=timezone.now()
     )
+    cache.delete("actived_site_config")
+    from .cache_utils import invalidate_content_caches
+
+    invalidate_content_caches()
+
+
+@receiver([post_save, post_delete], sender=CommentEmojiPack)
+@receiver([post_save, post_delete], sender=CommentEmoji)
+def touch_emoji(sender, instance, **kwargs):
+    if isinstance(instance, CommentEmojiPack):
+        config_id = instance.config_id
+    else:
+        config_id = (
+            CommentEmojiPack.objects.filter(pk=instance.pack_id)
+            .values_list("config_id", flat=True)
+            .first()
+        )
+    if config_id:
+        SiteConfiguration.objects.filter(pk=config_id).update(
+            updated_at=timezone.now()
+        )
     cache.delete("actived_site_config")
     from .cache_utils import invalidate_content_caches
 
