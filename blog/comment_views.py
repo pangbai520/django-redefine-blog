@@ -223,7 +223,9 @@ def _comment_payload(comment, request):
         "badges": badges,
         "is_sticky": bool(comment.is_sticky),
         "created_at": timezone.localtime(comment.created_at).isoformat(),
-        "ip_address": get_ip_location(comment.ip_address) or comment.ip_address or "",
+        # Never expose a raw address through the public comment API. The full
+        # value remains available to authorized staff in Django Admin.
+        "ip_address": get_ip_location(comment.ip_address) or "",
         "browser": comment.browser,
         "operating_system": comment.operating_system,
         "like_count": like_count,

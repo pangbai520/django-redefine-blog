@@ -7,3 +7,4 @@ django-admin-sortable2==2.3
 django-autoslug==1.9.9
 django-cleanup==9.0.0
 django-mdeditor==0.1.20
+nh3==0.3.7

@@ -454,7 +454,7 @@ class InternalCommentTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         payload = response.json()["comment"]
-        self.assertEqual(payload["ip_address"], "192.0.2.10")
+        self.assertEqual(payload["ip_address"], "")
         self.assertEqual(Comment.objects.get(pk=payload["id"]).ip_address, "192.0.2.10")
         self.assertEqual(payload["browser"], "Chrome120.0")
         self.assertEqual(payload["operating_system"], "Windows 10")
@@ -472,7 +472,7 @@ class InternalCommentTests(TestCase):
         ).json()["comments"][0]
 
         self.assertEqual(payload["id"], comment.pk)
-        self.assertEqual(payload["ip_address"], "192.0.2.44")
+        self.assertEqual(payload["ip_address"], "")
 
     def test_login_guest(self):
         self.site.comment_require_login = True
@@ -610,7 +610,7 @@ class InternalCommentTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         comment_id = response.json()["comment"]["id"]
-        self.assertEqual(response.json()["comment"]["ip_address"], "192.0.2.30")
+        self.assertEqual(response.json()["comment"]["ip_address"], "")
         self.assertEqual(Comment.objects.get(pk=comment_id).ip_address, "192.0.2.30")
 
     def test_registration_username(self):

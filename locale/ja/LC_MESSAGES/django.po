@@ -2287,3 +2287,14 @@ msgstr "1〜9 の重複しない番号を設定してください。空欄にす
 
 msgid "Choose an existing comment emoji pack, such as Bilibili. Then assign slots 1 to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's default Tieba reactions."
 msgstr "Bilibili などの絵文字パックを選び、使用する絵文字に 1〜9 の表示順を設定します。空欄の場合は Waline 標準の Tieba リアクションを使用します。"
+
+#, python-format
+msgid "Images must be no larger than %(size)s MB."
+msgstr "画像は %(size)s MB 以下にしてください。"
+
+#, python-format
+msgid "Audio files must be no larger than %(size)s MB."
+msgstr "音声ファイルは %(size)s MB 以下にしてください。"
+
+msgid "Audio data does not match its filename extension."
+msgstr "音声データとファイル拡張子が一致しません。"

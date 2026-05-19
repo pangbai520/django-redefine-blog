@@ -26,6 +26,7 @@ from .cache_utils import versioned_cache_page
 from .middleware import record_request_traffic
 from .services.recommend import related_articles
 from .services.search import search_articles
+from .services.html_safety import clean_html
 
 
 def _render_page(page, site):
@@ -33,7 +34,7 @@ def _render_page(page, site):
     if not content:
         return ""
     markdown = Markdown(extensions=get_extensions(site))
-    return mark_safe(markdown.convert(content))
+    return mark_safe(clean_html(markdown.convert(content)))
 
 
 def _standalone_page(site, page_type, default_title):
@@ -446,7 +447,7 @@ def essays(request, _page=None):
     for essay in Essay.objects.filter(config=site, published=True):
         # reset per entry, so headings and extension state cannot leak from one
         # essay into the next item on the timeline
-        html = markdown.reset().convert(essay.content)
+        html = clean_html(markdown.reset().convert(essay.content))
         entries.append(
             {
                 "essay": essay,

@@ -115,7 +115,7 @@ class RuntimeRegressionTests(TestCase):
             )
         self.assertEqual(
             response.json()["comments"][0]["ip_address"],
-            str(comment.ip_address),
+            "",
         )
 
     def test_ip2region_compact(self):

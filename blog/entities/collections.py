@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
-from blog.validators import validate_theme_image
+from blog.validators import validate_audio, validate_theme_image
 
 
 class AudioTrack(models.Model):
@@ -13,7 +13,11 @@ class AudioTrack(models.Model):
         blank=True,
         help_text="External URL or a path under the site media/static files.",
     )
-    audio_file = models.FileField(upload_to="audio/", blank=True)
+    audio_file = models.FileField(
+        upload_to="audio/",
+        blank=True,
+        validators=[validate_audio],
+    )
     cover = models.CharField(max_length=500, blank=True)
     cover_image = models.FileField(
         upload_to="audio_covers/",

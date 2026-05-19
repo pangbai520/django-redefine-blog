@@ -21,6 +21,7 @@ from markdown import Markdown
 from mdeditor.fields import MDTextField
 
 from core.markdown.extensions import get_extensions
+from blog.services.html_safety import clean_html
 from blog.utils.unicode_slugify import unicode_slugify
 from blog.utils.word_counter import reading_time_counter, word_counter
 from blog.validators import validate_theme_image
@@ -282,7 +283,7 @@ class ArticleModel(models.Model):
         digest = hashlib.sha256(
             (self.content + json.dumps(render_options, sort_keys=True)).encode("utf-8")
         ).hexdigest()
-        cache_key = f"article-markdown:v1:{self.pk or 'new'}:{digest}"
+        cache_key = f"article-markdown:v2:{self.pk or 'new'}:{digest}"
         cached = cache.get(cache_key)
         if cached is not None:
             return {
@@ -300,7 +301,7 @@ class ArticleModel(models.Model):
                 }
             },
         )
-        html = md.convert(self.content)
+        html = clean_html(md.convert(self.content))
         toc_html = re.sub(r"<a(\s+)", r'<a class="nav-link"\1', md.toc)
         # Redefine styles an ordered TOC tree; Python Markdown emits an unordered one
         toc_html = re.sub(r'^\s*<div class="toc">\s*', "", toc_html)
@@ -315,6 +316,7 @@ class ArticleModel(models.Model):
             toc_html,
             flags=re.DOTALL,
         )
+        toc_html = clean_html(toc_html)
         rendered = {"content": html, "toc": toc_html}
         cache.set(
             cache_key,
@@ -456,7 +458,7 @@ class ArticleModel(models.Model):
                     }
                 },
             )
-            return mark_safe(md.convert(self.excerpt))
+            return mark_safe(clean_html(md.convert(self.excerpt)))
         site = SiteConfiguration.get_config()
         length = getattr(site, "article_excerpt_length", 200)
         # code blocks make poor excerpts and may include copied toolbar text

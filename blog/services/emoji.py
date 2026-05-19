@@ -1,10 +1,11 @@
 import json
 import logging
 import re
-from urllib.parse import urlparse
-from urllib.request import Request, urlopen
+from urllib.parse import urljoin, urlparse
 
 from django.core.cache import cache
+
+from .remote import RemoteFetchError, fetch_https
 
 logger = logging.getLogger(__name__)
 
@@ -57,13 +58,11 @@ def _discover_items(base):
 
 def _manifest_items(base):
     try:
-        request = Request(
-            base + "/info.json",
-            headers={"User-Agent": "DjangoRedefine/1.0"},
-        )
-        with urlopen(request, timeout=4) as response:
-            manifest = json.loads(response.read().decode("utf-8"))
-    except Exception:
+        response = fetch_https(base + "/info.json")
+        if response.content_type not in {"application/json", "text/json", ""}:
+            return []
+        manifest = json.loads(response.body.decode("utf-8"))
+    except (RemoteFetchError, UnicodeDecodeError, ValueError):
         return []
 
     prefix = str(manifest.get("prefix", ""))
@@ -73,7 +72,7 @@ def _manifest_items(base):
         return []
 
     items = []
-    for entry in entries:
+    for entry in entries[:500]:
         if isinstance(entry, dict):
             value = str(entry.get("name", entry.get("id", ""))).strip()
         else:
@@ -99,12 +98,19 @@ def _manifest_items(base):
 def _directory_data(base):
     for url in (base + "/?meta", base + "/"):
         try:
-            request = Request(url, headers={"User-Agent": "DjangoRedefine/1.0"})
-            with urlopen(request, timeout=4) as response:
-                raw = response.read().decode("utf-8")
+            response = fetch_https(url)
+            if response.content_type not in {
+                "application/json",
+                "text/html",
+                "text/json",
+                "text/plain",
+                "",
+            }:
+                continue
+            raw = response.body.decode("utf-8")
             if raw:
                 return raw
-        except Exception:
+        except (RemoteFetchError, UnicodeDecodeError):
             continue
     return ""
 
@@ -135,7 +141,12 @@ def _listing_items(base, raw):
             re.I,
         )
 
-    return [_link_item(base, link) for link in links if _is_image(link)]
+    items = []
+    for link in links[:500]:
+        item = _link_item(base, link)
+        if item is not None:
+            items.append(item)
+    return items
 
 
 def _is_image(path):
@@ -144,21 +155,30 @@ def _is_image(path):
 
 def _link_item(base, link):
     base_url = urlparse(base)
-    base_name = base.rsplit("/", 1)[-1]
     raw_link = str(link).strip()
-
-    if re.match(r"^https?://", raw_link, re.I):
-        image_url = raw_link
-    else:
+    if not re.match(r"^https?://", raw_link, re.I):
         path = raw_link.lstrip("/")
+        base_name = base_url.path.rstrip("/").rsplit("/", 1)[-1]
+        base_path = base_url.path.strip("/")
         if path.lower().startswith(base_name.lower() + "/"):
             path = path[len(base_name) + 1 :]
-
-        base_path = base_url.path.strip("/")
         if path.lower().startswith(base_path.lower() + "/"):
-            image_url = f"{base_url.scheme}://{base_url.netloc}/{path}"
+            raw_link = "/" + path
         else:
-            image_url = base + "/" + path
+            raw_link = path
+    image_url = urljoin(base.rstrip("/") + "/", raw_link)
+    image = urlparse(image_url)
+    base_port = base_url.port or 443
+    image_port = image.port or 443
+    base_path = base_url.path.rstrip("/") + "/"
+    if (
+        image.scheme.lower() != "https"
+        or image.hostname != base_url.hostname
+        or image_port != base_port
+        or not image.path.startswith(base_path)
+        or not _is_image(image.path)
+    ):
+        return None
 
     return {
         "name": image_url.rsplit("/", 1)[-1].rsplit(".", 1)[0],

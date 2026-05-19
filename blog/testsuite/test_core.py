@@ -2,7 +2,7 @@ import tempfile
 import json
 import zipfile
 from datetime import timedelta
-from io import StringIO
+from io import BytesIO, StringIO
 from pathlib import Path
 from unittest.mock import patch
 
@@ -17,6 +17,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
+from PIL import Image
 
 from ..models import (
     ArticleModel,
@@ -27,7 +28,7 @@ from ..models import (
     MenuLink,
     SiteConfiguration,
 )
-from ..validators import validate_theme_image
+from ..validators import validate_audio, validate_theme_image
 
 User = get_user_model()
 
@@ -249,23 +250,44 @@ class PublicCoreFeatureTests(TestCase):
 
 class ThemeImageValidationTests(TestCase):
     def test_safe_accepted(self):
+        payload = BytesIO()
+        Image.new("RGB", (2, 2), "white").save(payload, format="PNG")
         upload = SimpleUploadedFile(
-            "logo.svg",
-            b'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"><path d="M0 0h1v1z"/></svg>',
-            content_type="image/svg+xml",
+            "logo.png",
+            payload.getvalue(),
+            content_type="image/png",
         )
 
         validate_theme_image(upload)
 
-    def test_scripted_rejected(self):
+    def test_svg_blocked(self):
         upload = SimpleUploadedFile(
             "logo.svg",
-            b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+            b'<svg xmlns="http://www.w3.org/2000/svg"></svg>',
             content_type="image/svg+xml",
         )
 
         with self.assertRaises(ValidationError):
             validate_theme_image(upload)
+
+    def test_fake_audio(self):
+        upload = SimpleUploadedFile(
+            "track.mp3",
+            b"<html><script>alert(1)</script></html>",
+            content_type="audio/mpeg",
+        )
+
+        with self.assertRaises(ValidationError):
+            validate_audio(upload)
+
+    def test_mp3_header(self):
+        upload = SimpleUploadedFile(
+            "track.mp3",
+            b"ID3\x04\x00\x00\x00\x00\x00\x00",
+            content_type="audio/mpeg",
+        )
+
+        validate_audio(upload)
 
 
 class DemoContentTests(TransactionTestCase):
@@ -366,12 +388,14 @@ class PortableDataTests(TransactionTestCase):
     def test_export_media(self):
         with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as temporary:
             with override_settings(MEDIA_ROOT=temporary):
+                payload = BytesIO()
+                Image.new("RGB", (2, 2), "white").save(payload, format="PNG")
                 site = SiteConfiguration.objects.create(
                     config_name="Portable", site_name="Portable Blog", is_active=True
                 )
                 site.site_avatar.save(
-                    "avatar.svg",
-                    ContentFile(b'<svg xmlns="http://www.w3.org/2000/svg"/>'),
+                    "avatar.png",
+                    ContentFile(payload.getvalue()),
                     save=True,
                 )
                 article = ArticleModel.objects.create(
@@ -400,5 +424,5 @@ class PortableDataTests(TransactionTestCase):
                 self.assertEqual(restored.content, "Body")
                 self.assertEqual(
                     Path(restored_site.site_avatar.path).read_bytes(),
-                    b'<svg xmlns="http://www.w3.org/2000/svg"/>',
+                    payload.getvalue(),
                 )

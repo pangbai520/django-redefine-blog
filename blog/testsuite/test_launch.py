@@ -24,6 +24,12 @@ from ..services.backup import export_archive, import_archive
 User = get_user_model()
 
 
+def make_png():
+    payload = BytesIO()
+    Image.new("RGB", (2, 2), "white").save(payload, format="PNG")
+    return payload.getvalue()
+
+
 class LaunchReadinessTests(TestCase):
     def setUp(self):
         cache.clear()
@@ -154,11 +160,8 @@ class PortableRestoreTests(TransactionTestCase):
                 site_name="Before backup",
                 is_active=True,
             )
-            site.site_logo.save(
-                "same-name.svg",
-                ContentFile(b'<svg xmlns="http://www.w3.org/2000/svg"></svg>'),
-                save=True,
-            )
+            original = make_png()
+            site.site_logo.save("same-name.png", ContentFile(original), save=True)
             archive = Path(temporary, "backup.zip")
             export_archive(archive)
 
@@ -173,7 +176,7 @@ class PortableRestoreTests(TransactionTestCase):
             self.assertEqual(restored.site_name, "Before backup")
             self.assertEqual(
                 (media_root / restored.site_logo.name).read_bytes(),
-                b'<svg xmlns="http://www.w3.org/2000/svg"></svg>',
+                original,
             )
 
     def test_media_database(self):

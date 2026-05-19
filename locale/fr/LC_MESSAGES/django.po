@@ -2332,3 +2332,14 @@ msgstr "Attribuez un emplacement unique de 1 à 9, ou laissez vide pour le masqu
 
 msgid "Choose an existing comment emoji pack, such as Bilibili. Then assign slots 1 to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's default Tieba reactions."
 msgstr "Choisissez un pack d’émojis, comme Bilibili, puis attribuez les emplacements 1 à 9 aux émojis voulus. Laissez vide pour utiliser les réactions Tieba par défaut de Waline."
+
+#, python-format
+msgid "Images must be no larger than %(size)s MB."
+msgstr "Les images ne doivent pas dépasser %(size)s Mo."
+
+#, python-format
+msgid "Audio files must be no larger than %(size)s MB."
+msgstr "Les fichiers audio ne doivent pas dépasser %(size)s Mo."
+
+msgid "Audio data does not match its filename extension."
+msgstr "Les données audio ne correspondent pas à l’extension du fichier."

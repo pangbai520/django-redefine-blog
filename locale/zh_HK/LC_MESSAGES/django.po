@@ -2287,3 +2287,14 @@ msgstr "填寫不重複的 1 至 9；留空則不會在文章反應中顯示。"
 
 msgid "Choose an existing comment emoji pack, such as Bilibili. Then assign slots 1 to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's default Tieba reactions."
 msgstr "選擇已有的留言表情包（例如 Bilibili），再到「留言表情」為需要的表情分配 1 至 9 的位置。留空則使用 Waline 預設的貼吧反應。"
+
+#, python-format
+msgid "Images must be no larger than %(size)s MB."
+msgstr "圖片大小不得超過 %(size)s MB。"
+
+#, python-format
+msgid "Audio files must be no larger than %(size)s MB."
+msgstr "音訊檔案大小不得超過 %(size)s MB。"
+
+msgid "Audio data does not match its filename extension."
+msgstr "音訊資料與檔案副檔名不相符。"
