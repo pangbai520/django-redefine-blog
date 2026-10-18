@@ -20,6 +20,7 @@ from mdeditor.fields import MDTextField
 from core.markdown.extensions import get_extensions
 from .utils.unicode_slugify import unicode_slugify
 from .utils.word_counter import reading_time_counter, word_counter
+from .validators import validate_theme_image
 
 
 CACHE_KEY = "actived_site_config"
@@ -58,9 +59,9 @@ class SiteConfiguration(models.Model):
         help_text="Comma-separated keywords used by search engines.",
     )
 
-    site_avatar = models.ImageField(upload_to="avatar/", blank=True, null=True)
-    site_logo = models.ImageField(upload_to="logo/", blank=True, null=True)
-    site_favicon = models.ImageField(upload_to="favicon/", blank=True, null=True)
+    site_avatar = models.FileField(upload_to="avatar/", blank=True, null=True, validators=[validate_theme_image])
+    site_logo = models.FileField(upload_to="logo/", blank=True, null=True, validators=[validate_theme_image])
+    site_favicon = models.FileField(upload_to="favicon/", blank=True, null=True, validators=[validate_theme_image])
 
     colour_primary = models.CharField(max_length=20, default="#A31F34")
     colour_default_mode = models.CharField(
@@ -84,7 +85,7 @@ class SiteConfiguration(models.Model):
 
     # allow social previews to differ from ordinary page metadata
     og_enabled = models.BooleanField(default=True)
-    og_image = models.ImageField(upload_to="opengraph/", blank=True, null=True)
+    og_image = models.FileField(upload_to="opengraph/", blank=True, null=True, validators=[validate_theme_image])
     og_description = models.CharField(
         max_length=200,
         blank=True,
@@ -111,8 +112,8 @@ class SiteConfiguration(models.Model):
         choices=[("static", "Static"), ("fixed", "Fixed")],
         default="fixed",
     )
-    light_image = models.ImageField(upload_to="banner/", blank=True, null=True)
-    dark_image = models.ImageField(upload_to="banner/", blank=True, null=True)
+    light_image = models.FileField(upload_to="banner/", blank=True, null=True, validators=[validate_theme_image])
+    dark_image = models.FileField(upload_to="banner/", blank=True, null=True, validators=[validate_theme_image])
     hb_title = models.CharField(max_length=100, default="Theme Redefine")
     subtitle_enabled = models.BooleanField(default=False)
     subtitle_text = models.JSONField(default=list, blank=True)
@@ -246,7 +247,7 @@ class SiteConfiguration(models.Model):
     copyright_enabled = models.BooleanField(default=True)
     copyright_type = models.CharField(
         max_length=50,
-        choices=COPYRIGHT_CHOICES,
+        choices=COPYRIGHT_CHOICES, 
         default="cc_by_nc_sa",
     )
     counter_enabled = models.BooleanField(default=True)
@@ -297,8 +298,8 @@ class SiteConfiguration(models.Model):
     recommendation_title = models.CharField(max_length=50, default="推荐阅读")
     recommendation_limit = models.PositiveIntegerField(default=3)
     recommendation_mobile_limit = models.PositiveIntegerField(default=2)
-    recommendation_placeholder = models.ImageField(
-        upload_to="recommendation/", blank=True, null=True
+    recommendation_placeholder = models.FileField(
+        upload_to="recommendation/", blank=True, null=True, validators=[validate_theme_image]
     )
     recommendation_skip_dirs = models.JSONField(default=list, blank=True)
 
@@ -465,12 +466,12 @@ class SiteConfiguration(models.Model):
     def qrcode_links(self):
         """Return QR-code links belonging to this configuration."""
         return self.links.filter(link_location='qrs')
-
+    
     @property
     def navbar_links(self):
         # return roots only; dropdown children are rendered by their parent
         return self.links.filter(link_location='navbar', parent__isnull=True).order_by('order')
-
+    
     @property
     def sidebar_links(self):
         """Return links assigned to the sidebar."""
@@ -596,7 +597,7 @@ class AudioTrack(models.Model):
     )
     audio_file = models.FileField(upload_to="audio/", blank=True)
     cover = models.CharField(max_length=500, blank=True)
-    cover_image = models.ImageField(upload_to="audio_covers/", blank=True, null=True)
+    cover_image = models.FileField(upload_to="audio_covers/", blank=True, null=True, validators=[validate_theme_image])
     lrc = models.TextField(blank=True)
     theme = models.CharField(max_length=20, blank=True)
     enabled = models.BooleanField(default=True)
@@ -739,9 +740,9 @@ class MenuLink(models.Model):
         ('social', '首页右下角社交链接'),
         ('qrs', '社交二维码卡片'),
     ]
-
+    
     active_namespace = models.CharField(max_length=100, blank=True)
-
+    
     config = models.ForeignKey(SiteConfiguration, on_delete=models.CASCADE, related_name='links')
     link_location = models.CharField('部署位置', max_length=20, choices=LOCATION_CHOICES)
     name = models.CharField('显示名称', max_length=50, help_text="例如：GitHub, Bilibili, Wechat，填fa-开头为fontawesome，填http或/开头是图片")
@@ -751,13 +752,13 @@ class MenuLink(models.Model):
     # allow nesting only where the navbar can render a dropdown
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='submenus', verbose_name="父级菜单")
     order = models.PositiveIntegerField('排序权重', default=0, help_text="数字越小越靠前")
-
-
+    
+    
     @property
     def inferred_namespace(self):
         if self.active_namespace:
             return self.active_namespace
-
+        
         if self.url == '/':
             return 'index'
 
@@ -783,17 +784,17 @@ class MenuLink(models.Model):
 
         return False
 
-
+    
     @property
     def has_submenus(self):
         """Return whether this navigation item has children."""
         return self.submenus.exists()
-
+    
     @property
     def link_type(self):
         """Classify the link for social-link rendering."""
         name = self.name.lower()
-
+        
         if name == "email":
             return "email"
         elif name.startswith("fa-"):
@@ -840,17 +841,17 @@ class MenuLink(models.Model):
         if self.qr_type == "brand":
             return f"fa-{self.name}"
         return self.name
-
+    
     @property
     def user_icon(self):
         """Return the explicit icon or infer one from the link name."""
         if self.icon:
             return self.icon
-
+        
         name_lower = self.name.lower()
         if name_lower.startswith("fa-"):
             return name_lower
-
+        
         return f"fa-solid fa-{name_lower}"
 
 
@@ -858,39 +859,39 @@ class MenuLink(models.Model):
         verbose_name = "Integrated link"
         verbose_name_plural = verbose_name
         ordering = ['order']
-
+    
     def clean(self):
         # only the navbar renders nested links
         if self.parent and self.link_location != 'navbar':
             raise ValidationError({
                 'parent': f"位置为 '{self.get_link_location_display()}' 的链接不允许设置父级菜单。"
             })
-
+        
         # a child in another location would never appear under its parent
         if self.parent and self.parent.link_location != self.link_location:
             raise ValidationError("子菜单的位置必须与父级菜单一致。")
-
+        
         # only navbar and sidebar templates read this icon field
         if self.icon and self.link_location not in ['navbar', 'sidebar']:
             raise ValidationError({
                 'icon': f"只有位置为 '顶部导航栏' 或 '侧边栏菜单' 时才允许填写图标。当前位置 '{self.get_link_location_display()}' 请保持此项为空，若需要font awesome，请在名称一栏中输入。"
             })
-
+            
         if self.parent and self.parent_id == self.id:
             raise ValidationError({'parent': "父级菜单不能是菜单本身。"})
-
+        
         if self.parent and self.icon:
             raise ValidationError({
                 'icon': f"链接 '{self.name}' 是子菜单，子菜单不允许设置图标。"
             })
-
+    
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"[{self.get_link_location_display()}] {self.name}"
-
+    
 class Font(models.Model):
     FONT_TYPE_CHOICES = [
         ('code_block', 'Code Block'),
@@ -973,7 +974,7 @@ class ArticleQuerySet(models.QuerySet):
 
 class ArticleModel(models.Model):
     objects = ArticleQuerySet.as_manager()
-
+    
     title = models.CharField(_("title"), max_length=200)
     writer = models.CharField(_("writer"), max_length=100, blank=True)
     slug = autoslug.AutoSlugField(_("slug"), populate_from='title', max_length=255, unique=True, blank=True, always_update=False, slugify=unicode_slugify)
@@ -985,10 +986,10 @@ class ArticleModel(models.Model):
     created_at = models.DateTimeField(_("created at"), default=timezone.now, db_index=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
     sticky = models.PositiveIntegerField(default=0)
-    writer_avatar = models.ImageField(upload_to="writer_avatar/", blank=True, null=True)
-    thumbnail = models.ImageField(upload_to="thumbnails/", blank=True, null=True)
-    cover = models.ImageField(upload_to="cover/", blank=True, null=True)
-    banner = models.ImageField(upload_to="banner/", blank=True, null=True)
+    writer_avatar = models.FileField(upload_to="writer_avatar/", blank=True, null=True, validators=[validate_theme_image])
+    thumbnail = models.FileField(upload_to="thumbnails/", blank=True, null=True, validators=[validate_theme_image])
+    cover = models.FileField(upload_to="cover/", blank=True, null=True, validators=[validate_theme_image])
+    banner = models.FileField(upload_to="banner/", blank=True, null=True, validators=[validate_theme_image])
     category = models.ManyToManyField("Category", blank=True, verbose_name=_("category"))
     tags = models.ManyToManyField("Tag", blank=True, verbose_name=_("tags"))
 
@@ -1002,7 +1003,7 @@ class ArticleModel(models.Model):
     )
     # override the site comment switch only for this article
     show_comment = models.BooleanField(default=True)
-
+    
     # cache counters; archive and footer pages should not render every article body
     word_counter = models.PositiveIntegerField(default=0, editable=False)
     reading_time = models.PositiveIntegerField(default=0, editable=False)
@@ -1067,11 +1068,11 @@ class ArticleModel(models.Model):
             'sticky': self.sticky,
         }
 
-
+    
     @cached_property
     def _rendered(self):
         site = SiteConfiguration.get_config()
-        max_depth = getattr(site, 'toc_max_depth', 3)
+        max_depth = getattr(site, 'toc_max_depth', 3) 
         toc_depth_range = f"1-{max_depth}"
 
         md = Markdown(
@@ -1080,7 +1081,7 @@ class ArticleModel(models.Model):
                 "markdown.extensions.toc": {
                     "permalink": "",
                     "toc_depth": toc_depth_range,
-                    "slugify": slugify,
+                    "slugify": slugify, 
                 }
             },
         )

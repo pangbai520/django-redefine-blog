@@ -33,11 +33,11 @@
         </li>
         {% empty %}
         {# keep an explicit empty state, so the article grid never collapses without feedback #}
-        <div class="text-center">
+        <li class="home-article-item text-center list-none">
             <i class="fa-regular fa-folder-open text-5xl text-third-text-color mb-4 block"></i>
-            <p class="text-xl text-second-text-color font-medium">Not articles yet</p>
+            <p class="text-xl text-second-text-color font-medium">No articles yet</p>
             <p class="text-sm text-third-text-color mt-2">This page is empty. Go to the backend and post your first blog post!</p>
-        </div>
+        </li>
         {% endfor %}
     </ul>
 

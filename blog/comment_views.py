@@ -12,6 +12,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.views import PasswordResetView
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives, send_mail
@@ -49,6 +50,17 @@ from .models import (
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
+
+
+class RateLimitedPasswordResetView(PasswordResetView):
+    """Apply the same abuse controls to password mail as other account mail."""
+
+    def post(self, request, *args, **kwargs):
+        if _rate_limited(request, "password-reset", limit=5, period=60 * 60):
+            form = self.get_form()
+            form.add_error(None, "Too many password reset requests. Please try again later.")
+            return self.render_to_response(self.get_context_data(form=form), status=429)
+        return super().post(request, *args, **kwargs)
 
 
 class _CommentHTMLSanitizer(HTMLParser):
@@ -878,8 +890,9 @@ def comment_upload(request):
     if _rate_limited(request, "upload", limit=10, period=60 * 60):
         return _json_error("Too many image uploads. Please try again later.", 429)
     upload = request.FILES.get("image")
-    if not upload or upload.size > 2 * 1024 * 1024:
-        return _json_error("Image must be smaller than 2 MB.")
+    max_bytes = settings.COMMENT_UPLOAD_MAX_BYTES
+    if not upload or upload.size > max_bytes:
+        return _json_error(f"Image must be smaller than {max_bytes // (1024 * 1024)} MB.")
     allowed = {"image/jpeg", "image/png", "image/gif", "image/webp"}
     if upload.content_type not in allowed:
         return _json_error("Unsupported image type.")
@@ -897,10 +910,18 @@ def comment_upload(request):
             image.verify()
             detected_format = image.format
         upload.seek(0)
+        with Image.open(upload) as image:
+            width, height = image.size
+            frames = getattr(image, "n_frames", 1)
+        upload.seek(0)
     except (UnidentifiedImageError, OSError, ValueError):
         return _json_error("Image data is invalid.")
     if detected_format not in expected_formats[upload.content_type]:
         return _json_error("Image data does not match its declared type.")
+    if max(width, height) > settings.COMMENT_UPLOAD_MAX_DIMENSION:
+        return _json_error("Image dimensions are too large.")
+    if width * height * frames > settings.COMMENT_UPLOAD_MAX_PIXELS:
+        return _json_error("Image contains too many pixels or animation frames.")
     # derive the suffix from the accepted MIME type, so misleading client
     # extensions cannot create executable-looking filenames
     extension = {"image/jpeg": "jpg", "image/png": "png", "image/gif": "gif", "image/webp": "webp"}[upload.content_type]

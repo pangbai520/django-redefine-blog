@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  django:
+  sqlite:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -20,9 +20,91 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - run: python -m pip install -r requirements.txt
-      - run: python manage.py check
-      - run: python manage.py test blog
-      - run: python manage.py makemigrations --check --dry-run
+      - run: python manage.py check --settings=config.settings_test
+      - run: python manage.py test blog --settings=config.settings_test
+      - run: python manage.py makemigrations --check --dry-run --settings=config.settings_test
+
+  postgresql:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: django_blog
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: django_blog
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U django_blog -d django_blog"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DB_ENGINE: postgresql
+      DB_NAME: django_blog
+      DB_USER: django_blog
+      DB_PASSWORD: postgres
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install -r requirements-postgresql.txt
+      - run: python manage.py test blog --settings=config.settings_test
+
+  mysql:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: django_blog
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DB_ENGINE: mysql
+      DB_NAME: django_blog
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install -r requirements-mysql.txt
+      - run: python manage.py test blog --settings=config.settings_test
+
+  production-check:
+    runs-on: ubuntu-latest
+    env:
+      DJANGO_SECRET_KEY: ci-only-production-check-secret-that-is-long-enough
+      DJANGO_ALLOWED_HOSTS: example.com
+      DJANGO_CSRF_TRUSTED_ORIGINS: https://example.com
+      DJANGO_SECURE_SSL_REDIRECT: "1"
+      DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS: "1"
+      DJANGO_SECURE_HSTS_PRELOAD: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python manage.py check --deploy --settings=config.settings_production
+      - run: python manage.py collectstatic --noinput --settings=config.settings_production
 
   frontend:
     runs-on: ubuntu-latest

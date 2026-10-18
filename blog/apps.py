@@ -1,18 +1,18 @@
 from django.apps import AppConfig
+from django.conf import settings
 from django.db.models.signals import post_migrate
 from django.db.utils import OperationalError, ProgrammingError
 
 
 def create_default_site_config(sender, **kwargs):
     try:
-        from .models import SiteConfiguration
+        from .starter_content import install_starter_content
 
-        if not SiteConfiguration.objects.exists():
-            SiteConfiguration.objects.create(
-                config_name="Default Config",
-                site_name="Theme Redefine",
-                is_active=True,
-            )
+        if getattr(settings, "INSTALL_STARTER_CONTENT", True):
+            install_starter_content()
+            from .signals import sync_owner_badges
+
+            sync_owner_badges()
     except (OperationalError, ProgrammingError):
         # the table does not exist while the first migration is still running
         pass
@@ -26,6 +26,6 @@ class BlogConfig(AppConfig):
         post_migrate.connect(
             create_default_site_config,
             sender=self,
-            dispatch_uid="blog.create_default_site_config",
+            dispatch_uid="blog.install_starter_content",
         )
         from . import signals  # noqa: F401

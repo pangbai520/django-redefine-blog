@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.core.exceptions import ValidationError
@@ -17,7 +18,17 @@ from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import ArticleModel, Comment, SiteConfiguration
+from .models import (
+    ArticleModel,
+    Comment,
+    CommentBadge,
+    CommentBadgeAssignment,
+    CommentEmojiPack,
+    MenuLink,
+    SiteConfiguration,
+)
+from .starter_content import install_starter_content
+from .validators import validate_theme_image
 
 
 User = get_user_model()
@@ -104,6 +115,79 @@ class PublicCoreFeatureTests(TestCase):
         with self.assertRaisesMessage(ValidationError, "cannot form a cycle"):
             first.full_clean()
 
+    def test_superusers_receive_the_theme_coloured_owner_badge(self):
+        badge = CommentBadge.objects.create(
+            config=self.site,
+            name="博主",
+            color="",
+            admin_only=True,
+        )
+        owner = User.objects.create_superuser(
+            "owner",
+            "owner@example.com",
+            "password-for-tests",
+        )
+
+        assignment = CommentBadgeAssignment.objects.get(user=owner, badge=badge)
+        self.assertEqual(assignment.color_override, "")
+
+    def test_owner_badge_is_backfilled_when_created_after_the_superuser(self):
+        owner = User.objects.create_superuser(
+            "early-owner",
+            "early@example.com",
+            "password-for-tests",
+        )
+        badge = CommentBadge.objects.create(config=self.site, name="博主", color="")
+
+        self.assertTrue(
+            CommentBadgeAssignment.objects.filter(user=owner, badge=badge).exists()
+        )
+
+
+class ThemeImageValidationTests(TestCase):
+    def test_safe_svg_is_accepted(self):
+        upload = SimpleUploadedFile(
+            "logo.svg",
+            b'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"><path d="M0 0h1v1z"/></svg>',
+            content_type="image/svg+xml",
+        )
+
+        validate_theme_image(upload)
+
+    def test_scripted_svg_is_rejected(self):
+        upload = SimpleUploadedFile(
+            "logo.svg",
+            b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+            content_type="image/svg+xml",
+        )
+
+        with self.assertRaises(ValidationError):
+            validate_theme_image(upload)
+
+
+class StarterContentTests(TransactionTestCase):
+    reset_sequences = True
+
+    def test_installer_creates_public_defaults_without_user_assignments(self):
+        SiteConfiguration.objects.all().delete()
+        with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as temporary:
+            with override_settings(MEDIA_ROOT=temporary):
+                installed = install_starter_content()
+
+                site = SiteConfiguration.objects.get(is_active=True)
+                self.assertTrue(installed)
+                self.assertEqual(site.site_name, "Django Redefine")
+                self.assertTrue(Path(site.site_logo.path).is_file())
+                self.assertTrue(ArticleModel.objects.filter(slug="hello-world").exists())
+                self.assertTrue(MenuLink.objects.filter(config=site, name="Home").exists())
+                badge = CommentBadge.objects.get(config=site, name="博主")
+                self.assertEqual(badge.color, "")
+                self.assertFalse(CommentBadgeAssignment.objects.exists())
+                self.assertEqual(
+                    list(CommentEmojiPack.objects.filter(config=site).values_list("name", flat=True)),
+                    ["bilibili"],
+                )
+
 
 class PortableDataTests(TransactionTestCase):
     reset_sequences = True
@@ -114,7 +198,11 @@ class PortableDataTests(TransactionTestCase):
                 site = SiteConfiguration.objects.create(
                     config_name="Portable", site_name="Portable Blog", is_active=True
                 )
-                site.site_avatar.save("avatar.txt", ContentFile(b"portable-media"), save=True)
+                site.site_avatar.save(
+                    "avatar.svg",
+                    ContentFile(b'<svg xmlns="http://www.w3.org/2000/svg"/>'),
+                    save=True,
+                )
                 article = ArticleModel.objects.create(
                     title="Portable post", content="Body", is_published=True
                 )
@@ -137,4 +225,7 @@ class PortableDataTests(TransactionTestCase):
                 restored = ArticleModel.objects.get(title="Portable post")
                 restored_site = SiteConfiguration.objects.get(config_name="Portable")
                 self.assertEqual(restored.content, "Body")
-                self.assertEqual(Path(restored_site.site_avatar.path).read_bytes(), b"portable-media")
+                self.assertEqual(
+                    Path(restored_site.site_avatar.path).read_bytes(),
+                    b'<svg xmlns="http://www.w3.org/2000/svg"/>',
+                )

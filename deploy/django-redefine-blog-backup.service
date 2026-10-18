@@ -1,0 +1,16 @@
+[Unit]
+Description=Create a portable Django Redefine Blog backup
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/srv/django-redefine-blog
+EnvironmentFile=/etc/django-redefine-blog.env
+ExecStart=/srv/django-redefine-blog/venv/bin/python manage.py backup_blog --directory /srv/backups/django-redefine-blog --keep 14
+ExecStart=/srv/django-redefine-blog/venv/bin/python manage.py cleanup_orphan_uploads
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/srv/backups/django-redefine-blog /srv/django-redefine-blog/media
+NoNewPrivileges=true

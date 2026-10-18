@@ -20,17 +20,31 @@ mimetypes.add_type("application/javascript", ".mjs")
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def env_bool(name, default=False):
+    """Read one boolean without accepting surprising environment values."""
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def env_list(name, default=""):
+    """Split comma-separated deployment values and discard empty entries."""
+    return [item.strip() for item in os.getenv(name, default).split(",") if item.strip()]
+
+
 # read secrets from the environment, while keeping an explicit development-only fallback
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-insecure-change-me")
 
 # default to debug for local work, so production must opt out through its environment
-DEBUG = os.getenv("DJANGO_DEBUG", "1").lower() in {"1", "true", "yes", "on"}
+DEBUG = env_bool("DJANGO_DEBUG", True)
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",") if host.strip()]
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS")
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 
 # trust proxy-provided client addresses only when the deployment owns and
 # sanitizes the forwarding proxy in front of Django
-TRUST_X_FORWARDED_FOR = os.getenv("TRUST_X_FORWARDED_FOR", "0").lower() in {"1", "true", "yes", "on"}
+TRUST_X_FORWARDED_FOR = env_bool("TRUST_X_FORWARDED_FOR")
 
 
 # keep framework and blog applications declared here, so runtime wiring stays project-owned
@@ -85,13 +99,47 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 
-# use SQLite during development, so contributors can run the project without external services
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# keep SQLite as the zero-setup default, while deployments may switch database
+# engines entirely through environment variables
+DB_ENGINE = os.getenv("DB_ENGINE", "sqlite").lower()
+if DB_ENGINE in {"postgres", "postgresql"}:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DB_NAME", "django_blog"),
+            "USER": os.getenv("DB_USER", "django_blog"),
+            "PASSWORD": os.getenv("DB_PASSWORD", ""),
+            "HOST": os.getenv("DB_HOST", "127.0.0.1"),
+            "PORT": os.getenv("DB_PORT", "5432"),
+            "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
+            "CONN_HEALTH_CHECKS": True,
+        }
     }
-}
+elif DB_ENGINE == "mysql":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": os.getenv("DB_NAME", "django_blog"),
+            "USER": os.getenv("DB_USER", "django_blog"),
+            "PASSWORD": os.getenv("DB_PASSWORD", ""),
+            "HOST": os.getenv("DB_HOST", "127.0.0.1"),
+            "PORT": os.getenv("DB_PORT", "3306"),
+            "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
+            "OPTIONS": {
+                "charset": "utf8mb4",
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
+        }
+    }
+elif DB_ENGINE == "sqlite":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": Path(os.getenv("SQLITE_PATH", BASE_DIR / "db.sqlite3")),
+        }
+    }
+else:
+    raise ValueError("DB_ENGINE must be sqlite, postgresql or mysql.")
 
 
 # retain Django's standard validators, so local accounts follow production-safe defaults
@@ -113,10 +161,22 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # separate versioned theme assets from uploaded resources, so deployment can serve them differently
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "blog", "static")]
+# blog/static is discovered by Django's app finder; listing it again in
+# STATICFILES_DIRS would collect every theme asset twice
+STATICFILES_DIRS = []
+STATIC_ROOT = Path(os.getenv("STATIC_ROOT", BASE_DIR / "staticfiles"))
 
 MEDIA_URL = "/resources/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "blog", "resources")
+MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT", BASE_DIR / "blog" / "resources"))
+INSTALL_STARTER_CONTENT = env_bool("INSTALL_STARTER_CONTENT", True)
+
+# bound request bodies before application code runs, then apply stricter image
+# limits in the comment upload endpoint where dimensions can also be inspected
+DATA_UPLOAD_MAX_MEMORY_SIZE = int(os.getenv("DATA_UPLOAD_MAX_MEMORY_SIZE", str(5 * 1024 * 1024)))
+FILE_UPLOAD_MAX_MEMORY_SIZE = int(os.getenv("FILE_UPLOAD_MAX_MEMORY_SIZE", str(2 * 1024 * 1024)))
+COMMENT_UPLOAD_MAX_BYTES = int(os.getenv("COMMENT_UPLOAD_MAX_BYTES", str(2 * 1024 * 1024)))
+COMMENT_UPLOAD_MAX_DIMENSION = int(os.getenv("COMMENT_UPLOAD_MAX_DIMENSION", "8192"))
+COMMENT_UPLOAD_MAX_PIXELS = int(os.getenv("COMMENT_UPLOAD_MAX_PIXELS", "24000000"))
 
 
 # keep language and timezone project-owned, so saved content has one consistent interpretation
@@ -159,10 +219,19 @@ EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.example.com")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "1").lower() in {"1", "true", "yes", "on"}
-EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "0").lower() in {"1", "true", "yes", "on"}
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
+EMAIL_USE_SSL = env_bool("EMAIL_USE_SSL")
 EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", "10"))
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "blog@example.com")
+
+# local memory keeps development dependency-free; the cache location is named
+# explicitly so tests and multiple local projects do not accidentally share it
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": os.getenv("CACHE_LOCATION", "django-redefine-blog-local"),
+    }
+}
 
 LOGGING = {
     "version": 1,
