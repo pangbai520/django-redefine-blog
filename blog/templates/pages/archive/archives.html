@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="archive-container shadow-none hover:shadow-none sm:shadow-redefine sm:hover:shadow-redefine-hover">
+	{% include "utils/posts_list.html" with posts=articles_page %}
+</div>
+{% endblock %}

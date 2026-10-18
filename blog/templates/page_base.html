@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="page-template-container">
+
+    {% block page_header %}{% endblock %}
+
+    <div class="page-template-content markdown-body">
+        {% if not has_header %}
+            <h1>{{ page_title }}</h1>
+        {% endif %}
+
+        {% if page_content_html %}
+            {{ page_content_html|safe }}
+        {% endif %}
+    </div>
+
+    {% if page_comments_enabled %}
+    <div class="page-template-comments">
+        {% include 'components/comments/comment.html' %}
+    </div>
+    {% endif %}
+
+</div>
+
+{% if is_paginated %}
+    {% include 'utils/paginator.html' %}
+{% endif %}
+
+{% endblock %}

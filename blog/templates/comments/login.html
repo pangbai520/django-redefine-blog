@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load static %}
+{% block page_content %}
+<link rel="stylesheet" href="{% static 'css/internal-comments.css' %}"><div class="page-template-container"><div class="page-template-content markdown-body">
+<h1>Sign in</h1><form method="post" class="internal-auth-form">{% csrf_token %}{{ form.as_p }}
+<input type="hidden" name="next" value="{{ request.GET.next }}"><input type="hidden" name="waline" value="{{ request.GET.waline }}"><button class="wl-btn" type="submit">Sign in</button></form>
+<p><a href="{% url 'comment_register' %}">Create an account</a></p>
+</div></div>
+{% endblock %}

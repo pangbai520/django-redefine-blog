@@ -1,0 +1,45 @@
+{% load i18n %}
+<div class="home-article-meta-info-container">
+    <div class="home-article-meta-info">
+        <span><i class="fa-solid fa-calendars"></i>&nbsp;
+            {% language 'en' %}
+            <span class="home-article-date" data-date="{{ post.created_at|date:'D M d Y H:i:s O' }}">
+            {% endlanguage %}
+                {{ post.meta.home_date }}
+            </span>
+        </span>
+        {% if post.meta.categories %}
+            <span class="home-article-category">
+                <i class="fa-solid fa-folders"></i>&nbsp;
+
+            <ul>
+                {% for cat in post.meta.categories %}
+                    {% if not forloop.first and cat.new_parent %}
+                        <li>></li>
+                    {% elif not forloop.first %}
+                        <li>|</li>
+                    {% endif %}
+                    <li>
+                        <a href="{{ cat.url }}">{{ cat.name }}</a>&nbsp;
+                    </li>
+                {% endfor %}
+            </ul>
+        </span>
+        {% endif %}
+        {% if post.meta.tags %}
+        <span class="home-article-tag">
+            <i class="fa-solid fa-tags"></i>&nbsp;
+            <ul>
+                {% for tag in post.meta.tags %}
+                    <li>
+                        {% if not tag.first %}|{% endif %}
+                        <a href="{{ tag.url }}">{{ tag.name }}</a>&nbsp;
+                    </li>
+                {% endfor %}
+            </ul>
+        </span>
+        {% endif %}
+    </div>
+
+    <a href="{{ post.meta.path }}"> Readmore <span class="seo-reader-text">{{ post.meta.title }}</span>&nbsp;<i class="fa-solid fa-angle-right"></i></a>
+</div>

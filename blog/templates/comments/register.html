@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+{% block page_content %}
+<link rel="stylesheet" href="{% static 'css/internal-comments.css' %}" />
+<div class="page-template-container">
+  <div class="page-template-content markdown-body">
+    <h1>Create an account</h1>
+    {% if registration_disabled %}
+    <p>Registration is currently disabled.</p>
+    {% else %}
+    <form method="post" class="internal-auth-form">
+      {% csrf_token %}{{ form.as_p }}
+      <input type="hidden" name="next" value="{{ request.GET.next }}" /><button
+        class="wl-btn"
+        type="submit"
+      >
+        Register
+      </button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

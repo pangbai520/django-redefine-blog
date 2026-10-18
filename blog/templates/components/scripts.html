@@ -1,0 +1,42 @@
+{% load static %}
+<!-- load the shared lifecycle first, so page-specific modules can reuse its browser globals -->
+<script src="{% static 'js/main.js' %}" type="module"></script>
+<script src="{% static 'js/layouts/navbarShrink.js' %}" type="module"></script>
+<script src="{% static 'js/layouts/categoryList.js' %}" type="module"></script>
+
+{% if site.footer_runtime_enabled %}
+    <script src="{% static 'js/tools/runtime.js' %}"></script>
+    <script src="{% static 'js/libs/odometer.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'assets/odometer-theme-minimal.css' %}">
+{% endif %}
+
+{% if site.subtitle_enabled %}
+    <script src="{% static 'js/libs/Typed.min.js' %}"></script>
+{% endif %}
+
+{% if site.mermaid_enabled %}
+    <script src="{% static 'js/libs/mermaid.min.js' %}"></script>
+    <script src="{% static 'js/plugins/mermaid.js' %}"></script>
+{% endif %}
+
+{% if not site.preloader_enabled %}
+    <script src="{% static 'js/libs/anime.min.js' %}"></script>
+{% endif %}
+
+{# load tabs independently from TOC, so articles can use tab blocks without an outline #}
+<script src="{% static 'js/plugins/tabs.js' %}" type="module"></script>
+
+{% if site.masonry_enabled %}
+    <script src="{% static 'js/libs/minimasonry.min.js' %}"></script>
+    <script src="{% static 'js/plugins/masonry.js' %}" type="module"></script>
+{% endif %}
+
+{% if site.essays_enabled %}
+    <script src="{% static 'js/libs/moment-with-locales.min.js' %}"></script>
+    <script src="{% static 'js/layouts/essays.js' %}" type="module"></script>
+{% endif %}
+
+{% if site.article_pangu_js %}
+    <script src="{% static 'js/libs/pangu.min.js' %}"></script>
+    <script src="{% static 'js/plugins/pangu.js' %}"></script>
+{% endif %}

@@ -1,0 +1,21 @@
+<div class="paginator">
+    {% if articles_page.has_previous %}
+        <a class="extend prev" rel="prev" href="?page={{ articles_page.previous_page_number }}">
+            <i class="fa-regular fa-angle-left"></i>
+        </a>
+    {% endif %}
+
+    {% for num in articles_page.paginator.page_range %}
+        {% if num == articles_page.number %}
+            <span class="page-number current">{{ num }}</span>
+        {% else %}
+            <a class="page-number" href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if articles_page.has_next %}
+        <a class="extend next" rel="next" href="?page={{ articles_page.next_page_number }}">
+            <i class="fa-regular fa-angle-right"></i>
+        </a>
+    {% endif %}
+</div>

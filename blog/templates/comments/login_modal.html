@@ -1,0 +1,12 @@
+{% load static %}
+<link
+  rel="stylesheet"
+  href="{% static 'css/internal-comments.css' %}"
+/>
+<form method="post" class="internal-auth-form internal-auth-modal-form">
+  {% csrf_token %}{{ form.as_p }}<input
+    type="hidden"
+    name="next"
+    value="{{ request.GET.next }}"
+  /><button class="wl-btn primary" type="submit">Sign in</button>
+</form>

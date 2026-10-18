@@ -1,0 +1,13 @@
+{% extends "page_base.html" %}
+
+{% block page_header %}
+
+<div class="tag-name">
+    <i class="fa-solid fa-tag"></i>&nbsp;{{ tag.name }}
+</div>
+
+<div class="tag-post-list">
+    {% include "utils/posts_list.html" with posts=articles_page %}
+</div>
+
+{% endblock %}

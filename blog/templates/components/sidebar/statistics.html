@@ -1,0 +1,14 @@
+<div class="statistics flex justify-around my-2.5">
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="{% url 'tags' %}">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">{{ tags_count }}</div>
+        <div class="label text-third-text-color text-sm">Tags</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="{% url 'categories' %}">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">{{ categories_count }}</div>
+        <div class="label text-third-text-color text-sm">Categories</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="{% url 'archives' %}">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">{{ articles_count }}</div>
+        <div class="label text-third-text-color text-sm">Posts</div>
+    </a>
+</div>

@@ -1,0 +1,17 @@
+<div class="post-tools-container">
+	<ul class="article-tools-list">
+		<!-- keep the TOC toggle in page tools, so it follows the original desktop layout -->
+		{% if site.toc_enabled %}
+        <li class="right-bottom-tools page-aside-toggle">
+			<i class="fa-regular fa-outdent"></i>
+		</li>
+        {% endif %}
+
+		<!-- target the provider-neutral anchor, so every comment system uses the same action -->
+        {% if site.comment_enabled and article.show_comment %}
+        <li class="go-comment">
+			<i class="fa-regular fa-comments"></i>
+		</li>
+        {% endif %}
+	</ul>
+</div>

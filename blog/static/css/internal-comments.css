@@ -1,0 +1,116 @@
+.internal-comment-picker { position: absolute; top: 100%; inset-inline-start: 1.25em; z-index: 10; max-width: 526px; }
+.internal-comment-picker[hidden] { display: none !important; }
+/* keep Waline pack controls wider than their icons, so later generic button
+   rules cannot turn the rectangular tabs back into squares */
+.internal-comments .wl-emoji-popup .wl-tabs .wl-tab {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 3em;
+  height: 2em;
+  box-sizing: border-box;
+  line-height: 1;
+}
+.internal-comments {
+  /* keep Waline's blue status badge, while letting neutral controls follow the
+     active Redefine palette instead of retaining light-mode gray in the dark */
+  --waline-badge-color: #3498db;
+  --waline-border-color: var(--fourth-text-color);
+  --waline-color: var(--default-text-color);
+  --waline-dark-grey: var(--third-text-color);
+}
+/* use the article code-block palette here too, Waline's fixed dark surface
+   otherwise combines a dark background with light-mode token colours */
+.internal-comments .wl-content pre,
+.internal-comments .wl-content pre[class*="language-"] {
+  border: 1px solid var(--shadow-color-1);
+  background: var(--highlight-background);
+  color: var(--highlight-foreground);
+  box-shadow: var(--redefine-box-shadow-flat);
+}
+.internal-comments .wl-content pre code,
+.internal-comments .wl-content pre[class*="language-"] code {
+  color: var(--highlight-foreground);
+}
+/* the GitHub light palette is almost white, use the page's subtle gray
+   surface in comments so code remains distinct without changing token colours */
+:root[data-theme="light"] .internal-comments .wl-content pre,
+:root[data-theme="light"] .internal-comments .wl-content pre[class*="language-"] {
+  background: var(--third-background-color);
+}
+/* markdown-body gives hr a solid article divider, restore Waline's dashed
+   preview separator without changing horizontal rules inside comment content */
+.internal-comments .wl-preview > hr {
+  margin: .825em 0;
+  border: 0;
+  border-top: 1px dashed var(--waline-border-color);
+}
+.internal-comment-toolbar .wl-actions [data-comment-action="markdown"] { color: var(--waline-theme-color); }
+.internal-comments .wl-comment-status { display: none !important; }
+.internal-comments .wl-card a.wl-nick { color: var(--waline-theme-color); }
+.internal-comment-emoji { width: 1.4em; height: 1.4em; object-fit: contain; vertical-align: text-bottom; }
+.internal-comment-image { max-width: 100%; height: auto; vertical-align: middle; }
+.internal-preview-image { max-width: 100%; height: auto; }
+.internal-comment-picker a { color: var(--waline-theme-color); font-size: .9rem; padding: 4px; }
+.internal-picker-title { flex-basis: 100%; color: var(--waline-color); font-size: .8em; }
+.internal-picker-empty { color: var(--waline-info-color); font-size: .85em; padding: .35em; }
+.internal-gif-search { flex: 1 0 100%; min-width: 0; padding: .4em .6em; border: 1px solid var(--waline-border-color); border-radius: 4px; background: var(--background-color); color: var(--default-text-color); }
+.internal-gif-results { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; max-height: 220px; overflow-y: auto; }
+.internal-gif-results button { width: 84px; height: 64px; overflow: hidden; border: 1px solid var(--waline-border-color); border-radius: 4px; }
+.internal-gif-results img { width: 100%; height: 100%; object-fit: cover; }
+.internal-avatar-fallback { display: inline-flex; align-items: center; justify-content: center; width: var(--waline-avatar-size); height: var(--waline-avatar-size); border-radius: var(--waline-avatar-radius); background: var(--waline-theme-color); color: var(--waline-white); font-size: 1.4em; font-weight: 600; line-height: 1; overflow: hidden; box-shadow: var(--redefine-box-shadow-flat); }
+.wl-login-info { flex: 0 0 80px; width: 80px; max-width: none; margin-top: .75em; text-align: center; }
+.wl-login-details { display: flex; flex-direction: column; align-items: center; gap: .35em; max-width: 100%; }
+.wl-login-info .wl-avatar { display: inline-flex; align-items: center; justify-content: center; margin: 0 auto .35em; border: 0; }
+.wl-login-info .wl-btn { margin-top: 0; padding: .35em .8em; font-size: .7em; }
+.wl-login-info form { margin: 0; }
+.wl-card .wl-comment-actions button + button { margin-inline-start: 0; }
+.wl-reply-wrapper { margin-top: .75em; }
+.wl-reply-wrapper > .wl-comment { margin-bottom: .5em; }
+.wl-reply-wrapper > .wl-comment .wl-panel { margin-inline-end: 0; }
+.internal-inline-composer { margin-top: .6em; }
+.wl-edit-wrapper { margin-top: .65em; }
+.internal-reply-quote > .internal-reply-card-item { padding: .35em .5em; }
+.internal-reply-quote { border-inline-start-color: var(--waline-border-color); }
+.internal-reply-quote > .internal-reply-card-item .wl-user { --avatar-size: var(--waline-m-avatar-size); margin-inline-end: .5em; }
+.internal-reply-quote > .internal-reply-card-item .wl-card { padding-bottom: .3em; }
+.internal-reply-quote > .internal-reply-card-item .wl-card .wl-nick { font-size: .8em; }
+.internal-reply-quote > .internal-reply-card-item .wl-card .wl-time { font-size: .68em; }
+.internal-reply-quote > .internal-reply-card-item .wl-card .wl-content { padding-top: .35em; margin-bottom: .35em; font-size: .8em; line-height: 1.65; }
+.internal-reply-quote > .internal-reply-card-item .wl-card .wl-meta > span { font-size: calc(var(--waline-info-font-size) * .9); }
+.internal-reply-quote > .internal-reply-card-item .wl-comment-actions button { font-size: 1em; }
+.internal-reply-quote > .internal-reply-card-item .wl-comment-actions svg { width: 24px; height: 24px; }
+.internal-reply-mention { color: var(--waline-theme-color); text-decoration: none; }
+.internal-reply-quote .internal-avatar-fallback { width: var(--waline-m-avatar-size); height: var(--waline-m-avatar-size); font-size: 1.1em; }
+@media (max-width: 720px) { .internal-avatar-fallback { width: var(--waline-m-avatar-size); height: var(--waline-m-avatar-size); } }
+.internal-comment-toolbar .wl-info { gap: .75em; }
+.internal-comment-panel .wl-editor { min-height: 8.75em; }
+.internal-comment-count { margin-inline-end: .5em; }
+.internal-avatar-fallback { display: flex; align-items: center; justify-content: center; width: var(--waline-avatar-size); height: var(--waline-avatar-size); border-radius: var(--waline-avatar-radius); background: var(--waline-theme-color); color: var(--waline-white); font-size: 1.4em; font-weight: 600; line-height: 1; overflow: hidden; box-shadow: var(--redefine-box-shadow-flat); }
+@media (max-width: 720px) { .internal-avatar-fallback { width: var(--waline-m-avatar-size); height: var(--waline-m-avatar-size); } }
+.internal-auth-form { max-width: 520px; padding: 24px; border: var(--waline-border); border-radius: .75em; background: var(--background-color); }
+.internal-auth-form p { margin: 0 0 14px; }
+.internal-auth-form label { display: block; margin-bottom: 5px; }
+.internal-auth-form input { display: block; width: 100%; min-height: 38px; border: 1px solid var(--waline-border-color); border-radius: .5em; padding: 9px 11px; background: var(--second-background-color); color: var(--default-text-color); }
+.internal-auth-form .errorlist { color: #c62828; padding-left: 18px; }
+.internal-auth-modal { position: fixed !important; inset: 0 !important; z-index: 10000; display: flex; align-items: center; justify-content: center; background: rgb(0 0 0 / 45%); }
+.internal-auth-modal[hidden] { display: none; }
+.internal-auth-dialog { position: relative; width: min(92vw, 520px); max-height: 90vh; overflow-y: auto; padding: 28px 32px 30px; border: 1px solid var(--waline-border-color); border-radius: 14px; background: var(--background-color); box-shadow: var(--redefine-box-shadow-flat-hover); }
+.internal-auth-close { position: absolute; top: 8px; right: 12px; z-index: 1; border: 0; background: transparent; color: var(--default-text-color); font-size: 24px; cursor: pointer; }
+.internal-auth-modal-form { margin: 0; border: 0; box-shadow: none; }
+.internal-auth-modal-form h3 { margin: 18px 0 20px; color: var(--waline-color); font-size: 1.1em; font-weight: 500; }
+.internal-auth-modal-form input:-webkit-autofill { -webkit-text-fill-color: var(--default-text-color); box-shadow: 0 0 0 1000px var(--second-background-color) inset; }
+.internal-auth-error { min-height: 1.25rem; margin-top: 10px; color: #c62828; font-size: .9em; }
+.internal-auth-success { min-height: 1.25rem; margin-top: 10px; color: var(--waline-theme-color); font-size: .9em; }
+.internal-auth-tabs { display: flex; gap: 1.5em; margin: 0 0 8px; border-bottom: 1px solid var(--waline-border-color); }
+.internal-auth-tab { padding: .5em 0; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--waline-info-color); cursor: pointer; }
+.internal-auth-tab.is-active { border-bottom-color: var(--waline-theme-color); color: var(--waline-theme-color); }
+.internal-auth-modal-form[hidden] { display: none; }
+.internal-auth-modal-form .wl-btn { min-width: 96px; }
+.internal-auth-modal-form input { box-sizing: border-box; }
+@media (max-width: 580px) {
+  .wl-login-info { flex-basis: 64px; width: 64px; }
+  .wl-login-details { max-width: 64px; }
+}

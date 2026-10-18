@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title }}{% if title %} · {% endif %}Django Redefine{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin/redefine-admin.css' %}">
+<style>
+    :root,
+    html[data-theme="light"],
+    html[data-theme="dark"] {
+        --redefine-admin-accent: {{ site.colour_primary|default:'#A31F34' }};
+        --redefine-admin-accent-hover: color-mix(in srgb, var(--redefine-admin-accent) 82%, black);
+    }
+</style>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="{% static 'js/admin/redefine-admin.js' %}" defer></script>
+{% endblock %}
+
+{% block branding %}
+<a class="redefine-admin-brand" href="{% url 'admin:index' %}">
+    <strong>Django Redefine</strong>
+    <span>Administration</span>
+</a>
+{% endblock %}
+
+{% block welcome-msg %}
+<span class="redefine-admin-welcome"><strong>{% firstof user.get_short_name user.get_username %}</strong></span>
+{% endblock %}

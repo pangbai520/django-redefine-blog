@@ -1,0 +1,49 @@
+<div class="home-content-container">
+    <ul class="home-article-list">
+        {% for post in articles_page %}
+        <li class="home-article-item">
+            {% if post.sticky %}
+                <div class="absolute top-[12px] right-[12px] text-[0.7rem] text-third-text-color rounded-medium bg-background-color-transparent-15 py-[2px] px-[10px] border border-border-color z-1 hover:text-first-text-color cursor-default">
+                    <i class="fa-regular fa-thumbtack mr-[3px] text-[0.65rem]"></i> Sticky
+                </div>
+            {% endif %}
+
+            {% if post.thumbnail_url %}
+                <div id="home-article-thumbnail" class="home-article-thumbnail relative h-[150px] overflow-hidden rounded-t-large">
+                    <a href="{{ post.meta.path }}">
+                    <img src="{{ post.thumbnail_url }}"
+                        alt="{{ post.title }}"
+                        class="w-full h-full object-cover dark:brightness-75 transition-all"/>
+                </a>
+                </div>
+            {% endif %}
+            <div class="flex flex-col gap-5 px-7 pb-7 {% if post.thumbnail_url %}pt-5{% else %}pt-7{% endif %}">
+                <h3 class="home-article-title">
+                    <a href="{{ post.meta.path }}">
+                        {{ post.title }}
+                    </a>
+                </h3>
+
+                <div class="home-article-content markdown-body">
+                    {{ post.auto_excerpt|safe }}
+                </div>
+
+                {% include 'pages/home/home-article.html' with post=post %}
+            </div>
+        </li>
+        {% empty %}
+        {# keep an explicit empty state, so the article grid never collapses without feedback #}
+        <div class="text-center">
+            <i class="fa-regular fa-folder-open text-5xl text-third-text-color mb-4 block"></i>
+            <p class="text-xl text-second-text-color font-medium">Not articles yet</p>
+            <p class="text-sm text-third-text-color mt-2">This page is empty. Go to the backend and post your first blog post!</p>
+        </div>
+        {% endfor %}
+    </ul>
+
+    {% if articles_page %}
+        <div class="home-paginator px-7 py-5">
+            {% include "utils/paginator.html" %}
+        </div>
+    {% endif %}
+</div>

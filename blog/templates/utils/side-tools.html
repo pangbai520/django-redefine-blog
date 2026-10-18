@@ -1,0 +1,49 @@
+<div class="side-tools-container">
+	<ul class="hidden-tools-list">
+		<li class="right-bottom-tools tool-font-adjust-plus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-plus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-font-adjust-minus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-minus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-dark-light-toggle flex justify-center items-center">
+			<i class="fa-regular fa-moon"></i>
+		</li>
+
+		<!-- show RSS only when configured, so an empty feed link never reaches readers -->
+        {% if site.rssfeed_enabled %}
+		<li class="right-bottom-tools rss flex justify-center items-center">
+			<a class="flex justify-center items-center" href="{{ site.rss_url }}" target="_blank">
+				<i class="fa-regular fa-rss"></i>
+			</a>
+		</li>
+        {% endif %}
+		{% if not site.reading_bar_percentage %}
+		<li class="right-bottom-tools tool-scroll-to-top flex justify-center items-center">
+			<i class="fa-regular fa-arrow-up"></i>
+		</li>
+        {% endif %}
+		<li class="right-bottom-tools tool-scroll-to-bottom flex justify-center items-center">
+			<i class="fa-regular fa-arrow-down"></i>
+		</li>
+	</ul>
+
+	<ul class="visible-tools-list">
+		<li class="right-bottom-tools toggle-tools-list flex justify-center items-center">
+			<i class="fa-regular fa-cog {% if site.sidetools_gear_rotation %}fa-spin{% endif %}"></i>
+		</li>
+		{% if site.reading_bar_percentage %}
+        <li class="right-bottom-tools tool-scroll-to-top flex justify-center items-center">
+			<i class="arrow-up fas fa-arrow-up"></i>
+			<span class="percent"></span>
+		</li>
+        {% endif %}
+		{% if site.aplayer_enabled and site.aplayer_is_mini %}
+        <li class="right-bottom-tools tool-aplayer flex justify-center items-center">
+
+		</li>
+        {% endif %}
+	</ul>
+</div>

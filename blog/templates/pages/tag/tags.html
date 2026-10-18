@@ -1,0 +1,36 @@
+{% extends "page_base.html" %}
+
+{% block page_header %}
+
+{% if tags %}
+<h1 class="page-title-header">
+    {{ page_title }}
+</h1>
+
+{% if site.tags_page_style == 'cloud' %}
+    <div class="tagcloud-content">
+        {% for tag in tags %}
+            <a href="{% url 'tags_detail' tag.slug %}"
+               style="font-size: {{ tag.weight }}rem;">
+                {{ tag.name }}
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="tagcloud-content">
+        <ul class="tag-list" data-show-value="true">
+            {% for tag in tags %}
+            <li>
+                <a data-weight="{{ tag.post_count }}"
+                   href="{% url 'tags_detail' tag.slug %}">
+                    <i class="fa-solid fa-hashtag"></i>{{ tag.name }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+{% endif %}
+
+{% endblock %}

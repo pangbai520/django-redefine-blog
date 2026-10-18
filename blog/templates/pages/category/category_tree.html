@@ -1,0 +1,13 @@
+{% for category in category_nodes %}
+<li class="all-category-list-item">
+    <a class="all-category-list-link" href="{% url 'categories_detail' category.slug %}">
+        {{ category.name }}
+    </a>
+    <span class="all-category-list-count">{{ category.tree_article_count }}</span>
+    {% if category.children_list %}
+    <ul class="all-category-list-child">
+        {% include "pages/category/category_tree.html" with category_nodes=category.children_list %}
+    </ul>
+    {% endif %}
+</li>
+{% endfor %}

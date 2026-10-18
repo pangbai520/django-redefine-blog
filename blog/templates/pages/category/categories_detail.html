@@ -1,0 +1,11 @@
+{% extends "page_base.html" %}
+
+{% block page_header %}
+<div class="category-name">
+    <i class="fa-solid fa-folder"></i>&nbsp;{{ page.name }}
+</div>
+
+<div class="category-post-list">
+    {% include "utils/posts_list.html" with posts=articles_page %}
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static log admin_dashboard %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/dashboard.css' %}">{% endblock %}
+{% block coltype %}colMS{% endblock %}
+{% block bodyclass %}{{ block.super }} dashboard redefine-dashboard{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
+{% admin_dashboard_stats as stats %}
+<div class="redefine-dashboard-heading">
+    <h1>Administration</h1>
+    <a href="{{ site_url|default:'/' }}" target="_blank" rel="noopener">View site</a>
+</div>
+
+<div class="redefine-dashboard-summary" aria-label="Site overview">
+    <a href="{% url 'admin:blog_articlemodel_changelist' %}?is_published__exact=1">Published <strong>{{ stats.published_articles }}</strong></a>
+    <a href="{% url 'admin:blog_articlemodel_changelist' %}?is_published__exact=0">Drafts <strong>{{ stats.draft_articles }}</strong></a>
+    <a href="{% url 'admin:blog_comment_changelist' %}?is_approved__exact=0">Pending <strong>{{ stats.pending_comments }}</strong></a>
+    <a href="{% url 'admin:blog_trafficmodel_changelist' %}">Visits today <strong>{{ stats.visits_today }}</strong></a>
+    <span class="redefine-dashboard-config">Active configuration: <a href="{% url 'admin:blog_siteconfiguration_changelist' %}">{{ stats.active_config }}</a></span>
+</div>
+
+<div id="content-main" class="app-list redefine-app-list">
+    {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+    {% if perms.blog.add_articlemodel or perms.blog.change_comment or perms.blog.change_siteconfiguration %}
+    <div class="module redefine-quick-actions">
+        <h2>Quick actions</h2>
+        {% if perms.blog.add_articlemodel %}<a href="{% url 'admin:blog_articlemodel_add' %}">Add article</a>{% endif %}
+        {% if perms.blog.change_comment %}<a href="{% url 'admin:blog_comment_changelist' %}?is_approved__exact=0">Review comments</a>{% endif %}
+        {% if perms.blog.change_siteconfiguration %}<a href="{% url 'admin:blog_siteconfiguration_changelist' %}">Site configuration</a>{% endif %}
+    </div>
+    {% endif %}
+    <div class="module" id="recent-actions-module">
+        <h2>{% translate 'Recent actions' %}</h2>
+        <h3>{% translate 'My actions' %}</h3>
+        {% get_admin_log 8 as admin_log for_user user %}
+        {% if not admin_log %}
+        <p>{% translate 'None available' %}</p>
+        {% else %}
+        <ul class="actionlist">
+            {% for entry in admin_log %}
+            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %} changelink{% endif %}{% if entry.is_deletion %} deletelink{% endif %}">
+                {% if entry.is_deletion or not entry.get_admin_url %}{{ entry.object_repr }}{% else %}<a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>{% endif %}
+                {% if entry.content_type %}<br><span class="mini quiet">{{ entry.content_type.name|capfirst }}</span>{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

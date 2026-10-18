@@ -1,0 +1,46 @@
+<div class="home-sidebar-container">
+    <div class="sticky-container sticky">
+        {% if site.sidebar_firstitem == "info" %}
+        <div class="sidebar-content">
+            {% include "components/sidebar/avatar.html" %}
+            {% include "components/sidebar/author.html" %}
+            {% include "components/sidebar/statistics.html" %}
+        </div>
+        {% endif %}
+
+        {% if site.sidebar_links or site.sidebar_announcement %}
+            <div class="sidebar-links">
+                <div class="site-info">
+                    <div class="site-name">{{ site.site_name }}</div>
+                    {% if site.sidebar_announcement and site.sidebar_links %}
+                        <div class="announcement">
+                            {{ site.sidebar_announcement }}
+                        </div>
+                    {% endif %}
+                </div>
+                {% if site.sidebar_links %}
+                    {% for sidebar_link in site.sidebar_links %}
+                        <a class="links" href="{{ sidebar_link.href }}">
+                            {% if sidebar_link.user_icon %}
+                                <i class="{{ sidebar_link.user_icon }} icon-space"></i>
+                            {% endif %}
+                            <span class="link-name">{{ sidebar_link.name }}</span>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                <div class="announcement-outside">
+                    {{ site.sidebar_announcement }}
+                </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if site.sidebar_firstitem != "info" %}
+        <div class="sidebar-content" {% if site.sidebar_links or site.sidebar_announcement %}marginTop{% endif %}>
+            {% include "components/sidebar/avatar.html" %}
+            {% include "components/sidebar/author.html" %}
+            {% include "components/sidebar/statistics.html" %}
+        </div>
+        {% endif %}
+    </div>
+</div>

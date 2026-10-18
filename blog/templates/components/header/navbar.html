@@ -1,0 +1,123 @@
+{% load static %}
+{% load navbar_utils %}
+<header class="navbar-container px-6 md:px-12">
+    <div class="navbar-content transition-navbar{% if site.homebanner_enabled and is_homepage %} has-home-banner{% endif %}">
+        <div class="left">
+            {% if site.site_logo %}
+                <a class="logo-image h-8 w-8 sm:w-10 sm:h-10 mr-3" href="{% url 'index' %}">
+                    <img src="{{ site.site_logo.url }}" alt="{{ site.site_name }}" class="w-full h-full rounded-xs">
+                </a>
+            {% endif %}
+            <a class="logo-title" href="{% url 'index' %}">
+                {% if is_homepage %}
+                <h1>{{ site.site_name|default:"Redefine Theme" }}</h1>
+                {% else %}
+                {{ site.site_name|default:"Redefine Theme" }}
+                {% endif %}
+            </a>
+        </div>
+
+        <div class="right">
+            <!-- keep desktop links in their own list, so tablet CSS can replace them cleanly -->
+            <div class="desktop">
+                <ul class="navbar-list">
+                    {% for navbar_link in site.navbar_links %}
+                    <li class="navbar-item">
+                        <a class="{% if navbar_link.has_submenus %}has-dropdown{% elif navbar_link|is_active:request %}active{% endif %}"
+                            href="{{ navbar_link.href }}"
+                            {% if navbar_link.has_submenus %}onclick="return false;"{% endif %}>
+                            {% if navbar_link.user_icon %}
+                                <i class="{{ navbar_link.user_icon }} fa-fw"></i>
+                            {% endif %}
+                            {{ navbar_link.name }}
+                            {% if navbar_link.has_submenus %}
+                                <i class="fa-solid fa-chevron-down fa-fw"></i>
+                            {% endif %}
+                        </a>
+
+                        {% if navbar_link.has_submenus %}
+                        <ul class="sub-menu">
+                            {% for submenu in navbar_link.submenus.all %}
+                            <li>
+                                <a href="{{ submenu.href }}">
+                                    {{ submenu.name }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                    {% if site.navbar_search_enabled %}
+                    <li class="navbar-item search search-popup-trigger">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            <!-- render compact controls at tablet width, matching Redefine's breakpoint -->
+            <div class="mobile">
+                {% if site.navbar_search_enabled %}
+                <div class="icon-item search search-popup-trigger"><i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                {% endif %}
+                <div class="icon-item navbar-bar">
+                    <div class="navbar-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- keep the drawer outside navbar-content, so its full-viewport transform is not clipped -->
+    <div class="navbar-drawer h-dvh w-full absolute top-0 left-0 bg-background-color flex flex-col justify-between">
+        <ul class="drawer-navbar-list flex flex-col px-4 justify-center items-start">
+            {% for navbar_link in site.navbar_links %}
+            <li class="{% if navbar_link.has_submenus %}drawer-navbar-item-sub{% else %}drawer-navbar-item{% endif %} text-base my-1.5 flex flex-col w-full">
+                {% if navbar_link.has_submenus %}
+                <div class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary cursor-pointer text-2xl font-semibold group border-b border-border-color hover:border-primary w-full {% if navbar_link|is_active:request %}active{% endif %}" navbar-data-toggle="submenu-{{ forloop.counter }}">
+                    <span>
+                        {{ navbar_link.name }}
+                    </span>
+                    <i class="fa-solid fa-chevron-right fa-sm fa-fw transition-all"></i>
+                </div>
+                {% else %}
+                <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full {% if navbar_link|is_active:request %}active{% endif %}" href="{{ navbar_link.href }}">
+                    <span>
+                        {{ navbar_link.name }}
+                    </span>
+                    {% if navbar_link.user_icon %}
+                        <i class="{{ navbar_link.user_icon }} fa-sm fa-fw"></i>
+                    {% endif %}
+                </a>
+                {% endif %}
+                {% if navbar_link.has_submenus %}
+                    <div class="flex-col items-start px-2 py-2 hidden" data-target="submenu-{{ forloop.counter }}">
+                        {% for submenu in navbar_link.submenus.all %}
+                            <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                <a class=" text-third-text-color text-xl"
+                                    href="{{ submenu.href }}">{{ submenu.name }}</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </li>
+            {% endfor %}
+
+            {% if site.sidebar_on_mobile and site.sidebar_links %}
+                {% for sidebar_link in site.sidebar_links %}
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full {% if sidebar_link|is_active:request %}active{% endif %}" href="{{ sidebar_link.href }}">
+                            <span>{{ sidebar_link.name }}</span>
+                            <i class="{{ sidebar_link.user_icon }} fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                {% endfor %}
+            {% endif %}
+        </ul>
+
+        {% include "components/sidebar/statistics.html" %}
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>

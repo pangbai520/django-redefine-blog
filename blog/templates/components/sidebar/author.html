@@ -1,0 +1,5 @@
+{% load author_label_utils %}
+<div class="author flex flex-col justify-center my-2.5 mx-0">
+    <div class="name">{{ site.site_author }}</div>
+    {% if site.author_label_enabled %}<div class="label">{% get_author_label articles_count site.author_label_auto site.author_label_list %}</div>{% endif %}
+</div>

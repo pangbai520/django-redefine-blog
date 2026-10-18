@@ -1,0 +1,22 @@
+{% extends "base.html" %} {% load static %} {% block page_content %}<link
+  rel="stylesheet"
+  href="{% static 'css/internal-comments.css' %}"
+/>
+<div class="page-template-container">
+  <div class="page-template-content markdown-body">
+    <h1>Check your email</h1>
+    {% if mail_error %}
+    <p>
+      We could not send the verification email right now. Please contact the
+      site administrator.
+    </p>
+    {% else %}
+    <p>
+      We sent a verification link to {{ email }}. Your account will be ready
+      after verification.
+    </p>
+    {% endif %}
+    <p><a class="wl-btn primary" href="javascript:history.back()">Back</a></p>
+  </div>
+</div>
+{% endblock %}

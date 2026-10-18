@@ -1,0 +1,99 @@
+{% load static %}
+{% if site.homebanner_style == "fixed" %}
+    <style>
+        .home-banner-container {
+            background: none !important;
+        }
+        .home-article-item,
+        .sidebar-links,
+        .sidebar-content,
+        a.page-number,
+        a.extend,
+        .sidebar-links .links:hover,
+        .right-bottom-tools,
+        footer.footer {
+            background-color: var(--background-color-transparent-80) !important;
+        }
+        .right-bottom-tools:hover,
+        a.page-number:hover,
+        a.extend:hover {
+            background-color: var(--primary-color) !important;
+        }
+        .site-info,
+        .home-article-sticky-label {
+            background-color: var(--background-color-transparent-15) !important;
+        }
+        .home-article-sticky-label {
+            backdrop-filter: none !important;
+        }
+    </style>
+    <div class="home-banner-background transition-fade fixed top-0 left-0 w-screen h-screen scale-125 sm:scale-110 box-border will-change-transform bg-cover">
+        <img src="{% if site.light_image %}{{ site.light_image.url }}{% else %}{% static 'images/wallhaven-wqery6-light.webp' %}{% endif %}" alt="home-banner-background" class="w-full h-full object-cover dark:hidden">
+        <img src="{% if site.dark_image %}{{ site.dark_image.url }}{% else %}{% static 'images/wallhaven-wqery6-dark.webp' %}{% endif %}" alt="home-banner-background" class="w-full h-full object-cover hidden dark:block">
+    </div>
+{% endif %}
+
+
+<div class="home-banner-container flex justify-center items-center transition-fade relative">
+    {% if site.homebanner_style != "fixed" %}
+    <div class="home-banner-background transition-fade absolute top-0 left-0 w-screen h-screen scale-125 sm:scale-110 box-border will-change-transform bg-cover">
+        <img src="{% if site.light_image %}{{ site.light_image.url }}{% else %}{% static 'images/wallhaven-wqery6-light.webp' %}{% endif %}" alt="home-banner-background" class="w-full h-full object-cover dark:hidden">
+        <img src="{% if site.dark_image %}{{ site.dark_image.url }}{% else %}{% static 'images/wallhaven-wqery6-dark.webp' %}{% endif %}" alt="home-banner-background" class="w-full h-full object-cover hidden dark:block">
+    </div>
+    {% endif %}
+
+
+    <div class="content mt-8 flex flex-col justify-center items-center transition-fade-down relative">
+        <div class="description flex flex-col justify-center items-center w-screen font-medium text-center">
+            {% firstof site.hb_title site.site_description site.site_name %}
+            {% if site.subtitle_enabled %}
+                <p><i id="subtitle"></i></p>
+            {% endif %}
+        </div>
+        {% if site.social_links_enabled %}
+            <div class="absolute bottom-0.5 flex {{ site.social_layout.flex_dir }} {{ site.social_layout.justify }} max-w-[1340px] items-center w-full px-8 sm:px-12">
+                <button type="button" data-scroll-to-main aria-label="Scroll to content" class="{{ site.social_layout.display }} p-3 bg-gray-300/50 dark:bg-gray-500/40 backdrop-blur-lg border border-white/20 dark:border-gray-500/30 group rounded-full cursor-pointer flex justify-center items-center aspect-square h-full shadow-redefine-flat hover:shadow-redefine-flat-hover transition-shadow">
+                    <i class="fa-solid fa-arrow-down fa-fw fa-lg group-hover:translate-y-1 transition-transform"></i>
+                </button>
+                <div class="social-contacts px-6 py-3 bg-gray-300/50 dark:bg-gray-500/40 backdrop-blur-lg border border-white/20 dark:border-gray-500/30 shadow-redefine-flat rounded-full flex flex-row gap-3 items-center">
+                    {% for link in site.social_links %}
+                    <span class="social-contact-item{% if link.link_type not in "img,fa" %} {{ link.name|lower }}{% endif %}">
+                        <a {% if link.href %}target="_blank"{% endif %} href="{{ link.href }}">
+                            {% if link.link_type == "email" %}
+                                <i class="fa-solid fa-fw fa-at fa-lg"></i>
+                            {% elif link.link_type == "fa" %}
+                                <i class="{{ link.name|lower }} fa-fw fa-lg"></i>
+                            {% elif link.link_type == "img" %}
+                                <img src="{{ link.href }}" alt="social-icon" class="w-5 h-5 object-contain">
+                            {% else %}
+                                <i class="fa-brands fa-fw fa-lg fa-{{ link.name|lower }}"></i>
+                            {% endif %}
+                        </a>
+                    </span>
+                    {% endfor %}
+
+                    {% if site.qrcode_links %}
+                    <div class="social-links-divider vertical-separator w-[1px] h-4 bg-third-text-color mx-0.5"></div>
+                        {% for qrcode in site.qrcode_links %}
+                            <span class="social-contact-item-qr{% if qrcode.qr_type not in "img,fa" %} {{ qrcode.name }}{% endif %} cursor-pointer group">
+                                <a target="_blank">
+                                    {% if qrcode.qr_type == "fa" %}
+                                    <i class="{{ qrcode.name }} fa-fw fa-lg"></i>
+                                    {% elif qrcode.qr_type == "img" %}
+                                    <img src="{{ qrcode.name }}" alt="social-icon" class="w-5 h-5 object-contain">
+                                    {% else %}
+                                    <i class="fa-brands fa-fw fa-lg fa-{{ qrcode.name }}"></i>
+                                    {% endif %}
+                                    <div class="social-qr-container absolute h-auto bg-background-color-transparent-40 border border-white/20 dark:border-gray-500/30 overflow-hidden rounded-2xl bottom-0 mb-14 right-0 invisible group-hover:visible opacity-0 group-hover:opacity-100 translate-y-0.5 group-hover:translate-y-0 transition-all">
+                                        <img class="social-contacts-qr w-64"
+                                            src="{{ qrcode.qr_img }}"/>
+                                    </div>
+                                </a>
+                            </span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>

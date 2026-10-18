@@ -1,0 +1,14 @@
+{% extends "page_base.html" %}
+
+{% block page_header %}
+<h1 class="category-header">
+    {{ page_title }}
+</h1>
+
+<div class="category-list-content">
+    <ul class="all-category-list">
+        {% include "pages/category/category_tree.html" with category_nodes=category_tree %}
+    </ul>
+</div>
+
+{% endblock %}

@@ -1,0 +1,274 @@
+{% load static %}
+{% load inject_utils %}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="{{ site.site_keywords }}">
+    <meta name="description" content="{% firstof site.site_description site.og_description site.site_subname %}">
+    <meta name="author" content="{{ site.site_author }}">
+    {% if site.rssfeed_enabled %}<link rel="alternate" type="application/rss+xml" title="{{ site.site_name }}" href="{{ site.rss_url }}">{% endif %}
+
+    <!-- resolve the saved mode before CSS loads, so the first paint uses the correct palette -->
+    <script>
+        (function() {
+            const THEME_KEY = "REDEFINE-THEME-STATUS";
+            const DARK = "dark", LIGHT = "light";
+            const DEFAULT_MODE = "{{ site.colour_default_mode|default:'light' }}";
+
+            function savedColorChoice() {
+                try {
+                    const saved = JSON.parse(localStorage.getItem(THEME_KEY));
+                    if (!saved || typeof saved.isDark !== "boolean") return null;
+                    // treat legacy status as an explicit reader choice, so an
+                    // upgrade does not unexpectedly replace it with system mode
+                    if (saved.isColorModeExplicit === false) return null;
+                    return saved.isDark ? DARK : LIGHT;
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            function getTheme() {
+                const saved = savedColorChoice();
+                if (saved) return saved;
+                if (DEFAULT_MODE === DARK || DEFAULT_MODE === LIGHT) return DEFAULT_MODE;
+                return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? DARK : LIGHT;
+            }
+
+            function applyTheme(theme) {
+                const root = document.documentElement;
+                const isDark = theme === DARK;
+                root.setAttribute("data-theme", theme);
+                root.classList.add(theme);
+                root.classList.remove(isDark ? LIGHT : DARK);
+                root.classList.add(theme + "-mode");
+                root.classList.remove((isDark ? LIGHT : DARK) + "-mode");
+                root.style.colorScheme = theme;
+            }
+
+            const theme = getTheme();
+            applyTheme(theme);
+            window.matchMedia?.("(prefers-color-scheme: dark)").addEventListener("change", ({ matches }) => {
+                // lock explicit defaults and saved choices, so later system
+                // theme changes cannot override intentional site or reader state
+                if (DEFAULT_MODE === DARK || DEFAULT_MODE === LIGHT) return;
+                if (!savedColorChoice()) {
+                    applyTheme(matches ? DARK : LIGHT);
+                }
+            });
+        })();
+    </script>
+
+    <!-- keep only first-paint mode rules inline, so the full stylesheet remains cacheable -->
+    <style>
+        :root[data-theme="dark"] {
+            --background-color: #202124;
+            --background-color-transparent: rgba(32, 33, 36, 0.4);
+            --second-background-color: #242529;
+            --third-background-color: #292b2f;
+            --third-background-color-transparent: rgba(32, 33, 36, 0.6);
+            --primary-color: {{ site.colour_primary|default:'#0066CC' }};
+            --first-text-color: #d2d2d7;
+            --second-text-color: #cbcbd1;
+            --third-text-color: #9595a2;
+            --fourth-text-color: #36363e;
+            --default-text-color: #bebec6;
+            --invert-text-color: #373D3F;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --selection-color: #be243c;
+            --shadow-color-1: rgba(255, 255, 255, 0.08);
+            --shadow-color-2: rgba(255, 255, 255, 0.05);
+        }
+
+        :root[data-theme="light"] {
+            --background-color: #fff;
+            --background-color-transparent: rgba(255, 255, 255, 0.6);
+            --second-background-color: #fafafa;
+            --third-background-color: #f7f7f7;
+            --third-background-color-transparent: rgba(241, 241, 241, 0.6);
+            --primary-color: {{ site.colour_primary|default:'#0066CC' }};
+            --first-text-color: #323739;
+            --second-text-color: #343a3c;
+            --third-text-color: #5c6669;
+            --fourth-text-color: #eaeced;
+            --default-text-color: #373D3F;
+            --invert-text-color: #bebec6;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --selection-color: #be243c;
+            --shadow-color-1: rgba(0, 0, 0, 0.08);
+            --shadow-color-2: rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+
+        /* mirror the root mode onto body at DOM ready, so component selectors agree */
+        :root[data-theme="dark"] body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+    </style>
+
+    <!-- preconnect only to configured remote assets, so optional fonts do not delay discovery -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    {% comment %} keep these globals shaped like Redefine's Hexo config, so TOC,
+    navbar, search and banner modules work on initial and Swup page views {% endcomment %}
+    {{ site.subtitle_text|json_script:"theme-subtitle-text" }}
+    <script>
+      const themeSubtitleTextElement = document.getElementById("theme-subtitle-text");
+      const themeSubtitleText = themeSubtitleTextElement
+        ? JSON.parse(themeSubtitleTextElement.textContent)
+        : [];
+      window.config = window.config || { root: "{% url 'index' %}", path: "search.json" };
+      window.config.language = window.config.language || "{{ SITE_LANG|default:'en' }}";
+      window.theme = window.theme || {
+        colors: { default_mode: "{{ site.colour_default_mode|default:'light' }}" },
+        navbar: {
+          auto_hide: {{ site.navbar_autohide|yesno:'true,false' }},
+          search: {
+            enable: {{ site.navbar_search_enabled|yesno:'true,false' }},
+            preload: {{ site.navbar_search_preload|yesno:'true,false' }},
+            top_n_per_article: 3
+          }
+        },
+        global: {
+          scroll_progress: {
+            bar: {{ site.reading_bar_enabled|yesno:'true,false' }},
+            percentage: {{ site.reading_bar_percentage|yesno:'true,false' }}
+          },
+          side_tools: { auto_expand: {{ site.sidetools_auto_expand|yesno:'true,false' }} }
+        },
+        home_banner: {
+          style: "{{ site.homebanner_style|default:'static' }}",
+          subtitle: {
+            enable: {{ site.subtitle_enabled|yesno:'true,false' }},
+            text: themeSubtitleText,
+            hitokoto: {
+              enable: {{ site.st_hitokoto_enable|yesno:'true,false' }},
+              show_author: {{ site.st_hitokoto_show_author|yesno:'true,false' }},
+              api: "{{ site.st_hitokoto_api|escapejs }}"
+            },
+            typing_speed: {{ site.st_typing_speed|default:100 }},
+            backing_speed: {{ site.st_backing_speed|default:80 }},
+            starting_delay: {{ site.st_starting_delay|default:500 }},
+            backing_delay: {{ site.st_backing_delay|default:1500 }},
+            loop: {{ site.subtitle_loop|yesno:'true,false' }},
+            smart_backspace: {{ site.st_smart_backspace|yesno:'true,false' }}
+          }
+        },
+        home: { article_date_format: "{{ site.article_dateformat|default:'auto' }}" },
+        articles: {
+          lazyload: {{ site.article_lazyload|yesno:'true,false' }},
+          code_block: { copy: {{ site.code_block_copy|yesno:'true,false' }} },
+          toc: { enable: {{ site.toc_enabled|yesno:'true,false' }}, init_open: {{ site.toc_init_open|yesno:'true,false' }}, expand: {{ site.toc_expand|yesno:'true,false' }}, number: {{ site.toc_has_number|yesno:'true,false' }}, max_depth: {{ site.toc_max_depth|default:3 }} }
+        },
+        footerStart: "{{ site.footer_sitestart|date:'c' }}",
+        mermaid: { style: { light: "default", dark: "dark" } },
+        plugins: { mermaid: { enable: {{ site.mermaid_enabled|yesno:'true,false' }} } }
+      };
+    </script>
+
+    <!-- emit one metadata set here, so page templates cannot create conflicting SEO tags -->
+
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow">
+    <meta name="revisit-after" content="1 days">
+
+    {% with url_name=request.resolver_match.url_name %}
+    {% if site.og_enabled %}
+    <meta property="og:type" content="{% if url_name == "article" %}{{ url_name }}{% else %}website{% endif %}">
+    <meta property="og:title" content="{{ site.site_name }}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:site_name" content="{{ site.site_name }}">
+    <meta property="og:description" content="{{ site.og_description }}">
+    <meta property="og:locale" content="{{ SITE_LANG }}">
+    <meta property="og:image" content="{% if site.og_image %}{{ site.og_image.url }}{% else %}{% static 'images/redefine-og.webp' %}{% endif %}">
+    {% if url_name == "article" %}
+        <meta property="article:published_time" content="{{ article.created_at }}">
+        <meta property="article:modified_time" content="{{ article.updated_at }}">
+    {% endif %}
+    <meta property="article:author" content="{{ site.site_author }}">
+    <meta property="article:tag" content="{{ site.site_author }}">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:image" content="{% if site.og_image %}{{ site.og_image.url }}{% else %}{% static 'images/redefine-og.webp' %}{% endif %}">
+    {% endif %}
+    {% endwith %}
+    {% if site.google_analytics_enabled and site.google_analytics_id %}
+    <!-- load analytics only when configured, so local and privacy-focused sites stay quiet -->
+        <script src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics_id|urlencode }}"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ site.google_analytics_id|escapejs }}');
+        </script>
+    {% endif %}
+
+    <!-- prefer the configured favicon, while keeping Redefine's bundled fallback -->
+    <link rel="icon" href="{% if site.site_favicon %}{{ site.site_favicon.url }}{% else %}{% static 'images/redefine-favicon.svg' %}{% endif %}" sizes="192x192">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% if site.site_favicon %}{{ site.site_favicon.url }}{% else %}{% static 'images/redefine-favicon.svg' %}{% endif %}">
+    <meta name="theme-color" content="{{ site.colour_primary }}">
+    <link rel="shortcut icon" href="{% if site.site_favicon %}{{ site.site_favicon.url }}{% else %}{% static 'images/redefine-favicon.svg' %}{% endif %}">
+    <!-- expose route and locale data before modules execute, so Swup code has stable globals -->
+    <title>
+        {% if page_title %}
+            {{ page_title }} | {{ site.site_name }}
+        {% else %}
+            {{ site.site_name }}{% if site.site_subname %} - {{ site.site_subname }}{% endif %}
+        {% endif %}
+    </title>
+
+    <link rel="stylesheet" href="{% static 'fonts/Chillax/chillax.css' %}">
+
+    <!-- render trusted administrator injections last, so they can extend resolved head state -->
+    {% if site.inject_enabled and site.inject_header %}
+            {% if site.swup_enabled %}
+                {{ site.inject_header|replace:"<script,<script data-swup-reload-script"|safe }}
+            {% else %}
+                {{ site.inject_header|safe }}
+            {% endif %}
+    {% endif %}
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% if site.comment_system == "gitalk" or site.comment_system == "twikoo" %}
+        <link rel="stylesheet" href="{% static 'css/comment-providers.css' %}">
+    {% endif %}
+    <link rel="stylesheet" href="{% static 'css/codeblock-settings.css' %}">
+    {% if site.sidebar_enabled %}
+        <link rel="stylesheet" href="{% static 'css/layout/home-sidebar.css' %}">
+    {% endif %}
+    <link rel="stylesheet" href="{% static 'css/build/tailwind.css' %}">
+    <link rel="stylesheet" href="{% static 'fonts/GeistMono/geist-mono.css' %}">
+    <link rel="stylesheet" href="{% static 'fonts/Geist/geist.css' %}">
+
+    <!-- load only enabled font slots, so unused families do not add network work -->
+    {% for font in site.enabled_fonts %}
+    <link href="{{ font.url }}" rel="stylesheet">
+    {% endfor %}
+
+    {% include "components/header/theme-overrides.html" %}
+
+    <!-- load optional Font Awesome families only when the active configuration enables them -->
+    <link rel="stylesheet" href="{% static 'fontawesome/fontawesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'fontawesome/brands.min.css' %}">
+    <link rel="stylesheet" href="{% static 'fontawesome/solid.min.css' %}">
+    <link rel="stylesheet" href="{% static 'fontawesome/regular.min.css' %}">
+
+    {% if site.fontawesome_thin %}
+    <link rel="stylesheet" href="{% static 'fontawesome/thin.min.css' %}">
+    {% endif %}
+    {% if site.fontawesome_light %}
+    <link rel="stylesheet" href="{% static 'fontawesome/light.min.css' %}">
+    {% endif %}
+    {% if site.fontawesome_duotone %}
+    <link rel="stylesheet" href="{% static 'fontawesome/duotone.min.css' %}">
+    {% endif %}
+    {% if site.fontawesome_sharp_solid %}
+    <link rel="stylesheet" href="{% static 'fontawesome/sharp-solid.min.css' %}">
+    {% endif %}
+</head>

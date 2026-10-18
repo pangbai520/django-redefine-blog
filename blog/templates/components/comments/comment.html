@@ -1,0 +1,77 @@
+{% load static %}
+{% if site.comment_enabled and comment_system_configured %}
+<div class="comments-container mt-10 w-full ">
+    <div id="comment-anchor" class="w-full h-2.5"></div>
+    <div class="comment-area-title w-full my-1.5 md:my-2.5 text-xl md:text-3xl font-bold">
+        Comments
+    </div>
+    {% if site.comment_system == "waline" %}
+        <div id="waline"></div>
+        <script data-swup-reload-script>
+            function loadWaline() {
+                import("{% static 'js/libs/waline.mjs' %}").then(function (module) {
+                    module.init({
+                        el: "#waline",
+                        serverURL: "{{ site.comment_options.serverUrl }}",
+                        lang: "{{ site.comment_options.lang|default:'zh-CN' }}",
+                        dark: "body[class~='dark-mode']"
+                    });
+                }).catch(function (error) {
+                    console.error("Waline failed to load", error);
+                });
+            }
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", loadWaline, { once: true });
+            } else {
+                loadWaline();
+            }
+        </script>
+    {% elif site.comment_system == "internal" %}
+        {% include "components/comments/internal.html" %}
+    {% elif site.comment_system == "gitalk" %}
+        <div id="gitalk-container"></div>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js" data-swup-reload-script></script>
+        <script data-swup-reload-script>
+            function loadGitalk() {
+                if (!window.Gitalk) return;
+                new Gitalk({
+                    clientID: "{{ site.comment_options.clientID }}",
+                    clientSecret: "{{ site.comment_options.clientSecret }}",
+                    repo: "{{ site.comment_options.repo }}",
+                    owner: "{{ site.comment_options.owner }}",
+                    admin: ["{{ site.comment_options.owner }}"],
+                    id: location.pathname.slice(0, 50)
+                }).render("gitalk-container");
+            }
+            window.setTimeout(loadGitalk, 0);
+        </script>
+    {% elif site.comment_system == "twikoo" %}
+        <div class="twikoo-container">
+            <script src="https://cdn.jsdelivr.net/npm/twikoo@1.6.44/dist/twikoo.all.min.js" data-swup-reload-script></script>
+            <div id="twikoo-comment"></div>
+            <script data-swup-reload-script>
+                window.setTimeout(function () {
+                    if (window.twikoo) twikoo.init({ el: "#twikoo-comment", envId: "{{ site.comment_options.server_url }}" });
+                }, 0);
+            </script>
+        </div>
+    {% elif site.comment_system == "giscus" %}
+        <div id="giscus-container">
+            <script src="https://giscus.app/client.js" data-swup-reload-script
+                data-repo="{{ site.comment_options.repo }}"
+                data-repo-id="{{ site.comment_options.repo_id }}"
+                data-category="{{ site.comment_options.category }}"
+                data-category-id="{{ site.comment_options.category_id }}"
+                data-mapping="{{ site.comment_options.mapping|default:'pathname' }}"
+                data-strict="{{ site.comment_options.strict|default:'0' }}"
+                data-reactions-enabled="{{ site.comment_options.reactions_enabled|default:'1' }}"
+                data-emit-metadata="{{ site.comment_options.emit_metadata|default:'0' }}"
+                data-lang="{{ site.comment_options.lang|default:'en' }}"
+                data-input-position="{{ site.comment_options.input_position|default:'bottom' }}"
+                data-loading="{{ site.comment_options.loading|default:'lazy' }}"
+                crossorigin="anonymous" async></script>
+        </div>
+    {% endif %}
+</div>
+{% endif %}

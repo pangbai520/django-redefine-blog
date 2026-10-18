@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    {% include "components/header/progress-bar.html" %}
+{% if site.preloader_enabled %}
+	{% include "components/header/preloader.html" %}
+{% endif %}
+<main class="page-container" id="swup">
+	{% if site.homebanner_enabled and is_homepage and not articles_page.has_previous %}
+		{% include "pages/home/home-banner.html" %}
+	{% elif site.homebanner_enabled and is_homepage and articles_page.has_previous and site.homebanner_style == "fixed" %}
+		{% include "pages/home/home-background.html" %}
+	{% endif %}
+
+	<div class="main-content-container flex flex-col justify-between min-h-dvh">
+		<div class="main-content-header">
+			{% include "components/header/navbar.html" %}
+		</div>
+
+		<div class="main-content-body transition-fade-up">
+			{% if is_homepage and site.sidebar_enabled and site.sidebar_position == "left" %}
+			{% include "pages/home/home-sidebar.html" %}
+			{% endif %}
+
+			<div class="main-content">
+				{% block page_content %}
+			{% endblock %}
+			</div>
+
+			{% if is_homepage and site.sidebar_enabled and site.sidebar_position == "right" %}
+			{% include "pages/home/home-sidebar.html" %}
+			{% endif %}
+		</div>
+
+		<div class="main-content-footer">
+			{% include "components/footer/footer.html" %}
+		</div>
+	</div>
+
+	{% if is_postpage %}
+	<div class="post-tools">
+		{% include "pages/post/post-tools.html" %}
+	</div>
+	{% endif %}
+
+	<div class="right-side-tools-container">
+		{% include "utils/side-tools.html" %}
+	</div>
+
+	{% include "utils/image-viewer.html" %}
+
+	{% if site.navbar_search_enabled %}
+		{% include "utils/local-search.html" %}
+	{% endif %}
+
+</main>
+
+{% if site.swup_enabled %}
+	{% include "components/swup.html" %}
+{% endif %}
+{% endblock content %}

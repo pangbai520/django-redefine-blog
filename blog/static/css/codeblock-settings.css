@@ -1,0 +1,181 @@
+/* expose Hexo's compile-time palettes at runtime, so admin changes need no CSS rebuild */
+:root {
+  --highlight-gutter-color: #6a737d;
+  --highlight-gutter-bg-color: #f6f8fa;
+}
+
+:root[data-theme="dark"] {
+  --highlight-gutter-color: #8b949e;
+  --highlight-gutter-bg-color: #161b22;
+}
+
+:root[data-theme="light"][data-codeblock-light="github"] {
+  --highlight-foreground: #24292e; --highlight-background: #fdfdfd;
+  --highlight-keyword: #d73a49; --highlight-link: #d73a49; --highlight-built-in: #e36209;
+  --highlight-number: #005cc5; --highlight-string: #032f62; --highlight-regexp: #032f62;
+  --highlight-subst: #24292e; --highlight-comment: #6a737d; --highlight-doctag: #d73a49;
+  --highlight-meta: #005cc5; --highlight-variable: #005cc5; --highlight-attr: #005cc5;
+  --highlight-section: #005cc5; --highlight-bullet: #735c0f; --highlight-addition: #22863a; --highlight-deletion: #b31d28;
+}
+:root[data-theme="light"][data-codeblock-light="atom-one-light"] {
+  --highlight-foreground: #383a42; --highlight-background: #fafafa;
+  --highlight-keyword: #a626a4; --highlight-link: #4078f2; --highlight-built-in: #c18401;
+  --highlight-number: #986801; --highlight-string: #50a14f; --highlight-regexp: #50a14f;
+  --highlight-subst: #e45649; --highlight-comment: #a0a1a7; --highlight-doctag: #a626a4;
+  --highlight-meta: #4078f2; --highlight-variable: #986801; --highlight-attr: #986801;
+  --highlight-section: #e45649; --highlight-bullet: #4078f2; --highlight-addition: #50a14f; --highlight-deletion: #e45649;
+}
+:root[data-theme="light"][data-codeblock-light="default"] {
+  --highlight-foreground: #444; --highlight-background: #f3f3f3;
+  --highlight-keyword: #444; --highlight-link: #ab5656; --highlight-built-in: #397300;
+  --highlight-number: #880000; --highlight-string: #880000; --highlight-regexp: #ab5656;
+  --highlight-subst: #444; --highlight-comment: #697070; --highlight-doctag: #444;
+  --highlight-meta: #1f7199; --highlight-variable: #ab5656; --highlight-attr: #444;
+  --highlight-section: #880000; --highlight-bullet: #397300; --highlight-addition: #397300; --highlight-deletion: #880000;
+}
+
+:root[data-theme="dark"][data-codeblock-dark="github-dark"] {
+  --highlight-foreground: #c9d1d9; --highlight-background: #0d1117;
+  --highlight-keyword: #ff7b72; --highlight-link: #ff7b72; --highlight-built-in: #ffa657;
+  --highlight-number: #79c0ff; --highlight-string: #a5d6ff; --highlight-regexp: #a5d6ff;
+  --highlight-subst: #c9d1d9; --highlight-comment: #8b949e; --highlight-doctag: #ff7b72;
+  --highlight-meta: #79c0ff; --highlight-variable: #79c0ff; --highlight-attr: #79c0ff;
+  --highlight-section: #1f6feb; --highlight-bullet: #f2cc60; --highlight-addition: #aff5b4; --highlight-deletion: #ffdcd7;
+}
+:root[data-theme="dark"][data-codeblock-dark="vs2015"] {
+  --highlight-foreground: #dcdcdc; --highlight-background: #1e1e1e;
+  --highlight-keyword: #569cd6; --highlight-link: #569cd6; --highlight-built-in: #4ec9b0;
+  --highlight-number: #b8d7a3; --highlight-string: #d69d85; --highlight-regexp: #9a5334;
+  --highlight-subst: #dcdcdc; --highlight-comment: #57a64a; --highlight-doctag: #608b4e;
+  --highlight-meta: #9b9b9b; --highlight-variable: #bd63c5; --highlight-attr: #9cdcfe;
+  --highlight-section: gold; --highlight-bullet: #d7ba7d; --highlight-addition: #144212; --highlight-deletion: #600;
+}
+:root[data-theme="dark"][data-codeblock-dark="atom-one-dark"] {
+  --highlight-foreground: #abb2bf; --highlight-background: #282c34;
+  --highlight-keyword: #c678dd; --highlight-link: #61aeee; --highlight-built-in: #e6c07b;
+  --highlight-number: #d19a66; --highlight-string: #98c379; --highlight-regexp: #98c379;
+  --highlight-subst: #e06c75; --highlight-comment: #5c6370; --highlight-doctag: #c678dd;
+  --highlight-meta: #61aeee; --highlight-variable: #d19a66; --highlight-attr: #d19a66;
+  --highlight-section: #e06c75; --highlight-bullet: #61aeee; --highlight-addition: #98c379; --highlight-deletion: #e06c75;
+}
+:root[data-theme="dark"][data-codeblock-dark="monokai-sublime"] {
+  --highlight-foreground: #f8f8f2; --highlight-background: #23241f;
+  --highlight-keyword: #f92672; --highlight-link: #ae81ff; --highlight-built-in: #e6db74;
+  --highlight-number: #ae81ff; --highlight-string: #e6db74; --highlight-regexp: #ae81ff;
+  --highlight-subst: #f8f8f2; --highlight-comment: #75715e; --highlight-doctag: #f92672;
+  --highlight-meta: #75715e; --highlight-variable: #e6db74; --highlight-attr: #f92672;
+  --highlight-section: #a6e22e; --highlight-bullet: #ae81ff; --highlight-addition: #e6db74; --highlight-deletion: #75715e;
+}
+:root[data-theme="dark"][data-codeblock-dark="night-owl"] {
+  --highlight-foreground: #d6deeb; --highlight-background: #011627;
+  --highlight-keyword: #c792ea; --highlight-link: #ff869a; --highlight-built-in: #addb67;
+  --highlight-number: #f78c6c; --highlight-string: #ecc48d; --highlight-regexp: #5ca7e4;
+  --highlight-subst: #d3423e; --highlight-comment: #637777; --highlight-doctag: #7fdbca;
+  --highlight-meta: #82aaff; --highlight-variable: #addb67; --highlight-attr: #7fdbca;
+  --highlight-section: #82b1ff; --highlight-bullet: #d9f5dd; --highlight-addition: #addb67; --highlight-deletion: #ef5350;
+}
+:root[data-theme="dark"][data-codeblock-dark="nord"] {
+  --highlight-foreground: #d8dee9; --highlight-background: #2e3440;
+  --highlight-keyword: #81a1c1; --highlight-link: #81a1c1; --highlight-built-in: #8fbcbb;
+  --highlight-number: #b48ead; --highlight-string: #a3be8c; --highlight-regexp: #ebcb8b;
+  --highlight-subst: #d8dee9; --highlight-comment: #4c566a; --highlight-doctag: #8fbcbb;
+  --highlight-meta: #5e81ac; --highlight-variable: #d8dee9; --highlight-attr: #8fbcbb;
+  --highlight-section: #88c0d0; --highlight-bullet: #81a1c1; --highlight-addition: rgba(163,190,140,.5); --highlight-deletion: rgba(191,97,106,.5);
+}
+:root[data-theme="dark"][data-codeblock-dark="tokyo-night-dark"] {
+  --highlight-foreground: #9aa5ce; --highlight-background: #1a1b26;
+  --highlight-keyword: #bb9af7; --highlight-link: #ff9e64; --highlight-built-in: #e0af68;
+  --highlight-number: #ff9e64; --highlight-string: #9ece6a; --highlight-regexp: #f7768e;
+  --highlight-subst: #7dcfff; --highlight-comment: #565f89; --highlight-doctag: #f7768e;
+  --highlight-meta: #565f89; --highlight-variable: #ff9e64; --highlight-attr: #bb9af7;
+  --highlight-section: #7aa2f7; --highlight-bullet: #9ece6a; --highlight-addition: #9ece6a; --highlight-deletion: #f7768e;
+}
+:root[data-theme="dark"][data-codeblock-dark="a11y-dark"] {
+  --highlight-foreground: #f8f8f2; --highlight-background: #2b2b2b;
+  --highlight-keyword: #dcc6e0; --highlight-link: #f5ab35; --highlight-built-in: #f5ab35;
+  --highlight-number: #f5ab35; --highlight-string: #abe338; --highlight-regexp: #ffa07a;
+  --highlight-subst: #f8f8f2; --highlight-comment: #d4d0ab; --highlight-doctag: #dcc6e0;
+  --highlight-meta: #f5ab35; --highlight-variable: #ffa07a; --highlight-attr: gold;
+  --highlight-section: #00e0e0; --highlight-bullet: #abe338; --highlight-addition: #abe338; --highlight-deletion: #ffa07a;
+}
+:root[data-theme="dark"][data-codeblock-dark="agate"] {
+  --highlight-foreground: #fff; --highlight-background: #333;
+  --highlight-keyword: #fcc28c; --highlight-link: #c6b4f0; --highlight-built-in: #fcc28c;
+  --highlight-number: #d36363; --highlight-string: #a2fca2; --highlight-regexp: #c6b4f0;
+  --highlight-subst: #fff; --highlight-comment: #888; --highlight-doctag: #fff;
+  --highlight-meta: #fc9b9b; --highlight-variable: #ade5fc; --highlight-attr: #7bd694;
+  --highlight-section: #62c8f3; --highlight-bullet: #b8d8a2; --highlight-addition: #a2fca2; --highlight-deletion: #fc9b9b;
+}
+
+/* the compiled Hexo stylesheet still places its build-time palette on body;
+   inherit the configured root palette so admin choices remain authoritative */
+:root[data-theme="light"] body.light-mode,
+:root[data-theme="dark"] body.dark-mode {
+  --highlight-foreground: inherit;
+  --highlight-background: inherit;
+  --highlight-keyword: inherit;
+  --highlight-link: inherit;
+  --highlight-built-in: inherit;
+  --highlight-number: inherit;
+  --highlight-string: inherit;
+  --highlight-regexp: inherit;
+  --highlight-subst: inherit;
+  --highlight-comment: inherit;
+  --highlight-doctag: inherit;
+  --highlight-meta: inherit;
+  --highlight-variable: inherit;
+  --highlight-attr: inherit;
+  --highlight-section: inherit;
+  --highlight-bullet: inherit;
+  --highlight-addition: inherit;
+  --highlight-deletion: inherit;
+}
+
+/* keep line numbers on the code surface, so the gutter does not form a visual seam */
+.highlight .gutter pre {
+  color: var(--highlight-foreground);
+  background-color: var(--highlight-background);
+}
+
+/* include Highlight.js 11 token prefixes, so client highlighting uses the selected palette */
+pre .hljs-keyword, pre .hljs-literal, pre .hljs-symbol, pre .hljs-name { color: var(--highlight-keyword); }
+pre .hljs-link { color: var(--highlight-link); text-decoration: underline; }
+pre .hljs-built_in, pre .hljs-type { color: var(--highlight-built-in); }
+pre .hljs-number, pre .hljs-class { color: var(--highlight-number); }
+pre .hljs-string, pre .hljs-meta .hljs-string { color: var(--highlight-string); }
+pre .hljs-regexp, pre .hljs-template-tag { color: var(--highlight-regexp); }
+pre .hljs-subst, pre .hljs-function, pre .hljs-title, pre .hljs-params, pre .hljs-formula { color: var(--highlight-subst); }
+pre .hljs-comment, pre .hljs-quote { color: var(--highlight-comment); font-style: italic; }
+pre .hljs-doctag { color: var(--highlight-doctag); }
+pre .hljs-meta, pre .hljs-meta .hljs-keyword, pre .hljs-tag { color: var(--highlight-meta); }
+pre .hljs-variable, pre .hljs-template-variable { color: var(--highlight-variable); }
+pre .hljs-attr, pre .hljs-attribute { color: var(--highlight-attr); }
+pre .hljs-section { color: var(--highlight-section); }
+pre .hljs-bullet, pre .hljs-selector-tag, pre .hljs-selector-id, pre .hljs-selector-class, pre .hljs-selector-attr, pre .hljs-selector-pseudo { color: var(--highlight-bullet); }
+pre .hljs-addition { color: var(--highlight-addition); display: inline-block; width: 100%; }
+pre .hljs-deletion { color: var(--highlight-deletion); display: inline-block; width: 100%; }
+
+/* remove only the Mac chrome in simple mode, so the shared Hexo markup remains reusable */
+:root[data-code-block-style="simple"] .code-container {
+  padding-top: 0;
+  border-radius: 8px;
+  box-shadow: none;
+}
+:root[data-code-block-style="simple"] .code-container::before,
+:root[data-code-block-style="simple"] .code-container::after,
+:root[data-code-block-style="simple"] .code-container figcaption { display: none; }
+:root[data-code-block-style="simple"] .code-container .highlight { border-top: 0; border-radius: 8px; }
+:root[data-code-block-style="simple"] .code-container .copy-button,
+:root[data-code-block-style="simple"] .code-container .fold-button { top: 0; }
+:root[data-code-block-copy="false"] .code-container .copy-button { display: none; }
+
+/* collapse the container itself, so folded code leaves no invisible scrollable area */
+.code-container.folded {
+  height: 0 !important;
+  overflow: hidden !important;
+}
+.code-container.folded figure {
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+}

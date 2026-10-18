@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="{{ SITE_LANG }}"
+      data-code-block-style="{{ site.code_block_style|default:'mac' }}"
+      data-code-block-copy="{{ site.code_block_copy|yesno:'true,false' }}"
+      data-codeblock-light="{{ site.codeblock_light|default:'github' }}"
+      data-codeblock-dark="{{ site.codeblock_dark|default:'github-dark' }}"
+      data-article-image-alignment="{{ site.article_image_alignment|default:'center' }}">
+    {% include 'components/header/head.html' %}
+
+<body>
+    {% block content %}
+    {% endblock %}
+
+    {% include 'components/scripts.html' %}
+
+    {% if site.aplayer_enabled %}
+        {% include 'components/plugins/aplayer.html' %}
+    {% endif %}
+</body>
+</html>
