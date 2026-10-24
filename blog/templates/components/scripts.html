@@ -5,7 +5,7 @@
 <script src="{% static 'js/layouts/categoryList.js' %}" type="module"></script>
 
 {% if site.footer_runtime_enabled %}
-    <script src="{% static 'js/tools/runtime.js' %}"></script>
+    <script>window.odometerOptions = { auto: false };</script>
     <script src="{% static 'js/libs/odometer.min.js' %}"></script>
     <link rel="stylesheet" href="{% static 'assets/odometer-theme-minimal.css' %}">
 {% endif %}

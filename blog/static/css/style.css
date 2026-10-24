@@ -1497,7 +1497,7 @@ pre .deletion {
 }
 .footer .odometer.odometer-auto-theme.odometer-animating-up .odometer-ribbon-inner,
 .footer .odometer.odometer-theme-default.odometer-animating-up .odometer-ribbon-inner {
-  transition: transform 999ms;
+  transition: transform 200ms;
 }
 .footer .odometer.odometer-auto-theme.odometer-animating-up.odometer-animating .odometer-ribbon-inner,
 .footer .odometer.odometer-theme-default.odometer-animating-up.odometer-animating .odometer-ribbon-inner {
@@ -1509,7 +1509,7 @@ pre .deletion {
 }
 .footer .odometer.odometer-auto-theme.odometer-animating-down.odometer-animating .odometer-ribbon-inner,
 .footer .odometer.odometer-theme-default.odometer-animating-down.odometer-animating .odometer-ribbon-inner {
-  transition: transform 999ms;
+  transition: transform 200ms;
   transform: translateY(0);
 }
 .footer .odometer.odometer-auto-theme,

@@ -30,6 +30,23 @@ test('custom TOC widths only override the desktop layout', () => {
   );
 });
 
+test('footer runtime uses one short odometer animation instead of a perpetual transition', () => {
+  const scripts = readFileSync(
+    path.join(blogRoot, 'templates/components/scripts.html'),
+    'utf8',
+  );
+  const runtime = source('tools/runtime.js');
+  const styles = readFileSync(path.join(blogRoot, 'static/css/style.css'), 'utf8');
+  assert.match(scripts, /odometerOptions = \{ auto: false \}/);
+  assert.doesNotMatch(scripts, /static 'js\/tools\/runtime\.js'/);
+  assert.match(runtime, /duration: 200/);
+  assert.match(runtime, /let runtimeTimer = null/);
+  assert.match(runtime, /export default function initFooterRuntime/);
+  assert.doesNotMatch(runtime, /setInterval/);
+  assert.match(styles, /\.footer \.odometer[\s\S]*?transition: transform 200ms;/);
+  assert.doesNotMatch(styles, /\.footer \.odometer[\s\S]*?transition: transform 999ms;/);
+});
+
 class Element {
   constructor(classes = []) {
     this.classes = new Set(classes);
