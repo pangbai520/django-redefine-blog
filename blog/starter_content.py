@@ -1,6 +1,7 @@
 from datetime import datetime, timezone as datetime_timezone
 
 from django.db import transaction
+from django.utils import timezone as django_timezone
 
 from .models import (
     ArticleModel,
@@ -134,7 +135,10 @@ def install_starter_content(update_existing=False):
             slug="hello-world",
             content=HELLO_WORLD_CONTENT,
             is_published=True,
-            created_at=datetime(2025, 12, 27, 6, 6, tzinfo=datetime_timezone.utc),
+            created_at=django_timezone.make_aware(
+                datetime(1900, 1, 1, 0, 0),
+                django_timezone.get_default_timezone(),
+            ),
         )
 
     CommentBadge.objects.update_or_create(

@@ -3,11 +3,9 @@
 <header class="navbar-container px-6 md:px-12">
     <div class="navbar-content transition-navbar{% if site.homebanner_enabled and is_homepage %} has-home-banner{% endif %}">
         <div class="left">
-            {% if site.site_logo %}
-                <a class="logo-image h-8 w-8 sm:w-10 sm:h-10 mr-3" href="{% url 'index' %}">
-                    <img src="{{ site.site_logo.url }}" alt="{{ site.site_name }}" class="w-full h-full rounded-xs">
-                </a>
-            {% endif %}
+            <a class="logo-image h-8 w-8 sm:w-10 sm:h-10 mr-3" href="{% url 'index' %}">
+                <img src="{% if site.site_logo %}{{ site.site_logo.url }}{% else %}{% static 'images/redefine-favicon.svg' %}{% endif %}" alt="{{ site.site_name }}" class="w-full h-full rounded-xs">
+            </a>
             <a class="logo-title" href="{% url 'index' %}">
                 {% if is_homepage %}
                 <h1>{{ site.site_name|default:"Redefine Theme" }}</h1>

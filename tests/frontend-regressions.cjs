@@ -19,6 +19,17 @@ const loadThemeState = (context) => vm.runInContext(
   context,
 );
 
+test('custom TOC widths only override the desktop layout', () => {
+  const overrides = readFileSync(
+    path.join(blogRoot, 'templates/components/header/theme-overrides.html'),
+    'utf8',
+  );
+  assert.match(
+    overrides,
+    /@media \(min-width: 769px\) \{[\s\S]*?\.post-page-container\.show-toc \.article-content-container \{[\s\S]*?width: calc\(100% - var\(--site-toc-sidebar-width\)\) !important;/,
+  );
+});
+
 class Element {
   constructor(classes = []) {
     this.classes = new Set(classes);

@@ -44,12 +44,14 @@
     .navbar-container .navbar-content.has-home-banner { max-width: var(--site-navbar-width-home); }
     html.is-animating .transition-navbar { max-width: var(--site-navbar-width-pages) !important; }
     .page-container .main-content-container .main-content-body .main-content { max-width: var(--site-content-max-width); }
-    .page-container .main-content-container .main-content-body .main-content.has-toc {
-        max-width: calc(var(--site-content-max-width) * 1.2) !important;
-    }
-    .post-page-container.show-toc .toc-content-container { width: var(--site-toc-sidebar-width); }
-    .post-page-container.show-toc .article-content-container {
-        width: calc(100% - var(--site-toc-sidebar-width)) !important;
+    @media (min-width: 769px) {
+        .page-container .main-content-container .main-content-body .main-content.has-toc {
+            max-width: calc(var(--site-content-max-width) * 1.2) !important;
+        }
+        .post-page-container.show-toc .toc-content-container { width: var(--site-toc-sidebar-width); }
+        .post-page-container.show-toc .article-content-container {
+            width: calc(100% - var(--site-toc-sidebar-width)) !important;
+        }
     }
 
     .home-banner-container .description {

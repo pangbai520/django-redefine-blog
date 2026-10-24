@@ -190,7 +190,11 @@ class StarterContentTests(TransactionTestCase):
         self.assertEqual(site.site_name, "Django Redefine")
         self.assertFalse(site.site_avatar)
         self.assertFalse(site.site_logo)
-        self.assertTrue(ArticleModel.objects.filter(slug="hello-world").exists())
+        article = ArticleModel.objects.get(slug="hello-world")
+        self.assertEqual(
+            timezone.localtime(article.created_at).strftime("%Y-%m-%d %H:%M:%S"),
+            "1900-01-01 00:00:00",
+        )
         self.assertTrue(MenuLink.objects.filter(config=site, name="Home").exists())
         badge = CommentBadge.objects.get(config=site, name="博主")
         self.assertEqual(badge.color, "")
