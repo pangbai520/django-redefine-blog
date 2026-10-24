@@ -5332,7 +5332,13 @@ div.tabs .tab-content .tab-pane .note:last-child {
 .page-container .main-content-container {
   padding-top: 70px;
   position: relative;
+  min-height: 100vh;
   transition: padding 0.2s ease;
+}
+@supports (min-height: 100lvh) {
+  .page-container .main-content-container.stable-viewport-height {
+    min-height: 100lvh;
+  }
 }
 .navbar-shrink .page-container .main-content-container {
   padding-top: 50.4px;

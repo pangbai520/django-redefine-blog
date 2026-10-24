@@ -47,6 +47,18 @@ test('footer runtime uses one short odometer animation instead of a perpetual tr
   assert.doesNotMatch(styles, /\.footer \.odometer[\s\S]*?transition: transform 999ms;/);
 });
 
+test('short pages keep a stable mobile viewport height without a scripted footer margin', () => {
+  const base = readFileSync(path.join(blogRoot, 'templates/base.html'), 'utf8');
+  const styles = readFileSync(path.join(blogRoot, 'static/css/style.css'), 'utf8');
+  const utils = source('utils.js');
+  assert.match(base, /main-content-container[^\n]*stable-viewport-height/);
+  assert.doesNotMatch(base, /main-content-container[^\n]*min-h-dvh/);
+  assert.match(styles, /\.main-content-container \{[\s\S]*?min-height: 100vh;/);
+  assert.match(styles, /@supports \(min-height: 100lvh\)[\s\S]*?min-height: 100lvh;/);
+  assert.doesNotMatch(utils, /initPageHeightHandle/);
+  assert.doesNotMatch(utils, /\.main-content-footer["']\)[\s\S]*?style\.marginTop/);
+});
+
 class Element {
   constructor(classes = []) {
     this.classes = new Set(classes);

@@ -260,32 +260,10 @@ export default function initUtils() {
       }
     },
 
-    getElementHeight(selectors) {
-      const dom = document.querySelector(selectors);
-      return dom ? dom.getBoundingClientRect().height : 0;
-    },
-
     // match the banner to the live viewport, so mobile browser chrome does not clip it
     inithomeBannerHeight() {
       this.homeBanner_dom &&
         (this.homeBanner_dom.style.height = this.innerHeight + "px");
-    },
-
-    // push the footer to the viewport edge on short pages without forcing a min-height
-    initPageHeightHandle() {
-      if (this.homeBanner_dom) return;
-      const temp_h1 = this.getElementHeight(".main-content-header");
-      const temp_h2 = this.getElementHeight(".main-content-body");
-      const temp_h3 = this.getElementHeight(".main-content-footer");
-      const allDomHeight = temp_h1 + temp_h2 + temp_h3;
-      const innerHeight = window.innerHeight;
-      const pb_dom = document.querySelector(".main-content-footer");
-      if (pb_dom && allDomHeight < innerHeight) {
-        const marginTopValue = Math.floor(innerHeight - allDomHeight);
-        if (marginTopValue > 0) {
-          pb_dom.style.marginTop = `${marginTopValue - 2}px`;
-        }
-      }
     },
 
     setHowLongAgoLanguage(p1, p2) {
@@ -386,7 +364,6 @@ export default function initUtils() {
   utils.toggleToolsList();
   utils.globalFontSizeAdjust();
   utils.goComment();
-  utils.initPageHeightHandle();
   utils.inithomeBannerHeight();
   utils.relativeTimeInHome();
   imageViewer();
