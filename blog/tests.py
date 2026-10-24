@@ -199,11 +199,21 @@ class TagPageTests(TestCase):
             content="A searchable body",
             is_published=True,
         )
-        response = self.client.get(reverse("search_data"))
+        response = self.client.get(reverse("search_data"), {"q": "searchable"})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()[0]["title"], article.title)
-        self.assertIn("content", response.json()[0])
-        self.assertTrue(response.json()[0]["url"].endswith(article.get_absolute_url()))
+        payload = response.json()
+        self.assertEqual(payload["results"][0]["title"], article.title)
+        self.assertIn("content", payload["results"][0])
+        self.assertTrue(payload["results"][0]["url"].endswith(article.get_absolute_url()))
+        self.assertIn(
+            payload["backend"],
+            {
+                "sqlite-fts5",
+                "mysql-fulltext",
+                "postgresql-search-vector",
+                "database-fallback",
+            },
+        )
 
     def test_categories_render_nested_redefine_list(self):
         parent = Category.objects.create(name="Development", slug="development")
@@ -253,7 +263,6 @@ class TagPageTests(TestCase):
         related.tags.add(tag)
 
         response = self.client.get(reverse("article", args=[article.slug]))
-
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "recommended-article")
         self.assertContains(response, "recommended-desktop")
@@ -262,6 +271,7 @@ class TagPageTests(TestCase):
 
 class CorePublishingTests(TestCase):
     def test_future_dated_articles_are_not_public_until_their_publish_time(self):
+        baseline_words = self.client.get(reverse("index")).context["total_words"]
         category = Category.objects.create(name="Scheduled category", slug="scheduled-category")
         tag = Tag.objects.create(name="Scheduled tag", slug="scheduled-tag")
         article = ArticleModel.objects.create(
@@ -277,8 +287,11 @@ class CorePublishingTests(TestCase):
         self.assertEqual(self.client.get(article.get_absolute_url()).status_code, 404)
         index_response = self.client.get(reverse("index"))
         self.assertNotContains(index_response, article.title)
-        self.assertEqual(index_response.context["total_words"], 0)
-        self.assertNotContains(self.client.get(reverse("search_data")), article.title)
+        self.assertEqual(index_response.context["total_words"], baseline_words)
+        self.assertNotContains(
+            self.client.get(reverse("search_data"), {"q": "Scheduled"}),
+            article.title,
+        )
         self.assertNotContains(self.client.get(reverse("categories")), category.name)
         self.assertNotContains(self.client.get(reverse("tags")), tag.name)
 
@@ -362,6 +375,47 @@ class InternalCommentTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Comment.objects.count(), 1)
         self.assertEqual(response.json()["comment"]["author"], "Guest")
+
+    def test_login_required_composer_keeps_editor_and_offers_sign_in_and_sign_up(self):
+        self.site.comment_require_login = True
+        self.site.comment_registration_enabled = True
+        self.site.save(
+            update_fields=["comment_require_login", "comment_registration_enabled"]
+        )
+
+        response = self.client.get(reverse("article", args=[self.article.slug]))
+
+        self.assertContains(response, "internal-comment-panel is-locked")
+        self.assertContains(response, "fa-solid fa-lock")
+        self.assertContains(response, 'class="wl-editor"')
+        self.assertContains(response, "disabled")
+        self.assertContains(response, 'data-auth-open-panel="login"')
+        self.assertContains(response, 'data-auth-open-panel="register"')
+        self.assertContains(response, "data-no-swup", count=2)
+        self.assertContains(response, "Sign in")
+        self.assertContains(response, "Sign up")
+        self.assertNotContains(response, "modal=1")
+        self.assertContains(response, "internal.js?v=20261024-auth-modal-8")
+        self.assertContains(response, 'data-msg-comment-length=')
+        self.assertContains(response, 'data-authenticated="false"')
+        self.assertContains(response, 'data-comment-require-login="true"')
+        self.assertContains(response, 'data-comment-toasts')
+        self.assertContains(response, 'data-comment-confirm')
+        self.assertContains(response, 'class="internal-auth-heading-icon"')
+        self.assertContains(response, "fa-solid fa-right-to-bracket")
+        self.assertContains(response, "fa-solid fa-user-plus")
+        self.assertContains(response, "fa-solid fa-envelope")
+        self.assertContains(response, "fa-solid fa-shield-halved")
+        self.assertNotContains(response, 'class="internal-auth-field"><i class=')
+
+        source = (
+            Path(__file__).parent / "static" / "js" / "comments" / "internal.js"
+        ).read_text(encoding="utf-8")
+        self.assertIn('root.addEventListener("click"', source)
+        self.assertIn('event.target.closest(".internal-auth-open")', source)
+        self.assertIn("}, true);", source)
+        self.assertIn("setTimeout(function () { openAuthModal(requestedPanel); }, 0)", source)
+        self.assertIn('root.dataset.authHandlerVersion = "delegated-v3"', source)
 
     def test_fenced_comment_code_uses_the_configured_highlight_palette(self):
         source = '```python\nprint("hello world")\n```'
@@ -458,10 +512,35 @@ class InternalCommentTests(TestCase):
             'if (!action && !event.target.closest(".internal-comment-picker"))',
             'if (sequence !== gifSearchSequence) return;',
             'if (likeButton && !likeButton.disabled)',
+            'if (!isAuthenticated && commentRequiresLogin)',
+            'if (!isAuthenticated)',
+            'openAuthModal("login")',
+            'showToast(error.message, "error")',
+            'if (!content || content.length > 5000)',
+            'node.dataset.submitting === "true"',
+            'requestConfirmation(message("DeleteConfirm", "Delete this comment?"))',
+            'replyNeedsAuth ? " internal-auth-open"',
+            '!isAuthenticated ? " internal-auth-open"',
             'extractFencedCodeBlocks(value)',
             'fetch("/api/comments/preview/"',
         ):
             self.assertIn(marker, source)
+        self.assertNotIn("alert(", source)
+        self.assertNotIn("confirm(", source)
+
+    @patch("blog.comment_views._rate_limited")
+    def test_empty_comment_is_rejected_before_rate_limiting(self, rate_limited):
+        response = self.client.post(
+            reverse("comment_create", args=[self.article.slug]),
+            {"nickname": "Guest", "content": "   \n\t"},
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json()["error"],
+            "Comment length must be between 1 and 5000 characters.",
+        )
+        rate_limited.assert_not_called()
 
     def test_comment_code_blocks_reuse_the_article_highlight_palette(self):
         stylesheet = Path(__file__).parent / "static" / "css" / "internal-comments.css"
@@ -473,6 +552,8 @@ class InternalCommentTests(TestCase):
         self.assertIn("background: var(--highlight-background);", source)
         self.assertIn("color: var(--highlight-foreground);", source)
         self.assertIn("background: var(--third-background-color);", source)
+        self.assertIn("--waline-badge-color: var(--waline-theme-color);", source)
+        self.assertNotIn("--waline-badge-color: #3498db;", source)
         self.assertIn(".internal-comments .wl-preview > hr", source)
         self.assertIn("border-top: 1px dashed var(--waline-border-color);", source)
         self.assertNotIn("--selected-highlight", palette)
@@ -739,7 +820,7 @@ class InternalCommentTests(TestCase):
         self.assertEqual(self.client.post(reverse("comment_sticky", args=[first.id])).status_code, 200)
         response = self.client.post(reverse("comment_sticky", args=[second.id]))
         self.assertEqual(response.status_code, 409)
-        self.assertIn("已经有一个置顶评论了", response.json()["error"])
+        self.assertIn("Only one comment can be pinned", response.json()["error"])
         self.assertFalse(Comment.objects.get(pk=second.id).is_sticky)
 
     def test_comment_badge_assignment_is_exposed(self):
@@ -768,6 +849,12 @@ class InternalCommentTests(TestCase):
         self.assertIn("internal-comments", html)
         self.assertIn("internal.js", html)
 
+    @override_settings(
+        AUTHENTICATION_BACKENDS=(
+            "django.contrib.auth.backends.ModelBackend",
+            "django.contrib.auth.backends.AllowAllUsersModelBackend",
+        )
+    )
     def test_registration_requires_email_verification_by_default(self):
         response = self.client.post(
             reverse("comment_register"),
@@ -874,8 +961,8 @@ class FrontendScriptTests(TestCase):
         self.assertIn("--site-content-max-width: 960px", html)
         self.assertIn("--site-toc-sidebar-width: 230px", html)
         self.assertIn("--site-navbar-width-home: 1180px", html)
-        self.assertIn("rgba(17, 34, 51, 0.4)", html)
-        self.assertIn("rgba(171, 205, 239, 0.4)", html)
+        self.assertIn("rgba(17, 34, 51, 0.251)", html)
+        self.assertIn("rgba(171, 205, 239, 0.251)", html)
         self.assertIn("--site-article-font-size: 18px", html)
         self.assertIn("--site-article-line-height: 1.7", html)
         self.assertIn("margin-top: 2rem", html)
@@ -955,7 +1042,7 @@ class RedefineMarkdownTests(TestCase):
             "{% note warning fa-circle-exclamation %}\n**Careful**\n{% endnote %}"
         )
         large = self.render(
-            "{% notel info fa-circle-info Details %}\nA [link](https://example.com).\n{% endnotel %}"
+            "{% notel info fa-circle-info Details %}\nA [link](https://external.invalid).\n{% endnotel %}"
         )
 
         self.assertIn('class="note p-4 mb-4 rounded-small markdown-body warning icon-padding"', small)
@@ -1142,14 +1229,14 @@ class RedefineMarkdownTests(TestCase):
     def test_runtime_theme_options_come_from_site_configuration(self):
         site = SiteConfiguration.objects.create(
             config_name="Runtime theme options",
-            navbar_search_preload=True,
             article_lazyload=False,
             article_pangu_js=True,
         )
         head = render_to_string("components/header/head.html", {"site": site})
         scripts = render_to_string("components/scripts.html", {"site": site})
 
-        self.assertIn("preload: true", head)
+        self.assertNotIn("preload:", head)
+        self.assertIn('path: "/search.json"', head)
         self.assertIn("lazyload: false", head)
         self.assertIn("js/libs/pangu.min.js", scripts)
 
@@ -1209,7 +1296,10 @@ class AdminExperienceTests(TestCase):
             for field in SiteConfiguration._meta.fields
             if field.editable and not field.auto_created
         }
-        self.assertEqual(editable - visible, {"comment_config"})
+        self.assertEqual(
+            editable - visible,
+            {"comment_config", "navbar_search_preload"},
+        )
 
     def test_admin_filters_only_cover_useful_list_workflows(self):
         self.assertEqual(SiteConfigurationAdmin.list_filter, ("is_active", "comment_system"))

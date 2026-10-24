@@ -1,0 +1,612 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Django Redefine\n"
+"Language: zh_Hant\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "No articles yet"
+msgstr "還沒有文章"
+
+msgid "This page is empty. Go to the backend and publish your first post."
+msgstr "這裡還是空的，請到後台發佈第一篇文章。"
+
+msgid "Prev posts"
+msgstr "上一篇"
+
+msgid "Next posts"
+msgstr "下一篇"
+
+msgid "Tags"
+msgstr "標籤"
+
+msgid "Categories"
+msgstr "分類"
+
+msgid "Posts"
+msgstr "文章"
+
+msgid "Proudly powered by %(framework)s"
+msgstr "由 %(framework)s 強力驅動"
+
+msgid "Based on"
+msgstr "基於"
+
+msgid "Blog up for"
+msgstr "部落格已運行"
+
+msgid "days"
+msgstr "天"
+
+msgid "hrs"
+msgstr "小時"
+
+msgid "Min"
+msgstr "分鐘"
+
+msgid "Sec"
+msgstr "秒"
+
+msgid "Language"
+msgstr "語言"
+
+msgid "Apply"
+msgstr "套用"
+
+msgid "Continue with GitHub"
+msgstr "使用 GitHub 繼續"
+
+msgid "%(counter)s posts in total"
+msgstr "共 %(counter)s 篇文章"
+
+msgid "%(counter)s words in total"
+msgstr "共 %(counter)s 字"
+
+msgid "Password"
+msgstr "密碼"
+
+msgid "Log out"
+msgstr "登出"
+
+msgid "Please"
+msgstr "請"
+
+msgid "sign in"
+msgstr "登入"
+
+msgid "to comment."
+msgstr "後發表評論。"
+
+msgid "Nickname"
+msgstr "暱稱"
+
+msgid "Email"
+msgstr "電子郵件"
+
+msgid "Website"
+msgstr "網站"
+
+msgid "Write a comment…"
+msgstr "寫下評論……"
+
+msgid "Preview"
+msgstr "預覽"
+
+msgid "Sign in"
+msgstr "登入"
+
+msgid "Sign up"
+msgstr "註冊"
+
+msgid "Authentication required to comment"
+msgstr "登入或註冊後發表評論"
+
+msgid "Submit"
+msgstr "發佈"
+
+msgid "Comments"
+msgstr "評論"
+
+msgid "Latest"
+msgstr "最新"
+
+msgid "Oldest"
+msgstr "最早"
+
+msgid "Most liked"
+msgstr "最多按讚"
+
+msgid "Loading comments…"
+msgstr "正在載入評論……"
+
+msgid "Powered by Django"
+msgstr "由 Django 驅動"
+
+msgid "Register"
+msgstr "註冊"
+
+msgid "Username"
+msgstr "使用者名稱"
+
+msgid "Forgot your password?"
+msgstr "忘記密碼？"
+
+msgid "Confirm password"
+msgstr "確認密碼"
+
+msgid "Create an account"
+msgstr "建立帳號"
+
+msgid "Registration is currently disabled."
+msgstr "目前已關閉註冊。"
+
+msgid "Page Not Found"
+msgstr "找不到頁面"
+
+msgid "Signed in"
+msgstr "已登入"
+
+msgid "You can close this dialog and continue commenting."
+msgstr "可以關閉此視窗並繼續評論。"
+
+msgid "Password updated"
+msgstr "密碼已更新"
+
+msgid "Your current session remains signed in."
+msgstr "目前工作階段仍保持登入。"
+
+msgid "Change password"
+msgstr "修改密碼"
+
+msgid "Save password"
+msgstr "儲存密碼"
+
+msgid "You can now"
+msgstr "現在可以"
+
+msgid "with the new password."
+msgstr "並使用新密碼登入。"
+
+msgid "Choose a new password"
+msgstr "設定新密碼"
+
+msgid "This reset link is invalid or has expired. Please request a new one."
+msgstr "此重設連結無效或已過期，請重新申請。"
+
+msgid "Check your email"
+msgstr "請檢查電子郵件"
+
+msgid ""
+"If an active account uses that address, a password reset link has been sent."
+msgstr "如果該信箱對應有效帳號，密碼重設連結已經寄出。"
+
+msgid "Reset password"
+msgstr "重設密碼"
+
+msgid ""
+"Enter the email address used by your comment account. If it exists, a reset "
+"link will be sent."
+msgstr "請輸入評論帳號使用的信箱；若帳號存在，我們會寄出重設連結。"
+
+msgid "Send reset link"
+msgstr "寄出重設連結"
+
+msgid "Email verified"
+msgstr "電子郵件已驗證"
+
+msgid "Your account is active. You can now comment."
+msgstr "帳號已啟用，現在可以發表評論。"
+
+msgid "Invalid link"
+msgstr "連結無效"
+
+msgid "This verification link is invalid or has expired."
+msgstr "此驗證連結無效或已過期。"
+
+msgid "Back to site"
+msgstr "返回網站"
+
+msgid ""
+"We could not send the verification email right now. Please contact the site "
+"administrator."
+msgstr "驗證郵件暫時無法寄出，請聯絡網站管理員。"
+
+msgid ""
+"We sent a verification link to %(email)s. Your account will be ready after "
+"verification."
+msgstr "驗證連結已寄至 %(email)s，完成驗證後即可使用帳號。"
+
+msgid "Back"
+msgstr "返回"
+
+msgid "Search..."
+msgstr "站內搜尋您想要的內容..."
+
+msgid "Created"
+msgstr "撰寫"
+
+msgid "Updated"
+msgstr "更新時間"
+
+msgid "Words"
+msgstr "字數"
+
+msgid "Mins"
+msgstr "分鐘"
+
+msgid "Title"
+msgstr "標題"
+
+msgid "Author"
+msgstr "作者"
+
+msgid "Link"
+msgstr "連結"
+
+msgid "License"
+msgstr "授權條款"
+
+msgid "On this page"
+msgstr "目錄"
+
+msgid "VISITOR COUNT"
+msgstr "讀者"
+
+msgid "TOTAL PAGE VIEWS"
+msgstr "閱覽"
+
+msgid "Scroll to content"
+msgstr "捲動至正文"
+
+msgid "Change language"
+msgstr "變更語言"
+
+msgid "Choose the language used by the blog interface."
+msgstr "請選擇部落格介面所使用的語言。"
+
+msgid "Close"
+msgstr "關閉"
+
+msgid "Go Back Home"
+msgstr "回到首頁"
+
+msgid "Read more"
+msgstr "繼續閱讀..."
+
+msgid "Created at"
+msgstr "撰寫於"
+
+msgid "Updated at"
+msgstr "更新於"
+
+msgid ""
+"This post is written %(days)s days ago, and the content may not be up to "
+"date."
+msgstr "這篇文章最後更新於 %(days)s 天前，內容可能已經過時。"
+
+msgid "%(elapsed)s ago"
+msgstr "%(elapsed)s前"
+
+msgid "%s seconds ago"
+msgstr "%s 秒前"
+
+msgid "%s minutes ago"
+msgstr "%s 分鐘前"
+
+msgid "%s hours ago"
+msgstr "%s 小時前"
+
+msgid "%s days ago"
+msgstr "%s 天前"
+
+msgid "%s weeks ago"
+msgstr "%s 周前"
+
+msgid "%s months ago"
+msgstr "%s 個月前"
+
+msgid "%s years ago"
+msgstr "%s 年前"
+
+msgid "All Rights Reserved &#169; {author}"
+msgstr "保留所有權利 &#169; {author}"
+
+msgid "This work is licensed under {license}."
+msgstr "本作品採用 {license} 進行許可。"
+
+msgid "This work is in the public domain."
+msgstr "本作品已在公共領域中，可自由轉載、修改、散佈，無需經過作者同意。"
+
+msgid "License: %(license)s"
+msgstr "授權條款：%(license)s"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "Cancel reply"
+msgstr "取消回覆"
+
+msgid "Comment length must be between 1 and 5000 characters."
+msgstr "留言長度必須介於 1 到 5000 個字元之間。"
+
+msgid "Comment length must not exceed 5000 characters."
+msgstr "留言長度不得超過 5000 個字元。"
+
+msgid "Comment likes are disabled."
+msgstr "留言讚好功能已停用。"
+
+msgid "Comments are disabled for this article."
+msgstr "此文章已停用留言。"
+
+msgid "Delete"
+msgstr "刪除"
+
+msgid "Delete this comment?"
+msgstr "刪除這則留言？"
+
+msgid "Edit"
+msgstr "編輯"
+
+msgid "Edit your comment"
+msgstr "編輯你的留言"
+
+msgid "Emoji"
+msgstr "表情符號"
+
+msgid "Enter a keyword to search GIFs"
+msgstr "輸入關鍵字搜尋 GIF"
+
+msgid "Enter a valid email address."
+msgstr "請輸入有效的電子郵件地址。"
+
+msgid "Enter a valid website URL."
+msgstr "請輸入有效的網站網址。"
+
+msgid "Guest comments are disabled."
+msgstr "訪客留言已停用。"
+
+msgid "Image contains too many pixels or animation frames."
+msgstr "圖片像素或動畫影格過多。"
+
+msgid "Image data does not match its declared type."
+msgstr "圖片資料與宣告的類型不符。"
+
+msgid "Image data is invalid."
+msgstr "圖片資料無效。"
+
+msgid "Image dimensions are too large."
+msgstr "圖片尺寸過大。"
+
+msgid "Image must be smaller than %(size)s MB."
+msgstr "圖片必須小於 %(size)s MB。"
+
+msgid "Image must be smaller than 2 MB."
+msgstr "圖片必須小於 2 MB。"
+
+msgid "Image upload failed. Please try again later."
+msgstr "圖片上傳失敗，請稍後再試。"
+
+msgid "Internal comment uploads are disabled."
+msgstr "站內留言圖片上傳已停用。"
+
+msgid "Internal comments are disabled."
+msgstr "站內留言已停用。"
+
+msgid "Like"
+msgstr "喜歡"
+
+msgid "Loading…"
+msgstr "載入中…"
+
+msgid "Markdown Guide"
+msgstr "Markdown 指南"
+
+msgid "Markdown is supported"
+msgstr "支援 Markdown"
+
+msgid "My actions"
+msgstr "我的操作"
+
+msgid "No GIFs found"
+msgstr "找不到 GIF"
+
+msgid "No comments yet."
+msgstr "尚未有留言。"
+
+msgid "No emoji yet. Add a Comment emoji name and image URL in the admin."
+msgstr "尚未有表情符號，請先在後台新增名稱與圖片網址。"
+
+msgid "None available"
+msgstr "暫無可用項目"
+
+msgid "Only administrators can pin comments."
+msgstr "只有管理員可以置頂留言。"
+
+msgid "Only one comment can be pinned at a time."
+msgstr "同一時間只能置頂一則留言。"
+
+msgid "Pin"
+msgstr "置頂"
+
+msgid "Pinned"
+msgstr "置頂"
+
+msgid "Please sign in to comment."
+msgstr "請登入後留言。"
+
+msgid "Please sign in to delete comments."
+msgstr "請登入後刪除留言。"
+
+msgid "Please sign in to edit comments."
+msgstr "請登入後編輯留言。"
+
+msgid "Please sign in to like comments."
+msgstr "請登入後讚好留言。"
+
+msgid "Please sign in to manage notifications."
+msgstr "請登入後管理通知。"
+
+msgid "Please sign in to upload images."
+msgstr "請登入後上傳圖片。"
+
+msgid "Please sign in to view notifications."
+msgstr "請登入後查看通知。"
+
+msgid "Preview unavailable"
+msgstr "無法預覽"
+
+msgid "Recent actions"
+msgstr "最近操作"
+
+msgid "Registration failed because the verification email could not be sent."
+msgstr "驗證郵件傳送失敗，無法完成註冊。"
+
+msgid "Registration is disabled."
+msgstr "註冊已停用。"
+
+msgid "Reply"
+msgstr "回覆"
+
+msgid "Search GIF"
+msgstr "搜尋 GIF"
+
+msgid "The comment is invalid."
+msgstr "留言內容無效。"
+
+msgid "Too many GIF searches. Please try again later."
+msgstr "GIF 搜尋過於頻繁，請稍後再試。"
+
+msgid "Too many comments. Please try again later."
+msgstr "留言過於頻繁，請稍後再試。"
+
+msgid "Too many image uploads. Please try again later."
+msgstr "圖片上傳過於頻繁，請稍後再試。"
+
+msgid "Too many password reset requests. Please try again later."
+msgstr "密碼重設請求過於頻繁，請稍後再試。"
+
+msgid "Too many preview requests. Please try again later."
+msgstr "預覽請求過於頻繁，請稍後再試。"
+
+msgid "Too many registration attempts. Please try again later."
+msgstr "註冊嘗試過於頻繁，請稍後再試。"
+
+msgid "Too many requests."
+msgstr "請求過於頻繁。"
+
+msgid "Too many sign-in attempts. Please try again later."
+msgstr "登入嘗試過於頻繁，請稍後再試。"
+
+msgid "Unable to delete comment."
+msgstr "無法刪除留言。"
+
+msgid "Unable to load comment assets"
+msgstr "無法載入留言資源"
+
+msgid "Unable to load comments."
+msgstr "無法載入留言。"
+
+msgid "Unable to register."
+msgstr "無法註冊。"
+
+msgid "Unable to sign in."
+msgstr "無法登入。"
+
+msgid "Unable to submit comment"
+msgstr "無法提交留言"
+
+msgid "Unable to update pin status."
+msgstr "無法更新置頂狀態。"
+
+msgid "Unlike"
+msgstr "取消喜歡"
+
+msgid "Unpin"
+msgstr "取消置頂"
+
+msgid "Unsupported GIF provider."
+msgstr "不支援此 GIF 服務。"
+
+msgid "Unsupported image type."
+msgstr "不支援此圖片類型。"
+
+msgid "Upload failed"
+msgstr "上傳失敗"
+
+msgid "Upload failed: server did not return an image URL."
+msgstr "上傳失敗：伺服器未回傳圖片網址。"
+
+msgid "Upload image"
+msgstr "上傳圖片"
+
+msgid "Verification email sent. Please check your inbox before signing in."
+msgstr "驗證郵件已傳送，請查收後再登入。"
+
+msgid ""
+"We sent a verification email to your registered address. Please verify your "
+"email before signing in."
+msgstr "驗證郵件已傳送至你的註冊電子郵件，請驗證後再登入。"
+
+msgid "You cannot delete this comment."
+msgstr "你不能刪除這則留言。"
+
+msgid "You cannot edit this comment."
+msgstr "你不能編輯這則留言。"
+
+msgid "category"
+msgstr "分類"
+
+msgid "content"
+msgstr "內容"
+
+msgid "created at"
+msgstr "建立時間"
+
+msgid "default mode"
+msgstr "預設模式"
+
+msgid "excerpt"
+msgstr "摘要"
+
+msgid "expires at"
+msgstr "到期時間"
+
+msgid "is published"
+msgstr "是否發佈"
+
+msgid "name"
+msgstr "名稱"
+
+msgid "parent category"
+msgstr "上層分類"
+
+msgid "site author"
+msgstr "網站作者"
+
+msgid "site description"
+msgstr "網站描述"
+
+msgid "site info subtitle"
+msgstr "網站資訊副標題"
+
+msgid "site keywords"
+msgstr "網站關鍵字"
+
+msgid "site name"
+msgstr "網站名稱"
+
+msgid "slug"
+msgstr "代稱"
+
+msgid "tags"
+msgstr "標籤"
+
+msgid "title"
+msgstr "標題"
+
+msgid "updated at"
+msgstr "更新時間"
+
+msgid "writer"
+msgstr "作者"

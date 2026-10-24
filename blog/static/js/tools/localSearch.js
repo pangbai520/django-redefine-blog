@@ -16,17 +16,15 @@ export default function initLocalSearch() {
     return;
   }
 
-  // keep fetched data inside this page lifecycle, so an aborted Swup visit
-  // cannot write stale results into the next page
-  let isfetched = false;
+  // keep each bounded server result inside this page lifecycle, so an aborted
+  // Swup visit cannot write stale results into the next page
   let fetchPromise = null;
-  let datas;
-  let isXml = true;
-  if (searchPath.length === 0) {
-    searchPath = "search.xml";
-  } else if (searchPath.endsWith("json")) {
-    isXml = false;
-  }
+  let datas = [];
+  let fetchedQuery = "";
+  let pendingQuery = "";
+  let requestFailed = false;
+  let requestSequence = 0;
+  let debounceTimer = null;
   const searchInputDom = document.querySelector(".search-input");
   const resultContent = document.getElementById("search-result");
   const overlayDom = document.querySelector(".search-pop-overlay");
@@ -112,7 +110,6 @@ export default function initLocalSearch() {
   };
 
   const inputEventFunction = () => {
-    if (!isfetched) return;
     let searchText = searchInputDom.value.trim().toLowerCase();
     let keywords = searchText.split(/[-\s]+/);
     if (keywords.length > 1) {
@@ -251,29 +248,33 @@ export default function initLocalSearch() {
     }
   };
 
-  const fetchData = () => {
-    if (fetchPromise || isfetched) return fetchPromise;
-    fetchPromise = fetch(config.root + searchPath, { signal })
+  const fetchData = (query, force = false) => {
+    query = query.trim();
+    if (!query) {
+      datas = [];
+      fetchedQuery = "";
+      inputEventFunction();
+      return Promise.resolve();
+    }
+    if (!force && (fetchedQuery === query || pendingQuery === query)) {
+      inputEventFunction();
+      return fetchPromise || Promise.resolve();
+    }
+
+    const sequence = ++requestSequence;
+    const separator = searchPath.includes("?") ? "&" : "?";
+    const baseUrl = searchPath.startsWith("/") ? searchPath : `${config.root}${searchPath}`;
+    const url = `${baseUrl}${separator}q=${encodeURIComponent(query)}`;
+    pendingQuery = query;
+    fetchPromise = fetch(url, { signal })
       .then((response) => {
         if (!response.ok) throw new Error(`Search index HTTP ${response.status}`);
         return response.text();
       })
       .then((res) => {
-        if (signal.aborted) return;
-        // support both Hexo-compatible XML and Django's JSON index format
-        datas = isXml
-          ? [
-              ...new DOMParser()
-                .parseFromString(res, "text/xml")
-                .querySelectorAll("entry"),
-            ].map((element) => {
-              return {
-                title: element.querySelector("title").textContent,
-                content: element.querySelector("content").textContent,
-                url: element.querySelector("url").textContent,
-              };
-            })
-          : JSON.parse(res);
+        if (signal.aborted || sequence !== requestSequence) return;
+        const payload = JSON.parse(res);
+        datas = Array.isArray(payload) ? payload : payload.results || [];
         // discard untitled entries, because they cannot produce accessible result links
         datas = datas
           .filter((data) => data.title)
@@ -287,24 +288,44 @@ export default function initLocalSearch() {
             data.url = String(data.url || "");
             return data;
           });
-        isfetched = true;
-        inputEventFunction();
+        fetchedQuery = query;
+        requestFailed = false;
+        if (searchInputDom.value.trim() === query) inputEventFunction();
       })
       .catch((error) => {
-        if (signal.aborted) return;
+        if (signal.aborted || sequence !== requestSequence) return;
+        requestFailed = true;
         console.warn("Unable to load search index:", error);
         resultContent.innerHTML = '<div id="no-result" role="status">Unable to load search. Please reopen to retry.</div>';
       })
-      .finally(() => { fetchPromise = null; });
+      .finally(() => {
+        if (sequence === requestSequence) {
+          pendingQuery = "";
+          fetchPromise = null;
+        }
+      });
     return fetchPromise;
   };
 
-  if (theme.navbar.search.preload) {
-    fetchData();
-  }
+  const requestCurrentSearch = ({ immediate = false, force = false } = {}) => {
+    const query = searchInputDom.value.trim();
+    clearTimeout(debounceTimer);
+    if (!query) {
+      datas = [];
+      fetchedQuery = "";
+      inputEventFunction();
+      return;
+    }
+    const run = () => {
+      resultContent.innerHTML = '<div id="no-result"><i class="fa-solid fa-spinner fa-spin-pulse fa-5x fa-fw"></i></div>';
+      fetchData(query, force);
+    };
+    if (immediate) run();
+    else debounceTimer = setTimeout(run, 180);
+  };
 
   if (searchInputDom) {
-    searchInputDom.addEventListener("input", inputEventFunction, { signal });
+    searchInputDom.addEventListener("input", () => requestCurrentSearch(), { signal });
   }
 
   // bind every desktop and mobile trigger to the same overlay lifecycle
@@ -315,10 +336,7 @@ export default function initLocalSearch() {
       setTimeout(() => {
         if (!signal.aborted && overlayDom.classList.contains("active")) searchInputDom.focus();
       }, 500);
-      if (!isfetched) {
-        resultContent.innerHTML = '<div id="no-result"><i class="fa-solid fa-spinner fa-spin-pulse fa-5x fa-fw"></i></div>';
-        fetchData();
-      }
+      requestCurrentSearch({ immediate: true, force: requestFailed });
     }, { signal });
   });
 
@@ -337,7 +355,7 @@ export default function initLocalSearch() {
   document.querySelector(".search-input-field-pre")?.addEventListener("click", () => {
       searchInputDom.value = "";
       searchInputDom.focus();
-      inputEventFunction();
+      requestCurrentSearch({ immediate: true });
     }, { signal });
   document.querySelector(".popup-btn-close")?.addEventListener(
     "click",

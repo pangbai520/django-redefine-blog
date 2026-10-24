@@ -10,9 +10,7 @@
 
 <h1 align="center">django-redefine-blog</h1>
 
-<p align="center">
-  一款以 Django 重寫 Redefine 主題的部落格
-</p>
+<p align="center">一個基於 Redefine 的 Django 部落格。</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.12%E2%80%933.14-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.12 至 3.14">
@@ -20,41 +18,33 @@
   <img src="https://img.shields.io/badge/license-GPL--3.0-A31F34?style=flat-square" alt="GPL-3.0">
 </p>
 
-這個專案是對 [hexo-theme-redefine](https://github.com/EvanNotFound/hexo-theme-redefine) 2.8.5 的移植。
-範本、頁面配置、Markdown 元件等都搬到了 Django，並在此基礎上加入資料庫內容管理、留言、搜尋等功能。
+這個專案把
+[hexo-theme-redefine](https://github.com/EvanNotFound/hexo-theme-redefine)
+的版面與前端互動搬到 Django。文章、留言、選單和網站設定都存放在資料庫中，日常維護直接使用 Django Admin。
 
-## 現有功能
+它是一個可以獨立執行的部落格專案，不是安裝到現有 Hexo 網站的主題。
 
-- Redefine 風格的首頁、文章、彙整、分類、標籤與獨立頁面，包含響應式配置
-- 淺色/深色模式、Swup 頁面切換、本機搜尋、目錄、圖片檢視器與側邊工具
-- 可在 Admin 介面管理的 Friends、Bookmarks、Essays 與 Masonry 頁面
-- 相容 Redefine 2.8.5 常用的 Note、Folding、Tabs、Buttons 與程式碼區塊寫法
-- 草稿、排程發佈、穩定連結、推薦文章、RSS 與 Sitemap
-- 內建留言系統，支援登入/註冊帳號、審核、徽章、按讚、回覆、表情、GIF 與圖片上傳
-- 可選的 Waline、Gitalk、Twikoo 與 Giscus 整合
-- `export_blog` 與 `import_blog` 指令，方便搬移文章、帳號、設定和上傳檔案
+## 目前包含
+
+- 首頁、文章、彙整、分類、標籤，以及 Friends、Bookmarks、Essays、Masonry 等 Redefine 頁面
+- Markdown 與 Redefine 常用的提示區塊、折疊、分頁、按鈕和程式碼區塊語法
+- 草稿、排程發佈、相關文章、RSS、Sitemap 和伺服器端搜尋
+- 內建留言系統：帳號、回覆、按讚、審核、徽章、表情、GIF 和圖片上傳
+- 淺色/深色模式、Swup 無重新整理切換和七種介面語言
+- 本機預設 SQLite，部署時可改用 PostgreSQL 或 MySQL
+
+若不使用內建留言，也能在後台切換到 Waline、Gitalk、Twikoo 或 Giscus。
 
 ## 本機執行
 
-支援 Python 3.12 ~ Python 3.14。
+支援 Python 3.12 至 3.14。
 
 ```bash
 python -m venv .venv
 ```
 
-啟用虛擬環境：
-
-```powershell
-# Windows PowerShell
-.\.venv\Scripts\Activate.ps1
-```
-
-```bash
-# Linux 和 macOS
-source .venv/bin/activate
-```
-
-安裝依賴並初始化資料庫：
+PowerShell 使用 `.venv\Scripts\Activate.ps1` 啟用環境；Linux 和 macOS 使用
+`source .venv/bin/activate`。接著執行：
 
 ```bash
 python -m pip install -r requirements.txt
@@ -63,13 +53,20 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-開啟 `http://127.0.0.1:8000/admin/`，使用剛建立的超級使用者登入。第一次遷移會建立預設網站設定，之後可以在後台調整網站資訊、導覽、留言系統與主題選項。
+部落格位於 `http://127.0.0.1:8000/`，管理後台位於
+`http://127.0.0.1:8000/admin/`。
 
-開發環境預設使用 SQLite，郵件只會輸出到終端。正式環境的金鑰、網域和郵件連線全部從環境變數讀取，部署前請閱讀 [.env.example](.env.example) 和 [DEPLOYMENT.md](DEPLOYMENT.md)。
+第一次遷移會建立一份預設網站設定和一篇起步文章，避免剛啟動時只看到空白頁；不需要時可直接在後台修改或刪除。開發環境預設使用 SQLite，郵件會輸出到終端機。
+
+## 部署
+
+公開網站不要使用 `runserver`。正式環境設定都從環境變數讀取，可用項目請見
+[.env.example](.env.example)。
+
+[DEPLOYMENT.md](DEPLOYMENT.md) 包含 Gunicorn、systemd 和 Nginx 的部署步驟；Docker Compose、Redis、GitHub 登入等選用功能放在
+[OPTIONAL_FEATURES.md](OPTIONAL_FEATURES.md)。
 
 ## 測試
-
-Django 測試涵蓋發佈規則、留言、Markdown、後台、RSS、備份與資料約束；前端測試直接執行瀏覽器模組即可。
 
 ```bash
 python manage.py check
@@ -78,30 +75,10 @@ python manage.py makemigrations --check --dry-run
 node --test tests/frontend-regressions.cjs
 ```
 
-Node.js 只用於前端測試，網站本身不需要前端建置。
-
-## 內容與備份
-
-上傳檔案保存在 `blog/resources/`，該目錄已從 Git 排除。需要搬移部落格時，請使用專案內建的封存指令，不要提交資料庫和媒體檔案：
-
-```bash
-python manage.py export_blog blog-backup.zip
-python manage.py import_blog blog-backup.zip
-```
-
-備份包可能包含密碼雜湊、私人設定和上傳檔案，應按敏感資料保存。匯入和覆寫選項請見 [DEPLOYMENT.md](DEPLOYMENT.md)。
-
-## 一些說明
-
-- 網站本身的設定放在 Django Admin 中，會改變專案整體結構的配置常數放在 `config/settings.py` 中。
-- Site PV、Site UV 和文章 PV 已有資料支援，分別控制三者是否顯示的開關會在後續補充。
-
-後台使用說明請見 [ADMIN_GUIDE.md](ADMIN_GUIDE.md)。
+Node.js 只用於前端測試，網站本身不需要建置前端資源。
 
 ## 致謝與授權
 
-前端基於 [EvanNotFound](https://github.com/EvanNotFound) 開發的 [hexo-theme-redefine](https://github.com/EvanNotFound/hexo-theme-redefine)。Redefine 使用 GPL-3.0，本專案與 hexo-theme-redefine 沿用同一授權。
-
-倉庫內直接提供的第三方函式庫與字型仍受各自的著作權和授權條款約束，重新散布前請閱讀 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
-
-完整專案授權請見 [LICENSE](LICENSE)。
+前端基於 [EvanNotFound](https://github.com/EvanNotFound) 與其他貢獻者開發的
+[hexo-theme-redefine](https://github.com/EvanNotFound/hexo-theme-redefine)。本專案使用 GPL-3.0；倉庫內的第三方檔案仍依各自授權散布，詳情請見
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

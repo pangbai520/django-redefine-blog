@@ -9,6 +9,7 @@ from . import comment_views
 from .ops_views import health
 from .feeds import LatestArticlesFeed
 from .sitemaps import ArticleSitemap, StaticPageSitemap
+from .cache_utils import versioned_cache_page
 
 
 sitemaps = {
@@ -20,8 +21,17 @@ urlpatterns = [
     path("health/", health, name="health"),
     path("", views.index, name="index"),
     path("search.json", views.search_data, name="search_data"),
-    path("feed.xml", LatestArticlesFeed(), name="article_feed"),
-    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
+    path(
+        "feed.xml",
+        versioned_cache_page("content", 60 * 60)(LatestArticlesFeed()),
+        name="article_feed",
+    ),
+    path(
+        "sitemap.xml",
+        versioned_cache_page("content", 60 * 60)(sitemap),
+        {"sitemaps": sitemaps},
+        name="django.contrib.sitemaps.views.sitemap",
+    ),
     path('article/<str:slug>/', views.article, name='article'),
     path('archives/', views.archives, name='archives'),
     path('categories/', views.categories, name='categories'),
@@ -34,12 +44,54 @@ urlpatterns = [
     path('friends/', views.friends, name='friends'),
     path('comments/register/', comment_views.register, name='comment_register'),
     path('comments/login/', comment_views.login_view, name='comment_login'),
-    path('comments/password-reset/', comment_views.RateLimitedPasswordResetView.as_view(template_name='comments/password_reset_form.html', email_template_name='emails/password_reset.txt', html_email_template_name='emails/password_reset.html', subject_template_name='emails/password_reset_subject.txt', success_url=reverse_lazy('password_reset_done')), name='password_reset'),
-    path('comments/password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='comments/password_reset_done.html'), name='password_reset_done'),
-    path('comments/password-reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='comments/password_reset_confirm.html', success_url=reverse_lazy('password_reset_complete')), name='password_reset_confirm'),
-    path('comments/password-reset/complete/', auth_views.PasswordResetCompleteView.as_view(template_name='comments/password_reset_complete.html'), name='password_reset_complete'),
-    path('comments/password-change/', auth_views.PasswordChangeView.as_view(template_name='comments/password_change_form.html', success_url=reverse_lazy('password_change_done')), name='password_change'),
-    path('comments/password-change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='comments/password_change_done.html'), name='password_change_done'),
+    path(
+        'comments/password-reset/',
+        comment_views.RateLimitedPasswordResetView.as_view(
+            template_name='comments/password_reset_form.html',
+            email_template_name='emails/password_reset.txt',
+            html_email_template_name='emails/password_reset.html',
+            subject_template_name='emails/password_reset_subject.txt',
+            success_url=reverse_lazy('password_reset_done'),
+        ),
+        name='password_reset',
+    ),
+    path(
+        'comments/password-reset/done/',
+        auth_views.PasswordResetDoneView.as_view(
+            template_name='comments/password_reset_done.html'
+        ),
+        name='password_reset_done',
+    ),
+    path(
+        'comments/password-reset/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name='comments/password_reset_confirm.html',
+            success_url=reverse_lazy('password_reset_complete'),
+        ),
+        name='password_reset_confirm',
+    ),
+    path(
+        'comments/password-reset/complete/',
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name='comments/password_reset_complete.html'
+        ),
+        name='password_reset_complete',
+    ),
+    path(
+        'comments/password-change/',
+        auth_views.PasswordChangeView.as_view(
+            template_name='comments/password_change_form.html',
+            success_url=reverse_lazy('password_change_done'),
+        ),
+        name='password_change',
+    ),
+    path(
+        'comments/password-change/done/',
+        auth_views.PasswordChangeDoneView.as_view(
+            template_name='comments/password_change_done.html'
+        ),
+        name='password_change_done',
+    ),
     path('api/comments/login/', comment_views.login_ajax, name='comment_login_ajax'),
     path('api/comments/register/', comment_views.register_ajax, name='comment_register_ajax'),
     path('comments/logout/', comment_views.logout_view, name='comment_logout'),

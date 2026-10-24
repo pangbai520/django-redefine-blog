@@ -1,5 +1,7 @@
 {% load static %}
+{% load i18n %}
 {% load inject_utils %}
+{% load blog_extensions %}
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -118,20 +120,35 @@
     {% comment %} keep these globals shaped like Redefine's Hexo config, so TOC,
     navbar, search and banner modules work on initial and Swup page views {% endcomment %}
     {{ site.subtitle_text|json_script:"theme-subtitle-text" }}
+    {% translate "%s years ago" as ago_year %}
+    {% translate "%s months ago" as ago_month %}
+    {% translate "%s weeks ago" as ago_week %}
+    {% translate "%s days ago" as ago_day %}
+    {% translate "%s hours ago" as ago_hour %}
+    {% translate "%s minutes ago" as ago_minute %}
+    {% translate "%s seconds ago" as ago_second %}
     <script>
       const themeSubtitleTextElement = document.getElementById("theme-subtitle-text");
       const themeSubtitleText = themeSubtitleTextElement
         ? JSON.parse(themeSubtitleTextElement.textContent)
         : [];
-      window.config = window.config || { root: "{% url 'index' %}", path: "search.json" };
+      window.config = window.config || { root: "{% url 'index' %}", path: "{% url 'search_data' %}" };
       window.config.language = window.config.language || "{{ SITE_LANG|default:'en' }}";
+      window.lang_ago = {
+        year: "{{ ago_year|escapejs }}",
+        month: "{{ ago_month|escapejs }}",
+        week: "{{ ago_week|escapejs }}",
+        day: "{{ ago_day|escapejs }}",
+        hour: "{{ ago_hour|escapejs }}",
+        minute: "{{ ago_minute|escapejs }}",
+        second: "{{ ago_second|escapejs }}"
+      };
       window.theme = window.theme || {
         colors: { default_mode: "{{ site.colour_default_mode|default:'light' }}" },
         navbar: {
           auto_hide: {{ site.navbar_autohide|yesno:'true,false' }},
           search: {
             enable: {{ site.navbar_search_enabled|yesno:'true,false' }},
-            preload: {{ site.navbar_search_preload|yesno:'true,false' }},
             top_n_per_article: 3
           }
         },
@@ -271,4 +288,5 @@
     {% if site.fontawesome_sharp_solid %}
     <link rel="stylesheet" href="{% static 'fontawesome/sharp-solid.min.css' %}">
     {% endif %}
+    {% render_blog_hook "head" %}
 </head>

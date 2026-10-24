@@ -1,11 +1,15 @@
 // run production modules against small DOM fixtures, so regressions stay testable without npm packages
 const assert = require('node:assert/strict');
-const { readFileSync } = require('node:fs');
+const { existsSync, readFileSync } = require('node:fs');
 const path = require('node:path');
 const { test } = require('node:test');
 const vm = require('node:vm');
 
-const blogRoot = path.join(__dirname, '../blog');
+const blogRoot = [
+  path.join(__dirname, '../pangbaiblog/blog'),
+  path.join(__dirname, '../blog'),
+].find(existsSync);
+if (!blogRoot) throw new Error('Could not locate the Django blog application.');
 const jsRoot = path.join(blogRoot, 'static/js');
 const source = (name) => readFileSync(path.join(jsRoot, name), 'utf8');
 const flush = () => new Promise((resolve) => setImmediate(resolve));
@@ -75,9 +79,10 @@ function searchFixture(fetch) {
   const window = new Element();
   const context = vm.createContext({
     document, window, AbortController, fetch, console: { warn() {} },
-    // Focus animation timers are not relevant to the search result assertions.
-    setTimeout() {}, config: { root: '/', path: 'search.json' },
-    theme: { navbar: { search: { preload: false, top_n_per_article: 3 } } },
+    // Run the short search debounce while ignoring the focus animation timer.
+    setTimeout(callback, delay) { if (delay < 500) callback(); return 1; },
+    clearTimeout() {}, config: { root: '/', path: '/search.json' },
+    theme: { navbar: { search: { top_n_per_article: 3 } } },
   });
   vm.runInContext(source('tools/localSearch.js').replace('export default ', ''), context);
   context.initLocalSearch();
@@ -278,6 +283,7 @@ test('disabling code copying does not disable highlighting or folding during pag
       hljs: { getLanguage: () => true }, swup: {} }, console,
     localStorage: { getItem: () => null, setItem() {} },
     initUtils: noop, initModeToggle: noop, initScrollTopBottom: noop,
+    initLanguageSwitcher: noop,
     initBookmarkNav: noop, destroyTyped: noop, initTyped: noop,
     initHomeBanner: noop, updateArticleExpiration: noop,
     initLocalSearch: noop, initLazyLoad: noop,
@@ -456,6 +462,7 @@ test('a named DOM element exposed as window.swup is not treated as a Swup instan
 
 test('article expiration is refreshed from the current Swup page data', () => {
   const label = new Element();
+  label.textContent = 'This post is written __DAYS__ days ago, and the content may not be up to date.';
   const expiration = new Element(['hidden']);
   expiration.dataset.expiresAt = '2001-01-01T00:00:00Z';
   expiration.dataset.updatedAt = '2000-01-01T00:00:00Z';
@@ -468,7 +475,10 @@ test('article expiration is refreshed from the current Swup page data', () => {
   );
   context.updateArticleExpiration();
   assert.equal(expiration.classList.contains('hidden'), false);
-  assert.match(label.textContent, /^expired \d+ days ago$/);
+  assert.match(
+    label.textContent,
+    /^This post is written \d+ days ago, and the content may not be up to date\.$/,
+  );
 });
 
 test('home banner scroll action is rebound once after a page refresh', () => {
@@ -492,6 +502,47 @@ test('home banner scroll action is rebound once after a page refresh', () => {
   assert.equal(button.listeners.get('click').size, 1);
   button.emit('click');
   assert.equal(scrolls, 1);
+});
+
+test('language switcher opens, closes, and rebinds once after a page refresh', () => {
+  const trigger = new Element();
+  const modal = new Element();
+  const dialog = new Element();
+  const option = new Element();
+  const close = new Element();
+  modal.hidden = true;
+  modal.querySelector = (selector) => ({
+    '.language-switcher-dialog': dialog,
+    '.language-switcher-option': option,
+  })[selector] || null;
+  modal.querySelectorAll = () => [close];
+  const document = new Element();
+  document.body = new Element();
+  document.querySelector = (selector) => ({
+    '.tool-language-switch': trigger,
+    '[data-language-switcher-modal]': modal,
+  })[selector] || null;
+  const window = {
+    requestAnimationFrame: (callback) => callback(),
+    setTimeout: (callback) => callback(),
+  };
+  const context = vm.createContext({ document, window, AbortController });
+  vm.runInContext(
+    source('tools/languageSwitcher.js').replace('export default ', ''),
+    context,
+  );
+  context.initLanguageSwitcher();
+  context.initLanguageSwitcher();
+  assert.equal(trigger.listeners.get('click').size, 1);
+  trigger.emit('click');
+  assert.equal(modal.hidden, false);
+  assert.equal(modal.classList.contains('is-open'), true);
+  assert.equal(document.body.classList.contains('language-switcher-open'), true);
+  assert.equal(option.focused, true);
+  close.emit('click');
+  assert.equal(modal.hidden, true);
+  assert.equal(document.body.classList.contains('language-switcher-open'), false);
+  assert.equal(trigger.focused, true);
 });
 
 test('navbar shrink state is recalculated after a Swup visit', () => {

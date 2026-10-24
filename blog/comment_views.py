@@ -27,6 +27,7 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.html import escape
+from django.utils.translation import gettext as _
 from markdown import Markdown
 from PIL import Image, UnidentifiedImageError
 from django.views.decorators.http import require_GET, require_POST
@@ -58,7 +59,7 @@ class RateLimitedPasswordResetView(PasswordResetView):
     def post(self, request, *args, **kwargs):
         if _rate_limited(request, "password-reset", limit=5, period=60 * 60):
             form = self.get_form()
-            form.add_error(None, "Too many password reset requests. Please try again later.")
+            form.add_error(None, _("Too many password reset requests. Please try again later."))
             return self.render_to_response(self.get_context_data(form=form), status=429)
         return super().post(request, *args, **kwargs)
 
@@ -340,9 +341,9 @@ def _validation_message(exc):
     if isinstance(exc, ValidationError):
         messages = []
         for field, errors in exc.message_dict.items():
-            label = {"nickname": "昵称", "email": "Email", "website": "网址"}.get(field, field)
-            messages.extend(f"{label}：{error}" for error in errors)
-        return "；".join(messages) or "评论内容无效。"
+            label = {"nickname": _("Nickname"), "email": _("Email"), "website": _("Website")}.get(field, field)
+            messages.extend(f"{label}: {error}" for error in errors)
+        return "; ".join(messages) or _("The comment is invalid.")
     return str(exc)
 
 
@@ -465,14 +466,14 @@ def _create_registered_user(request, form, site):
 def register(request):
     site = _site()
     if not site.comment_registration_enabled:
-        return _json_error("Registration is disabled.", 403) if request.headers.get("Accept") == "application/json" else render(
+        return _json_error(_("Registration is disabled."), 403) if request.headers.get("Accept") == "application/json" else render(
             request, "comments/register.html", {"form": None, "registration_disabled": True}
         )
 
     if request.method == "POST":
         form = CommentRegistrationForm(request.POST)
         if _rate_limited(request, "register", limit=5, period=60 * 60):
-            form.add_error(None, "Too many registration attempts. Please try again later.")
+            form.add_error(None, _("Too many registration attempts. Please try again later."))
             return render(request, "comments/register.html", {"form": form}, status=429)
         if form.is_valid():
             try:
@@ -490,7 +491,11 @@ def register(request):
                 )
             if site.comment_require_email_verification:
                 return render(request, "comments/register_done.html", {"email": user.email})
-            login(request, user)
+            login(
+                request,
+                user,
+                backend="django.contrib.auth.backends.ModelBackend",
+            )
             return redirect(_safe_next(request, request.POST.get("next")))
     else:
         form = CommentRegistrationForm()
@@ -505,7 +510,11 @@ def verify(request, uidb64, token):
     if user and default_token_generator.check_token(user, token):
         user.is_active = True
         user.save(update_fields=("is_active",))
-        login(request, user)
+        login(
+            request,
+            user,
+            backend="django.contrib.auth.backends.ModelBackend",
+        )
         return render(request, "comments/verify_done.html", {"verified": True})
     return render(request, "comments/verify_done.html", {"verified": False}, status=400)
 
@@ -516,7 +525,7 @@ def login_view(request):
         form = AuthenticationForm(request, data=request.POST)
         if _rate_limited(request, "login", limit=10, period=15 * 60):
             login_limited = True
-            form.add_error(None, "Too many sign-in attempts. Please try again later.")
+            form.add_error(None, _("Too many sign-in attempts. Please try again later."))
         elif form.is_valid():
             login(request, form.get_user())
             if request.GET.get("modal") == "1":
@@ -528,7 +537,7 @@ def login_view(request):
         username = request.POST.get("username", "").strip()
         pending_user = User.objects.filter(username=username, is_active=False).first()
         if pending_user:
-            form.add_error(None, "We sent a verification email to your registered address. Please verify your email before signing in.")
+            form.add_error(None, _("We sent a verification email to your registered address. Please verify your email before signing in."))
     template = "comments/login_modal.html" if request.GET.get("modal") == "1" else "comments/login.html"
     return render(request, template, {"form": form})
 
@@ -536,7 +545,7 @@ def login_view(request):
 @require_POST
 def login_ajax(request):
     if _rate_limited(request, "login", limit=10, period=15 * 60):
-        return _json_error("Too many sign-in attempts. Please try again later.", 429)
+        return _json_error(_("Too many sign-in attempts. Please try again later."), 429)
     username = request.POST.get("username", "")
     password = request.POST.get("password", "")
     user = authenticate(request, username=username, password=password)
@@ -546,7 +555,7 @@ def login_ajax(request):
             "We sent a verification email to your registered address. Please verify your email before signing in." if pending else "Invalid username or password.",
             401,
         )
-    login(request, user)
+    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
     return JsonResponse({"ok": True, "username": user.get_username()})
 
 
@@ -554,9 +563,9 @@ def login_ajax(request):
 def register_ajax(request):
     site = _site()
     if not site.comment_registration_enabled:
-        return _json_error("Registration is disabled.", 403)
+        return _json_error(_("Registration is disabled."), 403)
     if _rate_limited(request, "register", limit=5, period=60 * 60):
-        return _json_error("Too many registration attempts. Please try again later.", 429)
+        return _json_error(_("Too many registration attempts. Please try again later."), 429)
     form = CommentRegistrationForm(request.POST)
     if not form.is_valid():
         return _json_error(" ".join(str(error) for errors in form.errors.values() for error in errors))
@@ -567,10 +576,10 @@ def register_ajax(request):
             "Failed to complete account registration for %s",
             form.cleaned_data["email"],
         )
-        return _json_error("Registration failed because the verification email could not be sent.", 502)
+        return _json_error(_("Registration failed because the verification email could not be sent."), 502)
     if site.comment_require_email_verification:
         return JsonResponse({"ok": True, "pending": True})
-    login(request, user)
+    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
     return JsonResponse({"ok": True, "pending": False})
 
 
@@ -585,7 +594,7 @@ def logout_view(request):
 def comments(request, slug):
     article = get_object_or_404(ArticleModel.objects.published(), slug=slug)
     if not _internal_comments_available(_site(), article):
-        return _json_error("Comments are disabled for this article.", 403)
+        return _json_error(_("Comments are disabled for this article."), 403)
     qs = Comment.objects.filter(article=article, is_approved=True).select_related("author").order_by("-is_sticky", "-created_at")
     comments = [_comment_payload(item, request) for item in qs]
     return JsonResponse({"ok": True, "comments": comments})
@@ -607,13 +616,13 @@ def _rate_limited(request, action, limit=10, period=60):
 def comment_preview(request):
     """render the composer preview through the same pipeline used after posting."""
     if not _internal_comments_available(_site()):
-        return _json_error("Internal comments are disabled.", 403)
+        return _json_error(_("Internal comments are disabled."), 403)
     if _rate_limited(request, "preview", limit=180, period=60):
-        return _json_error("Too many preview requests. Please try again later.", 429)
+        return _json_error(_("Too many preview requests. Please try again later."), 429)
 
     content = request.POST.get("content") or ""
     if len(content) > 5000:
-        return _json_error("Comment length must not exceed 5000 characters.")
+        return _json_error(_("Comment length must not exceed 5000 characters."))
     return JsonResponse({"ok": True, "html": _render_comment_markdown(content)})
 
 
@@ -640,18 +649,18 @@ def _sync_comment_images(comment, uploader):
 def create_comment(request, slug):
     site = _site()
     if site.comment_require_login and not request.user.is_authenticated:
-        return _json_error("Please sign in to comment.", 401)
+        return _json_error(_("Please sign in to comment."), 401)
     if not request.user.is_authenticated and not site.comment_allow_guest:
-        return _json_error("Guest comments are disabled.", 403)
+        return _json_error(_("Guest comments are disabled."), 403)
+    content = (request.POST.get("content") or "").strip()
+    if not content or len(content) > 5000:
+        return _json_error(_("Comment length must be between 1 and 5000 characters."))
     if _rate_limited(request, "create"):
-        return _json_error("Too many comments. Please try again later.", 429)
+        return _json_error(_("Too many comments. Please try again later."), 429)
 
     article = get_object_or_404(ArticleModel.objects.published(), slug=slug)
     if not _internal_comments_available(site, article):
-        return _json_error("Comments are disabled for this article.", 403)
-    content = (request.POST.get("content") or "").strip()
-    if not content or len(content) > 5000:
-        return _json_error("Comment length must be between 1 and 5000 characters.")
+        return _json_error(_("Comments are disabled for this article."), 403)
     parent = None
     parent_id = request.POST.get("parent_id")
     if parent_id:
@@ -665,12 +674,12 @@ def create_comment(request, slug):
             try:
                 validate_email(email)
             except ValidationError:
-                return _json_error("请输入有效的 Email 地址。")
+                return _json_error(_("Enter a valid email address."))
         if website:
             try:
                 URLValidator()(website)
             except ValidationError:
-                return _json_error("请输入有效的网址。")
+                return _json_error(_("Enter a valid website URL."))
 
     ip_address, browser, operating_system = _client_details(request)
     comment = Comment(
@@ -712,12 +721,12 @@ def create_comment(request, slug):
 @require_POST
 def toggle_like(request, comment_id):
     if not request.user.is_authenticated:
-        return _json_error("Please sign in to like comments.", 401)
+        return _json_error(_("Please sign in to like comments."), 401)
     site = _site()
     if not site.comment_allow_likes:
-        return _json_error("Comment likes are disabled.", 403)
+        return _json_error(_("Comment likes are disabled."), 403)
     if _rate_limited(request, "like", limit=60):
-        return _json_error("Too many requests.", 429)
+        return _json_error(_("Too many requests."), 429)
     comment = get_object_or_404(
         Comment,
         pk=comment_id,
@@ -743,13 +752,13 @@ def toggle_like(request, comment_id):
 @require_POST
 def edit_comment(request, comment_id):
     if not request.user.is_authenticated:
-        return _json_error("Please sign in to edit comments.", 401)
+        return _json_error(_("Please sign in to edit comments."), 401)
     comment = get_object_or_404(Comment, pk=comment_id)
     if comment.author_id != request.user.id:
-        return _json_error("You cannot edit this comment.", 403)
+        return _json_error(_("You cannot edit this comment."), 403)
     content = (request.POST.get("content") or "").strip()
     if not content or len(content) > 5000:
-        return _json_error("Comment length must be between 1 and 5000 characters.")
+        return _json_error(_("Comment length must be between 1 and 5000 characters."))
     comment.content = content
     comment.save(update_fields=("content", "updated_at"))
     _sync_comment_images(comment, request.user)
@@ -759,13 +768,13 @@ def edit_comment(request, comment_id):
 @require_POST
 def delete_comment(request, comment_id):
     if not request.user.is_authenticated:
-        return _json_error("Please sign in to delete comments.", 401)
+        return _json_error(_("Please sign in to delete comments."), 401)
     comment = get_object_or_404(Comment, pk=comment_id)
     if not (
         comment.author_id == request.user.id
         or request.user.has_perm("blog.delete_comment")
     ):
-        return _json_error("You cannot delete this comment.", 403)
+        return _json_error(_("You cannot delete this comment."), 403)
     comment.delete()
     return JsonResponse({"ok": True, "deleted": comment_id})
 
@@ -773,13 +782,13 @@ def delete_comment(request, comment_id):
 @require_POST
 def toggle_sticky(request, comment_id):
     if not request.user.has_perm("blog.change_comment"):
-        return _json_error("Only administrators can pin comments.", 403)
+        return _json_error(_("Only administrators can pin comments."), 403)
     with transaction.atomic():
         comment = get_object_or_404(Comment.objects.select_for_update(), pk=comment_id)
         if not comment.is_sticky and Comment.objects.filter(
             article_id=comment.article_id, is_sticky=True
         ).exclude(pk=comment.pk).exists():
-            return _json_error("已经有一个置顶评论了，不能置顶多个评论。", 409)
+            return _json_error(_("Only one comment can be pinned at a time."), 409)
         comment.is_sticky = not comment.is_sticky
         comment.save(update_fields=("is_sticky", "updated_at"))
     return JsonResponse({"ok": True, "is_sticky": comment.is_sticky})
@@ -788,7 +797,7 @@ def toggle_sticky(request, comment_id):
 @require_GET
 def notifications(request):
     if not request.user.is_authenticated:
-        return _json_error("Please sign in to view notifications.", 401)
+        return _json_error(_("Please sign in to view notifications."), 401)
     items = CommentNotification.objects.filter(recipient=request.user).select_related("actor", "comment")[:50]
     return JsonResponse({
         "ok": True,
@@ -810,7 +819,7 @@ def notifications(request):
 @require_POST
 def mark_notifications_read(request):
     if not request.user.is_authenticated:
-        return _json_error("Please sign in to manage notifications.", 401)
+        return _json_error(_("Please sign in to manage notifications."), 401)
     CommentNotification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
     return JsonResponse({"ok": True})
 
@@ -848,10 +857,10 @@ def comment_gif_proxy(request):
     source = CommentGifSource.objects.filter(config=site, enabled=True, pk=source_id).first()
     target = str(source.endpoint if source else "").strip()
     if _rate_limited(request, "gif", limit=30, period=60):
-        return _json_error("Too many GIF searches. Please try again later.", 429)
+        return _json_error(_("Too many GIF searches. Please try again later."), 429)
     parsed = urlparse(target)
     if parsed.scheme != "https" or parsed.netloc.lower() != "api.giphy.com" or parsed.path.rstrip("/") not in {"/v1/gifs/search", "/v1/gifs/trending"}:
-        return _json_error("Unsupported GIF provider.", 400)
+        return _json_error(_("Unsupported GIF provider."), 400)
     try:
         query = parse_qs(parsed.query)
         term = str(request.GET.get("q", query.get("q", [""])[0])).strip()[:100]
@@ -884,18 +893,18 @@ def comment_gif_proxy(request):
 @require_POST
 def comment_upload(request):
     if not request.user.is_authenticated:
-        return _json_error("Please sign in to upload images.", 401)
+        return _json_error(_("Please sign in to upload images."), 401)
     if not _internal_comments_available(_site()):
-        return _json_error("Internal comment uploads are disabled.", 403)
+        return _json_error(_("Internal comment uploads are disabled."), 403)
     if _rate_limited(request, "upload", limit=10, period=60 * 60):
-        return _json_error("Too many image uploads. Please try again later.", 429)
+        return _json_error(_("Too many image uploads. Please try again later."), 429)
     upload = request.FILES.get("image")
     max_bytes = settings.COMMENT_UPLOAD_MAX_BYTES
     if not upload or upload.size > max_bytes:
-        return _json_error(f"Image must be smaller than {max_bytes // (1024 * 1024)} MB.")
+        return _json_error(_("Image must be smaller than %(size)s MB.") % {"size": max_bytes // (1024 * 1024)})
     allowed = {"image/jpeg", "image/png", "image/gif", "image/webp"}
     if upload.content_type not in allowed:
-        return _json_error("Unsupported image type.")
+        return _json_error(_("Unsupported image type."))
     # validate file bytes before storage, because browser MIME types and names
     # are client-controlled and cannot prove that a file is an image
     expected_formats = {
@@ -915,13 +924,13 @@ def comment_upload(request):
             frames = getattr(image, "n_frames", 1)
         upload.seek(0)
     except (UnidentifiedImageError, OSError, ValueError):
-        return _json_error("Image data is invalid.")
+        return _json_error(_("Image data is invalid."))
     if detected_format not in expected_formats[upload.content_type]:
-        return _json_error("Image data does not match its declared type.")
+        return _json_error(_("Image data does not match its declared type."))
     if max(width, height) > settings.COMMENT_UPLOAD_MAX_DIMENSION:
-        return _json_error("Image dimensions are too large.")
+        return _json_error(_("Image dimensions are too large."))
     if width * height * frames > settings.COMMENT_UPLOAD_MAX_PIXELS:
-        return _json_error("Image contains too many pixels or animation frames.")
+        return _json_error(_("Image contains too many pixels or animation frames."))
     # derive the suffix from the accepted MIME type, so misleading client
     # extensions cannot create executable-looking filenames
     extension = {"image/jpeg": "jpg", "image/png": "png", "image/gif": "gif", "image/webp": "webp"}[upload.content_type]
@@ -941,5 +950,5 @@ def comment_upload(request):
             raise
     except Exception:
         logger.exception("Failed to save comment image upload")
-        return _json_error("图片上传失败，请稍后重试。", 500)
+        return _json_error(_("Image upload failed. Please try again later."), 500)
     return JsonResponse({"ok": True, "url": image.image.url})

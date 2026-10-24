@@ -18,9 +18,12 @@ from .models import (
 from core.markdown.extensions import get_extensions
 from markdown import Markdown
 from django.utils.safestring import mark_safe
-from django.utils.html import strip_tags
 from django.utils import timezone
 import re
+
+from .cache_utils import versioned_cache_page
+from .recommendations import related_articles
+from .search import search_articles
 
 
 def page_not_found(request, exception):
@@ -33,13 +36,7 @@ def page_not_found(request, exception):
 
 
 def _recommend_articles(article, site):
-    """Return related posts using the same content-similarity intent as Redefine.
-
-    Hexo builds a TF/IDF library at build time.  Django has no build step, so we
-    calculate a small, deterministic score from title/content words and shared
-    taxonomy when rendering an article.  The result is intentionally bounded by
-    the configured limit and excludes the current post.
-    """
+    """Return the cached, database-ranked related article set."""
     if not site.recommendation_enabled:
         return []
     limit = max(int(site.recommendation_limit or 0), 0)
@@ -50,26 +47,7 @@ def _recommend_articles(article, site):
         if path.lstrip('/').startswith(str(prefix).lstrip('/')):
             return []
 
-    def words(value):
-        # keep Latin words and contiguous CJK runs, so recommendations retain
-        # the useful part of Redefine's nodejieba scoring without a native runtime
-        return set(re.findall(r"[A-Za-z0-9_]+|[\u4e00-\u9fff]{2,}", value.lower()))
-
-    source_words = words(f"{article.title} {article.content}")
-    source_tags = set(article.tags.values_list("pk", flat=True))
-    source_cats = set(article.category.values_list("pk", flat=True))
-    candidates = []
-    for item in ArticleModel.objects.published().exclude(pk=article.pk):
-        item_words = words(f"{item.title} {item.content}")
-        overlap = len(source_words & item_words)
-        tag_overlap = len(source_tags & {tag.pk for tag in item.tags.all()})
-        cat_overlap = len(source_cats & {category.pk for category in item.category.all()})
-        # weight shared taxonomy first, then use lexical overlap to break ties naturally
-        score = cat_overlap * 5 + tag_overlap * 3 + overlap
-        if score:
-            candidates.append((score, item.created_at, item))
-    candidates.sort(key=lambda value: (value[0], value[1]), reverse=True)
-    return [item for _, _, item in candidates[:limit]]
+    return related_articles(article, limit)
 
 
 def index(request):
@@ -86,16 +64,16 @@ def index(request):
 
 
 def search_data(request):
-    """Expose the JSON shape consumed by Redefine's local-search module."""
-    data = [
-        {
-            "title": article.title,
-            "content": strip_tags(article.html_content),
-            "url": article.get_absolute_url(),
-        }
-        for article in ArticleModel.objects.published()
-    ]
-    return JsonResponse(data, safe=False)
+    """Return a bounded server-side search result instead of the whole corpus."""
+    query = request.GET.get("q", "")
+    results, backend = search_articles(query)
+    response = JsonResponse({
+        "query": query[:100],
+        "results": results,
+        "backend": backend,
+    })
+    response["Cache-Control"] = "public, max-age=60"
+    return response
 
 
 def article(request, slug):
@@ -140,6 +118,7 @@ def article(request, slug):
     }
     return render(request, "pages/post/article.html", context)
 
+@versioned_cache_page("content", timeout=10 * 60)
 def archives(request):
     # order archives strictly by date, because home-page sticky ordering can
     # otherwise split one year into several sections
@@ -154,6 +133,7 @@ def archives(request):
     }
     return render(request, "pages/archive/archives.html", context)
 
+@versioned_cache_page("content", timeout=10 * 60)
 def categories(request):
     now = timezone.now()
     categories = list(
@@ -201,6 +181,7 @@ def categories(request):
     }
     return render(request, "pages/category/categories.html", context)
 
+@versioned_cache_page("content", timeout=10 * 60)
 def categories_detail(request, slug):
     category = get_object_or_404(Category, slug=slug)
     articles_qs = (
@@ -223,6 +204,7 @@ def categories_detail(request, slug):
     }
     return render(request, "pages/category/categories_detail.html", context)
 
+@versioned_cache_page("content", timeout=10 * 60)
 def tags(request):
     now = timezone.now()
     tags = (
@@ -262,6 +244,7 @@ def tags(request):
     }
     return render(request, 'pages/tag/tags.html', context)
 
+@versioned_cache_page("content", timeout=10 * 60)
 def tags_detail(request, slug):
     tag = get_object_or_404(Tag, slug=slug)
     articles_qs = (

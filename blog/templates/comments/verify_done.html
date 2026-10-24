@@ -1,3 +1,3 @@
 {% extends "base.html" %}
-{% load static %}
-{% block page_content %}<link rel="stylesheet" href="{% static 'css/internal-comments.css' %}"><div class="page-template-container"><div class="page-template-content markdown-body">{% if verified %}<h1>Email verified</h1><p>Your account is active. You can now comment.</p>{% else %}<h1>Invalid link</h1><p>This verification link is invalid or has expired.</p>{% endif %}<p><a class="wl-btn primary" href="/">Back to site</a></p></div></div>{% endblock %}
+{% load static i18n %}
+{% block page_content %}<link rel="stylesheet" href="{% static 'css/internal-comments.css' %}"><div class="page-template-container"><div class="page-template-content markdown-body">{% if verified %}<h1>{% translate "Email verified" %}</h1><p>{% translate "Your account is active. You can now comment." %}</p>{% else %}<h1>{% translate "Invalid link" %}</h1><p>{% translate "This verification link is invalid or has expired." %}</p>{% endif %}<p><a class="wl-btn primary" href="/">{% translate "Back to site" %}</a></p></div></div>{% endblock %}

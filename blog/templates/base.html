@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% load blog_extensions %}
 
 {% block content %}
     {% include "components/header/progress-bar.html" %}
@@ -6,6 +7,7 @@
 	{% include "components/header/preloader.html" %}
 {% endif %}
 <main class="page-container" id="swup">
+	{% render_blog_hook "main_start" %}
 	{% if site.homebanner_enabled and is_homepage and not articles_page.has_previous %}
 		{% include "pages/home/home-banner.html" %}
 	{% elif site.homebanner_enabled and is_homepage and articles_page.has_previous and site.homebanner_style == "fixed" %}
@@ -24,7 +26,7 @@
 
 			<div class="main-content">
 				{% block page_content %}
-			{% endblock %}
+				{% endblock %}
 			</div>
 
 			{% if is_homepage and site.sidebar_enabled and site.sidebar_position == "right" %}
@@ -48,6 +50,7 @@
 	</div>
 
 	{% include "utils/image-viewer.html" %}
+	{% render_blog_hook "main_end" %}
 
 	{% if site.navbar_search_enabled %}
 		{% include "utils/local-search.html" %}

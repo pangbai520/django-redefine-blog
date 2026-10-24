@@ -1,4 +1,4 @@
-{% load inject_utils %}
+{% load inject_utils i18n %}
 <footer class="footer mt-5 py-5 h-auto text-base text-third-text-color relative border-t-2 border-t-border-color">
     <div class="info-container py-3 text-center">
         {% if site.footer_content %}
@@ -11,9 +11,9 @@
 
             {% if articles_count %}
                 <p class="post-count space-x-0.5">
-                    <span>{{ articles_count }} posts</span>
+                    <span>{% blocktranslate with counter=articles_count %}{{ counter }} posts in total{% endblocktranslate %}</span>
                     {% if total_words %}
-                        <span>{{ total_words }} words</span>
+                        <span>{% blocktranslate with counter=total_words %}{{ counter }} words in total{% endblocktranslate %}</span>
                     {% endif %}
                 </p>
             {% endif %}
@@ -22,28 +22,28 @@
             <div class="relative text-center lg:absolute lg:right-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-right">
                 {# keep UV and PV separate, so future counter switches can hide either metric #}
                 <span class="lg:!block">
-                    <span class="text-sm">Site UV</span>
+                    <span class="text-sm">{% translate "VISITOR COUNT" %}</span>
                     <span class="font-bold">{{ site_uv|default:0 }}</span>
                 </span>
 
                 <span class="lg:!block">
-                    <span class="text-sm">Site PV</span>
+                    <span class="text-sm">{% translate "TOTAL PAGE VIEWS" %}</span>
                     <span class="font-bold">{{ site_pv|default:0 }}</span>
                 </span>
             </div>
         {% endif %}
         <div class="relative text-center lg:absolute lg:left-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-left">
             <span class="lg:block text-sm">
-                Proudly powered by
+                {% captureas django_brand %}<a target="_blank" class="text-base" href="https://www.djangoproject.com/">
                 <svg class="relative top-[2px] inline-block align-baseline" version="1.1" xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 512 512">
                     <rect width="512" height="512" rx="15%" fill="#008F48"/>
                     <path fill="#ffffff" d="M227 101h56v257c-29 5-50 8-73 8-69 0-104-31-104-90 0-57 37-93 96-93 9 0 16 0 25 2zm0 129c-7-2-12-3-19-3-29 0-45 18-45 48s15 46 44 46c6 0 11 0 20-2zm145-44v129c0 45-3 66-13 84-9 18-21 29-46 42l-52-25c25-11 37-22 44-37 8-16 11-34 11-83V186zm-56-85h56v57h-56z"/>
                 </svg>
-                <a target="_blank" class="text-base" href="https://www.djangoproject.com/">
                     Django
-                </a>
+                </a>{% endcaptureas %}
+                {% blocktranslate trimmed with framework=django_brand %}Proudly powered by {{ framework }}{% endblocktranslate %}
             </span>
-            <span class="text-sm lg:block">Based on <a class="text-base" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine</a></span>
+            <span class="text-sm lg:block">{% translate "Based on" %}&nbsp;<a class="text-base" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine</a></span>
         </div>
         {% if site.show_icp and site.icp_number %}
             <div class="icp-info my-1">
@@ -54,11 +54,11 @@
         {% endif %}
         {% if site.footer_runtime_enabled %}
             <div>
-                runtime
-                <span class="odometer" id="runtime_days"></span> days
-                <span class="odometer" id="runtime_hours"></span> hours
-                <span class="odometer" id="runtime_minutes"></span> minutes
-                <span class="odometer" id="runtime_seconds"></span> seconds
+                {% translate "Blog up for" %}
+                <span class="odometer" id="runtime_days"></span> {% translate "days" %}
+                <span class="odometer" id="runtime_hours"></span> {% translate "hrs" %}
+                <span class="odometer" id="runtime_minutes"></span> {% translate "Min" %}
+                <span class="odometer" id="runtime_seconds"></span> {% translate "Sec" %}
             </div>
         {% endif %}
         {% if site.inject_enabled and site.inject_footer %}

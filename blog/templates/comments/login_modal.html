@@ -1,4 +1,4 @@
-{% load static %}
+{% load static i18n %}
 <link
   rel="stylesheet"
   href="{% static 'css/internal-comments.css' %}"
@@ -8,5 +8,5 @@
     type="hidden"
     name="next"
     value="{{ request.GET.next }}"
-  /><button class="wl-btn primary" type="submit">Sign in</button>
+  /><button class="wl-btn primary" type="submit">{% translate "Sign in" %}</button>
 </form>

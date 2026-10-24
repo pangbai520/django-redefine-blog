@@ -15,12 +15,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.conf import settings
 from django.urls import path, include
 
 handler404 = "blog.views.page_not_found"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('i18n/', include('django.conf.urls.i18n')),
     path('', include('blog.urls')),
     path('mdeditor/', include('mdeditor.urls')),
 ]
+
+if settings.GITHUB_OAUTH_ENABLED:
+    urlpatterns.insert(1, path('accounts/', include('allauth.urls')))

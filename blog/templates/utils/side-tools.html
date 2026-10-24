@@ -1,3 +1,4 @@
+{% load i18n %}
 <div class="side-tools-container">
 	<ul class="hidden-tools-list">
 		<li class="right-bottom-tools tool-font-adjust-plus flex justify-center items-center">
@@ -10,6 +11,10 @@
 
 		<li class="right-bottom-tools tool-dark-light-toggle flex justify-center items-center">
 			<i class="fa-regular fa-moon"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-language-switch flex justify-center items-center" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="language-switcher-dialog" title="{% translate 'Change language' %}" aria-label="{% translate 'Change language' %}">
+			<i class="fa-solid fa-language" aria-hidden="true"></i>
 		</li>
 
 		<!-- show RSS only when configured, so an empty feed link never reaches readers -->
@@ -46,4 +51,30 @@
 		</li>
         {% endif %}
 	</ul>
+</div>
+
+<div class="language-switcher-modal" data-language-switcher-modal hidden>
+	<button type="button" class="language-switcher-backdrop" data-language-switcher-close tabindex="-1" aria-label="{% translate 'Close' %}"></button>
+	<section id="language-switcher-dialog" class="language-switcher-dialog" role="dialog" aria-modal="true" aria-labelledby="language-switcher-title" aria-describedby="language-switcher-description">
+		<button type="button" class="language-switcher-close" data-language-switcher-close aria-label="{% translate 'Close' %}">
+			<i class="fa-solid fa-xmark" aria-hidden="true"></i>
+		</button>
+		<div class="language-switcher-heading-icon" aria-hidden="true"><i class="fa-solid fa-language"></i></div>
+		<h2 id="language-switcher-title">{% translate "Change language" %}</h2>
+		<p id="language-switcher-description">{% translate "Choose the language used by the blog interface." %}</p>
+		<form action="{% url 'set_language' %}" method="post" class="language-switcher-options">
+			{% csrf_token %}
+			<input name="next" type="hidden" value="{{ request.get_full_path }}">
+			{% get_current_language as current_language %}
+			{% for option in LANGUAGE_SWITCHER_OPTIONS %}
+			<button type="submit" name="language" value="{{ option.code }}" data-language-code="{{ option.code }}" class="language-switcher-option{% if option.code == current_language %} is-current{% endif %}"{% if option.code == current_language %} aria-current="true"{% endif %}>
+				<span class="language-switcher-option-label">
+					<span class="language-switcher-option-badge is-{{ option.badge_kind }}" aria-hidden="true">{{ option.badge }}</span>
+					<span>{{ option.name }}</span>
+				</span>
+				{% if option.code == current_language %}<i class="fa-solid fa-check" aria-hidden="true"></i>{% endif %}
+			</button>
+			{% endfor %}
+		</form>
+	</section>
 </div>

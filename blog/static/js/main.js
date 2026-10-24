@@ -4,6 +4,7 @@ import initTyped, { destroyTyped } from "./plugins/typed.js";
 import initModeToggle from "./tools/lightDarkSwitch.js";
 import initLazyLoad from "./layouts/lazyload.js";
 import initScrollTopBottom from "./tools/scrollTopBottom.js";
+import initLanguageSwitcher from "./tools/languageSwitcher.js";
 import initLocalSearch from "./tools/localSearch.js";
 import initCopyCode from "./tools/codeBlock.js";
 import initBookmarkNav from "./layouts/bookmarkNav.js";
@@ -30,6 +31,7 @@ const main = {
         initUtils();
         initModeToggle();
         initScrollTopBottom();
+        initLanguageSwitcher();
         initBookmarkNav();
         initHomeBanner();
         updateArticleExpiration();

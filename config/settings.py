@@ -14,6 +14,8 @@ import mimetypes
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 mimetypes.add_type("application/javascript", ".mjs")
 
 # resolve every local path from the project root, so deployment directories can move safely
@@ -63,12 +65,40 @@ INSTALLED_APPS = [
     "django_cleanup.apps.CleanupConfig",
 ]
 
+GITHUB_OAUTH_CLIENT_ID = os.getenv(
+    "BLOG_GITHUB_OAUTH_CLIENT_ID", os.getenv("GITHUB_OAUTH_CLIENT_ID", "")
+).strip()
+GITHUB_OAUTH_CLIENT_SECRET = os.getenv(
+    "BLOG_GITHUB_OAUTH_CLIENT_SECRET", os.getenv("GITHUB_OAUTH_CLIENT_SECRET", "")
+).strip()
+if bool(GITHUB_OAUTH_CLIENT_ID) != bool(GITHUB_OAUTH_CLIENT_SECRET):
+    raise ImproperlyConfigured(
+        "The GitHub OAuth client ID and secret must be set together."
+    )
+GITHUB_OAUTH_ENABLED = bool(GITHUB_OAUTH_CLIENT_ID)
+if GITHUB_OAUTH_ENABLED:
+    try:
+        import allauth  # noqa: F401
+    except ImportError as exc:
+        raise ImproperlyConfigured(
+            "GitHub OAuth is configured, but its optional dependencies are missing. "
+            "Install requirements-oauth.txt."
+        ) from exc
+    INSTALLED_APPS[6:6] = [
+        "allauth",
+        "allauth.account",
+        "allauth.socialaccount",
+        "allauth.socialaccount.providers.github",
+    ]
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "blog.middleware.RegionLocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    *(["allauth.account.middleware.AccountMiddleware"] if GITHUB_OAUTH_ENABLED else []),
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "blog.middleware.TrafficModelMiddleware",
@@ -158,6 +188,22 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
+if GITHUB_OAUTH_ENABLED:
+    AUTHENTICATION_BACKENDS.append("allauth.account.auth_backends.AuthenticationBackend")
+    ACCOUNT_EMAIL_VERIFICATION = "none"
+    ACCOUNT_SIGNUP_FIELDS = ["username*", "password1*", "password2*"]
+    SOCIALACCOUNT_PROVIDERS = {
+        "github": {
+            "APPS": [{
+                "client_id": GITHUB_OAUTH_CLIENT_ID,
+                "secret": GITHUB_OAUTH_CLIENT_SECRET,
+                "key": "",
+            }],
+            "SCOPE": ["read:user", "user:email"],
+        }
+    }
+
 
 # separate versioned theme assets from uploaded resources, so deployment can serve them differently
 STATIC_URL = "/static/"
@@ -169,6 +215,7 @@ STATIC_ROOT = Path(os.getenv("STATIC_ROOT", BASE_DIR / "staticfiles"))
 MEDIA_URL = "/resources/"
 MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT", BASE_DIR / "blog" / "resources"))
 INSTALL_STARTER_CONTENT = env_bool("INSTALL_STARTER_CONTENT", True)
+BLOG_EXTENSION_MODULES = env_list("BLOG_EXTENSION_MODULES")
 
 # bound request bodies before application code runs, then apply stricter image
 # limits in the comment upload endpoint where dimensions can also be inspected
@@ -182,7 +229,39 @@ COMMENT_UPLOAD_MAX_PIXELS = int(os.getenv("COMMENT_UPLOAD_MAX_PIXELS", "24000000
 # keep language and timezone project-owned, so saved content has one consistent interpretation
 PROJECT_VERSION = ""
 
-LANGUAGE_CODE = "zh-hans"
+LANGUAGE_CODE = os.getenv("DJANGO_LANGUAGE_CODE", "en")
+LANGUAGES = [
+    ("en", "English"),
+    ("es", "Español"),
+    ("fr", "Français"),
+    ("ja", "日本語"),
+    ("zh-hans", "简体中文"),
+    ("zh-hk", "香港繁體"),
+    ("zh-tw", "臺灣正體"),
+]
+LANGUAGE_SWITCHER_BADGES = {
+    "en": "🇬🇧",
+    "es": "🇪🇸",
+    "fr": "🇫🇷",
+    "ja": "🇯🇵",
+    "zh-hans": "🇨🇳",
+    "zh-hk": "🇭🇰",
+    "zh-tw": "🇹🇼",
+}
+LOCALE_PATHS = [BASE_DIR / "locale"]
+# Regional defaults use country codes supplied by the deployment proxy. A
+# language cookie created by the reader's manual choice always takes priority.
+REGION_LANGUAGE_DETECTION = env_bool("REGION_LANGUAGE_DETECTION", True)
+REGION_LANGUAGE_HEADERS = env_list(
+    "REGION_LANGUAGE_HEADERS",
+    "CF-IPCountry,CloudFront-Viewer-Country,X-Country-Code",
+)
+REGION_LANGUAGE_MAP = {
+    "CN": "zh-hans",
+    "TW": "zh-tw",
+    "HK": "zh-hk",
+    "MO": "zh-hk",
+}
 TIME_ZONE = "Asia/Shanghai"
 USE_I18N = True
 USE_TZ = True
@@ -224,14 +303,29 @@ EMAIL_USE_SSL = env_bool("EMAIL_USE_SSL")
 EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", "10"))
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "blog@example.com")
 
-# local memory keeps development dependency-free; the cache location is named
-# explicitly so tests and multiple local projects do not accidentally share it
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": os.getenv("CACHE_LOCATION", "django-redefine-blog-local"),
+# local memory keeps development dependency-free; production may opt into Redis
+# without changing application code or making Redis a mandatory service
+CACHE_BACKEND = os.getenv("CACHE_BACKEND", "locmem").lower()
+if CACHE_BACKEND == "redis":
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": os.getenv("CACHE_URL", "redis://127.0.0.1:6379/1"),
+            "KEY_PREFIX": os.getenv("CACHE_KEY_PREFIX", "django-redefine-blog"),
+            "TIMEOUT": int(os.getenv("CACHE_DEFAULT_TIMEOUT", "300")),
+        }
     }
-}
+elif CACHE_BACKEND == "locmem":
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": os.getenv("CACHE_LOCATION", "django-redefine-blog-local"),
+        }
+    }
+else:
+    raise ValueError("CACHE_BACKEND must be locmem or redis.")
+
+MARKDOWN_CACHE_TIMEOUT = int(os.getenv("MARKDOWN_CACHE_TIMEOUT", str(7 * 24 * 60 * 60)))
 
 LOGGING = {
     "version": 1,

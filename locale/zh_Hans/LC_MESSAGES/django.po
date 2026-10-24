@@ -1,0 +1,612 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Django Redefine\n"
+"Language: zh_Hans\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "No articles yet"
+msgstr "还没有文章"
+
+msgid "This page is empty. Go to the backend and publish your first post."
+msgstr "这里还是空的，去后台发布第一篇文章吧。"
+
+msgid "Prev posts"
+msgstr "上一篇"
+
+msgid "Next posts"
+msgstr "下一篇"
+
+msgid "Tags"
+msgstr "标签"
+
+msgid "Categories"
+msgstr "分类"
+
+msgid "Posts"
+msgstr "文章"
+
+msgid "Proudly powered by %(framework)s"
+msgstr "由 %(framework)s 强力驱动"
+
+msgid "Based on"
+msgstr "基于"
+
+msgid "Blog up for"
+msgstr "博客已运行"
+
+msgid "days"
+msgstr "天"
+
+msgid "hrs"
+msgstr "小时"
+
+msgid "Min"
+msgstr "分钟"
+
+msgid "Sec"
+msgstr "秒"
+
+msgid "Language"
+msgstr "语言"
+
+msgid "Apply"
+msgstr "应用"
+
+msgid "Continue with GitHub"
+msgstr "使用 GitHub 继续"
+
+msgid "%(counter)s posts in total"
+msgstr "共撰写了 %(counter)s 篇文章"
+
+msgid "%(counter)s words in total"
+msgstr "共 %(counter)s 字"
+
+msgid "Password"
+msgstr "密码"
+
+msgid "Log out"
+msgstr "退出登录"
+
+msgid "Please"
+msgstr "请"
+
+msgid "sign in"
+msgstr "登录"
+
+msgid "to comment."
+msgstr "后发表评论。"
+
+msgid "Nickname"
+msgstr "昵称"
+
+msgid "Email"
+msgstr "邮箱"
+
+msgid "Website"
+msgstr "网站"
+
+msgid "Write a comment…"
+msgstr "写下评论……"
+
+msgid "Preview"
+msgstr "预览"
+
+msgid "Sign in"
+msgstr "登录"
+
+msgid "Sign up"
+msgstr "注册"
+
+msgid "Authentication required to comment"
+msgstr "登录或注册后发表评论"
+
+msgid "Submit"
+msgstr "发布"
+
+msgid "Comments"
+msgstr "评论"
+
+msgid "Latest"
+msgstr "最新"
+
+msgid "Oldest"
+msgstr "最早"
+
+msgid "Most liked"
+msgstr "最多点赞"
+
+msgid "Loading comments…"
+msgstr "正在加载评论……"
+
+msgid "Powered by Django"
+msgstr "由 Django 驱动"
+
+msgid "Register"
+msgstr "注册"
+
+msgid "Username"
+msgstr "用户名"
+
+msgid "Forgot your password?"
+msgstr "忘记密码？"
+
+msgid "Confirm password"
+msgstr "确认密码"
+
+msgid "Create an account"
+msgstr "创建账号"
+
+msgid "Registration is currently disabled."
+msgstr "当前已关闭注册。"
+
+msgid "Page Not Found"
+msgstr "页面不存在"
+
+msgid "Signed in"
+msgstr "已登录"
+
+msgid "You can close this dialog and continue commenting."
+msgstr "可以关闭此窗口并继续评论。"
+
+msgid "Password updated"
+msgstr "密码已更新"
+
+msgid "Your current session remains signed in."
+msgstr "当前会话仍保持登录。"
+
+msgid "Change password"
+msgstr "修改密码"
+
+msgid "Save password"
+msgstr "保存密码"
+
+msgid "You can now"
+msgstr "现在可以"
+
+msgid "with the new password."
+msgstr "并使用新密码登录。"
+
+msgid "Choose a new password"
+msgstr "设置新密码"
+
+msgid "This reset link is invalid or has expired. Please request a new one."
+msgstr "此重置链接无效或已过期，请重新申请。"
+
+msgid "Check your email"
+msgstr "请检查邮箱"
+
+msgid ""
+"If an active account uses that address, a password reset link has been sent."
+msgstr "如果该邮箱对应有效账号，密码重置链接已经发出。"
+
+msgid "Reset password"
+msgstr "重置密码"
+
+msgid ""
+"Enter the email address used by your comment account. If it exists, a reset "
+"link will be sent."
+msgstr "请输入评论账号使用的邮箱；若账号存在，我们会发送重置链接。"
+
+msgid "Send reset link"
+msgstr "发送重置链接"
+
+msgid "Email verified"
+msgstr "邮箱已验证"
+
+msgid "Your account is active. You can now comment."
+msgstr "账号已激活，现在可以发表评论。"
+
+msgid "Invalid link"
+msgstr "链接无效"
+
+msgid "This verification link is invalid or has expired."
+msgstr "此验证链接无效或已过期。"
+
+msgid "Back to site"
+msgstr "返回站点"
+
+msgid ""
+"We could not send the verification email right now. Please contact the site "
+"administrator."
+msgstr "验证邮件暂时无法发送，请联系站点管理员。"
+
+msgid ""
+"We sent a verification link to %(email)s. Your account will be ready after "
+"verification."
+msgstr "验证链接已发送至 %(email)s，完成验证后即可使用账号。"
+
+msgid "Back"
+msgstr "返回"
+
+msgid "Search..."
+msgstr "站内搜索您需要的内容..."
+
+msgid "Created"
+msgstr "创建"
+
+msgid "Updated"
+msgstr "更新时间"
+
+msgid "Words"
+msgstr "字"
+
+msgid "Mins"
+msgstr "分钟"
+
+msgid "Title"
+msgstr "标题"
+
+msgid "Author"
+msgstr "作者"
+
+msgid "Link"
+msgstr "链接"
+
+msgid "License"
+msgstr "许可协议"
+
+msgid "On this page"
+msgstr "目录"
+
+msgid "VISITOR COUNT"
+msgstr "访问人数"
+
+msgid "TOTAL PAGE VIEWS"
+msgstr "总访问量"
+
+msgid "Scroll to content"
+msgstr "滚动到正文"
+
+msgid "Change language"
+msgstr "更改语言"
+
+msgid "Choose the language used by the blog interface."
+msgstr "请选择博客界面所使用的语言。"
+
+msgid "Close"
+msgstr "关闭"
+
+msgid "Go Back Home"
+msgstr "回到首页"
+
+msgid "Read more"
+msgstr "阅读全文"
+
+msgid "Created at"
+msgstr "创建于"
+
+msgid "Updated at"
+msgstr "更新于"
+
+msgid ""
+"This post is written %(days)s days ago, and the content may not be up to "
+"date."
+msgstr "这篇文章最后更新于 %(days)s 天前，内容可能已经过时。"
+
+msgid "%(elapsed)s ago"
+msgstr "%(elapsed)s前"
+
+msgid "%s seconds ago"
+msgstr "%s 秒前"
+
+msgid "%s minutes ago"
+msgstr "%s 分钟前"
+
+msgid "%s hours ago"
+msgstr "%s 小时前"
+
+msgid "%s days ago"
+msgstr "%s 天前"
+
+msgid "%s weeks ago"
+msgstr "%s 周前"
+
+msgid "%s months ago"
+msgstr "%s 个月前"
+
+msgid "%s years ago"
+msgstr "%s 年前"
+
+msgid "All Rights Reserved &#169; {author}"
+msgstr "版权所有 &#169; {author}，禁止转载。"
+
+msgid "This work is licensed under {license}."
+msgstr "本文章采用 {license} 进行许可。"
+
+msgid "This work is in the public domain."
+msgstr "本文为公有领域作品，可自由转载、引用。"
+
+msgid "License: %(license)s"
+msgstr "许可协议：%(license)s"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "Cancel reply"
+msgstr "取消回复"
+
+msgid "Comment length must be between 1 and 5000 characters."
+msgstr "评论长度必须在 1 到 5000 个字符之间。"
+
+msgid "Comment length must not exceed 5000 characters."
+msgstr "评论长度不能超过 5000 个字符。"
+
+msgid "Comment likes are disabled."
+msgstr "评论点赞已关闭。"
+
+msgid "Comments are disabled for this article."
+msgstr "此文章已关闭评论。"
+
+msgid "Delete"
+msgstr "删除"
+
+msgid "Delete this comment?"
+msgstr "删除这条评论？"
+
+msgid "Edit"
+msgstr "编辑"
+
+msgid "Edit your comment"
+msgstr "编辑你的评论"
+
+msgid "Emoji"
+msgstr "表情"
+
+msgid "Enter a keyword to search GIFs"
+msgstr "输入关键词搜索 GIF"
+
+msgid "Enter a valid email address."
+msgstr "请输入有效的电子邮箱地址。"
+
+msgid "Enter a valid website URL."
+msgstr "请输入有效的网站地址。"
+
+msgid "Guest comments are disabled."
+msgstr "访客评论已关闭。"
+
+msgid "Image contains too many pixels or animation frames."
+msgstr "图片像素或动画帧数过多。"
+
+msgid "Image data does not match its declared type."
+msgstr "图片数据与声明的类型不符。"
+
+msgid "Image data is invalid."
+msgstr "图片数据无效。"
+
+msgid "Image dimensions are too large."
+msgstr "图片尺寸过大。"
+
+msgid "Image must be smaller than %(size)s MB."
+msgstr "图片必须小于 %(size)s MB。"
+
+msgid "Image must be smaller than 2 MB."
+msgstr "图片必须小于 2 MB。"
+
+msgid "Image upload failed. Please try again later."
+msgstr "图片上传失败，请稍后重试。"
+
+msgid "Internal comment uploads are disabled."
+msgstr "站内评论图片上传已关闭。"
+
+msgid "Internal comments are disabled."
+msgstr "站内评论已关闭。"
+
+msgid "Like"
+msgstr "喜欢"
+
+msgid "Loading…"
+msgstr "加载中…"
+
+msgid "Markdown Guide"
+msgstr "Markdown 指南"
+
+msgid "Markdown is supported"
+msgstr "支持 Markdown"
+
+msgid "My actions"
+msgstr "我的操作"
+
+msgid "No GIFs found"
+msgstr "未找到 GIF"
+
+msgid "No comments yet."
+msgstr "还没有评论。"
+
+msgid "No emoji yet. Add a Comment emoji name and image URL in the admin."
+msgstr "暂无表情，请先在后台添加表情名称和图片地址。"
+
+msgid "None available"
+msgstr "暂无可用项"
+
+msgid "Only administrators can pin comments."
+msgstr "只有管理员可以置顶评论。"
+
+msgid "Only one comment can be pinned at a time."
+msgstr "同时只能置顶一条评论。"
+
+msgid "Pin"
+msgstr "置顶"
+
+msgid "Pinned"
+msgstr "置顶"
+
+msgid "Please sign in to comment."
+msgstr "请登录后评论。"
+
+msgid "Please sign in to delete comments."
+msgstr "请登录后删除评论。"
+
+msgid "Please sign in to edit comments."
+msgstr "请登录后编辑评论。"
+
+msgid "Please sign in to like comments."
+msgstr "请登录后点赞评论。"
+
+msgid "Please sign in to manage notifications."
+msgstr "请登录后管理通知。"
+
+msgid "Please sign in to upload images."
+msgstr "请登录后上传图片。"
+
+msgid "Please sign in to view notifications."
+msgstr "请登录后查看通知。"
+
+msgid "Preview unavailable"
+msgstr "无法预览"
+
+msgid "Recent actions"
+msgstr "最近操作"
+
+msgid "Registration failed because the verification email could not be sent."
+msgstr "验证邮件发送失败，无法完成注册。"
+
+msgid "Registration is disabled."
+msgstr "注册已关闭。"
+
+msgid "Reply"
+msgstr "回复"
+
+msgid "Search GIF"
+msgstr "搜索 GIF"
+
+msgid "The comment is invalid."
+msgstr "评论内容无效。"
+
+msgid "Too many GIF searches. Please try again later."
+msgstr "GIF 搜索过于频繁，请稍后重试。"
+
+msgid "Too many comments. Please try again later."
+msgstr "评论过于频繁，请稍后重试。"
+
+msgid "Too many image uploads. Please try again later."
+msgstr "图片上传过于频繁，请稍后重试。"
+
+msgid "Too many password reset requests. Please try again later."
+msgstr "密码重置请求过于频繁，请稍后重试。"
+
+msgid "Too many preview requests. Please try again later."
+msgstr "预览请求过于频繁，请稍后重试。"
+
+msgid "Too many registration attempts. Please try again later."
+msgstr "注册尝试过于频繁，请稍后重试。"
+
+msgid "Too many requests."
+msgstr "请求过于频繁。"
+
+msgid "Too many sign-in attempts. Please try again later."
+msgstr "登录尝试过于频繁，请稍后重试。"
+
+msgid "Unable to delete comment."
+msgstr "无法删除评论。"
+
+msgid "Unable to load comment assets"
+msgstr "无法加载评论资源"
+
+msgid "Unable to load comments."
+msgstr "无法加载评论。"
+
+msgid "Unable to register."
+msgstr "无法注册。"
+
+msgid "Unable to sign in."
+msgstr "无法登录。"
+
+msgid "Unable to submit comment"
+msgstr "无法提交评论"
+
+msgid "Unable to update pin status."
+msgstr "无法更新置顶状态。"
+
+msgid "Unlike"
+msgstr "取消喜欢"
+
+msgid "Unpin"
+msgstr "取消置顶"
+
+msgid "Unsupported GIF provider."
+msgstr "不支持此 GIF 服务。"
+
+msgid "Unsupported image type."
+msgstr "不支持此图片类型。"
+
+msgid "Upload failed"
+msgstr "上传失败"
+
+msgid "Upload failed: server did not return an image URL."
+msgstr "上传失败：服务器未返回图片地址。"
+
+msgid "Upload image"
+msgstr "上传图片"
+
+msgid "Verification email sent. Please check your inbox before signing in."
+msgstr "验证邮件已发送，请查收后再登录。"
+
+msgid ""
+"We sent a verification email to your registered address. Please verify your "
+"email before signing in."
+msgstr "验证邮件已发送至你的注册邮箱，请验证后再登录。"
+
+msgid "You cannot delete this comment."
+msgstr "你不能删除这条评论。"
+
+msgid "You cannot edit this comment."
+msgstr "你不能编辑这条评论。"
+
+msgid "category"
+msgstr "分类"
+
+msgid "content"
+msgstr "内容"
+
+msgid "created at"
+msgstr "创建时间"
+
+msgid "default mode"
+msgstr "默认模式"
+
+msgid "excerpt"
+msgstr "摘要"
+
+msgid "expires at"
+msgstr "过期时间"
+
+msgid "is published"
+msgstr "是否发布"
+
+msgid "name"
+msgstr "名称"
+
+msgid "parent category"
+msgstr "父级分类"
+
+msgid "site author"
+msgstr "站点作者"
+
+msgid "site description"
+msgstr "站点描述"
+
+msgid "site info subtitle"
+msgstr "站点信息副标题"
+
+msgid "site keywords"
+msgstr "站点关键词"
+
+msgid "site name"
+msgstr "站点名称"
+
+msgid "slug"
+msgstr "别名"
+
+msgid "tags"
+msgstr "标签"
+
+msgid "title"
+msgstr "标题"
+
+msgid "updated at"
+msgstr "更新时间"
+
+msgid "writer"
+msgstr "作者"

@@ -17,7 +17,7 @@ export default function updateArticleExpiration() {
         0,
         Math.floor((Date.now() - updated.getTime()) / (1000 * 60 * 60 * 24)),
       );
-      value.textContent = `expired ${daysAgo} days ago`;
+      value.textContent = value.textContent.replace("__DAYS__", String(daysAgo));
     }
   });
 }

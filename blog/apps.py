@@ -29,3 +29,6 @@ class BlogConfig(AppConfig):
             dispatch_uid="blog.install_starter_content",
         )
         from . import signals  # noqa: F401
+        from .extensions import load_blog_extensions
+
+        load_blog_extensions()

@@ -1,4 +1,4 @@
-{% load static %}
+{% load static i18n %}
 {% if site.homebanner_style == "fixed" %}
     <style>
         .home-banner-container {
@@ -52,7 +52,7 @@
         </div>
         {% if site.social_links_enabled %}
             <div class="absolute bottom-0.5 flex {{ site.social_layout.flex_dir }} {{ site.social_layout.justify }} max-w-[1340px] items-center w-full px-8 sm:px-12">
-                <div data-scroll-to-main role="button" tabindex="0" aria-label="Scroll to content" class="flex p-3 bg-gray-300/50 dark:bg-gray-500/40 backdrop-blur-lg border border-white/20 dark:border-gray-500/30 group rounded-full cursor-pointer flex justify-center items-center aspect-square h-full shadow-redefine-flat hover:shadow-redefine-flat-hover transition-shadow">
+                <div data-scroll-to-main role="button" tabindex="0" aria-label="{% translate 'Scroll to content' %}" class="flex p-3 bg-gray-300/50 dark:bg-gray-500/40 backdrop-blur-lg border border-white/20 dark:border-gray-500/30 group rounded-full cursor-pointer flex justify-center items-center aspect-square h-full shadow-redefine-flat hover:shadow-redefine-flat-hover transition-shadow">
                     <i class="fa-solid fa-arrow-down fa-fw fa-lg group-hover:translate-y-1 transition-transform"></i>
                 </div>
                 <div class="social-contacts px-6 py-3 bg-gray-300/50 dark:bg-gray-500/40 backdrop-blur-lg border border-white/20 dark:border-gray-500/30 shadow-redefine-flat rounded-full flex flex-row gap-3 items-center">

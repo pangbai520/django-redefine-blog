@@ -1,26 +1,84 @@
-from django.db.models.signals import m2m_changed, post_delete, post_save
+from django.db.models.signals import m2m_changed, post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
 
 from .models import (
     ArticleModel,
+    Category,
     CommentBadge,
     CommentBadgeAssignment,
     SiteConfiguration,
+    Tag,
     TrafficModel,
 )
 
 
-@receiver([post_save, post_delete], sender=ArticleModel)
-def clear_article_caches(sender, instance, **kwargs):
-    cache.delete_many(("total_word_count", "site_stats_counts"))
+@receiver(pre_save, sender=ArticleModel)
+def remember_article_publication_state(sender, instance, **kwargs):
+    if not instance.pk:
+        instance._was_published = False
+        return
+    instance._was_published = sender.objects.filter(pk=instance.pk).values_list(
+        "is_published", flat=True
+    ).first()
+
+
+@receiver(post_save, sender=ArticleModel)
+def refresh_article_derivatives(sender, instance, **kwargs):
+    from .extension_signals import article_published, article_unpublished
+    from .cache_utils import invalidate_content_caches
+    from .search import index_article
+
+    index_article(instance)
+    invalidate_content_caches()
+    was_published = bool(getattr(instance, "_was_published", False))
+    if instance.is_published and not was_published:
+        article_published.send(
+            sender=sender,
+            instance=instance,
+            created=kwargs.get("created", False),
+        )
+    elif was_published and not instance.is_published:
+        article_unpublished.send(sender=sender, instance=instance)
+
+
+@receiver(post_delete, sender=ArticleModel)
+def remove_article_derivatives(sender, instance, **kwargs):
+    from .extension_signals import article_deleted
+    from .cache_utils import invalidate_content_caches
+    from .search import remove_article_from_index
+
+    remove_article_from_index(instance.pk)
+    invalidate_content_caches()
+    article_deleted.send(sender=sender, instance=instance)
 
 
 @receiver(m2m_changed, sender=ArticleModel.category.through)
 @receiver(m2m_changed, sender=ArticleModel.tags.through)
-def clear_article_taxonomy_cache(sender, instance, **kwargs):
-    cache.delete("site_stats_counts")
+def refresh_article_taxonomy(sender, instance, action, **kwargs):
+    if action not in {"post_add", "post_remove", "post_clear"}:
+        return
+    from .cache_utils import invalidate_content_caches
+    from .search import index_article
+
+    index_article(instance)
+    invalidate_content_caches()
+
+
+@receiver([post_save, post_delete], sender=Category)
+@receiver([post_save, post_delete], sender=Tag)
+def invalidate_taxonomy_content(sender, instance, **kwargs):
+    from .cache_utils import invalidate_content_caches
+
+    invalidate_content_caches()
+
+
+@receiver([post_save, post_delete], sender=SiteConfiguration)
+def invalidate_site_content(sender, instance, **kwargs):
+    from .cache_utils import invalidate_content_caches
+
+    invalidate_content_caches()
 
 
 @receiver([post_save, post_delete], sender=TrafficModel)

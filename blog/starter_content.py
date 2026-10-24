@@ -1,8 +1,5 @@
-import shutil
 from datetime import datetime, timezone as datetime_timezone
-from pathlib import Path
 
-from django.conf import settings
 from django.db import transaction
 
 from .models import (
@@ -21,13 +18,13 @@ SITE_DEFAULTS = {
     "site_subname": "Redefine Your Django Journey.",
     "site_author": "The Redefine Team",
     "site_keywords": "Redefine,Django",
-    "site_logo": "logo/redefine-logo.webp",
+    "site_avatar": "",
+    "site_logo": "",
     "preloader_message": "Django Redefine",
     "subtitle_enabled": True,
     "subtitle_text": ["A simple, fast and pure theme.", "Redefine your writing."],
     "hb_light_text": "#ffffff",
     "social_links_enabled": True,
-    "navbar_search_preload": False,
     "sidebar_announcement": "Redefine your writing.",
     "comment_require_login": True,
     "comment_email_notifications": False,
@@ -94,20 +91,10 @@ Deployment varies by platform. See Django's [deployment checklist](https://docs.
 """
 
 
-def _copy_starter_media():
-    source = Path(__file__).with_name("starter_media") / "logo" / "redefine-logo.webp"
-    destination = Path(settings.MEDIA_ROOT) / "logo" / "redefine-logo.webp"
-    if source.is_file() and not destination.exists():
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, destination)
-
-
 @transaction.atomic
 def install_starter_content(update_existing=False):
     """Install a useful public starting point without importing owner data."""
     site = SiteConfiguration.objects.filter(is_active=True).first()
-    _copy_starter_media()
-
     if site is None:
         site = SiteConfiguration.objects.first()
     if site is not None and not update_existing:

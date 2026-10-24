@@ -93,6 +93,8 @@ class Extensions(Extension):
 
 
 def get_extensions(site=None):
+    from blog.extensions import get_markdown_extensions
+
     hyperlink_icon = getattr(site, 'hyperlink_icon', True) if site is not None else True
     image_caption = getattr(site, 'article_image_description', False) if site is not None else False
     lazyload = getattr(site, 'article_lazyload', True) if site is not None else True
@@ -104,7 +106,7 @@ def get_extensions(site=None):
         "::1",
         *getattr(settings, "ALLOWED_HOSTS", ()),
     }
-    return [
+    extensions = [
         'nl2br',
         "markdown.extensions.tables",
         "markdown.extensions.attr_list",
@@ -118,3 +120,5 @@ def get_extensions(site=None):
             internal_hosts=internal_hosts,
         ),
     ]
+    extensions.extend(get_markdown_extensions(site))
+    return extensions

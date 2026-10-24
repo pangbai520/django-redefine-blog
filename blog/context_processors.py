@@ -3,6 +3,8 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone, translation
 from django.db.models import Count, Q
+from django.urls import reverse
+from .cache_utils import published_cache_timeout
 from .models import SiteConfiguration, ArticleModel, TrafficModel, Tag, Category
 
 
@@ -10,30 +12,31 @@ CACHE_KEY = "actived_site_config"
 CACHE_TIMEOUT = 60 * 60 * 24
 
 
-def _published_cache_timeout(default_timeout):
-    """Expire public counters when the next scheduled article goes live."""
-    now = timezone.now()
-    next_publication = (
-        ArticleModel.objects.filter(is_published=True, created_at__gt=now)
-        .order_by("created_at")
-        .values_list("created_at", flat=True)
-        .first()
-    )
-    if next_publication is None:
-        return default_timeout
-    seconds = max(1, int((next_publication - now).total_seconds()) + 1)
-    return min(default_timeout, seconds)
-
-
 def site_processor(request):
     current_lang = translation.get_language()
     lang_map = {
         'zh-hans': 'zh-CN',
+        'zh-hant': 'zh-TW',
+        'zh-hk': 'zh-HK',
+        'zh-tw': 'zh-TW',
         'en-us': 'en',
     }
+    language_options = []
+    language_badges = getattr(settings, "LANGUAGE_SWITCHER_BADGES", {})
+    for code, name in settings.LANGUAGES:
+        badge = language_badges.get(code, "🌐")
+        language_options.append(
+            {"code": code, "name": name, "badge": badge, "badge_kind": "emoji"}
+        )
     return {
         "SITE_LANG": lang_map.get(current_lang, current_lang),
+        "LANGUAGE_SWITCHER_OPTIONS": language_options,
         "PROJECT_VERSION": getattr(settings, "PROJECT_VERSION", ""),
+        "github_oauth_url": (
+            reverse("github_login")
+            if getattr(settings, "GITHUB_OAUTH_ENABLED", False)
+            else ""
+        ),
         # keep structural constants project-owned, so changing the active site
         # configuration cannot unexpectedly reflow the deployed theme
         "SITE_CONTENT_MAXWIDTH": getattr(settings, "SITE_CONTENT_MAXWIDTH", 1000),
@@ -80,7 +83,7 @@ def site_configuration_processor(request):
         cache.set(
             WORD_COUNT_KEY,
             total_words,
-            _published_cache_timeout(CACHE_TIMEOUT),
+            published_cache_timeout(CACHE_TIMEOUT),
         )
 
     required_comment_keys = {
@@ -135,7 +138,7 @@ def site_stats_processor(request):
         cache.set(
             "site_stats_counts",
             stats,
-            _published_cache_timeout(_CACHE_TIMEOUT),
+            published_cache_timeout(_CACHE_TIMEOUT),
         )
 
     traffic = data.get("site_traffic")

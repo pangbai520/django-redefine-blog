@@ -7,7 +7,7 @@
   function cleanup() {
     lifecycleController.abort();
     cleanupTasks.splice(0).forEach(function (task) { task(); });
-    document.querySelectorAll('[data-auth-modal][data-internal-owned="true"]').forEach(function (modal) {
+    document.querySelectorAll('[data-auth-modal][data-internal-owned="true"], [data-comment-confirm][data-internal-owned="true"]').forEach(function (modal) {
       modal.remove();
     });
   }
@@ -61,6 +61,10 @@
   function init(root) {
     if (!root || root.dataset.ready) return;
     root.dataset.ready = "true";
+    root.dataset.authHandlerVersion = "delegated-v3";
+    function message(name, fallback) {
+      return root.dataset["msg" + name] || fallback;
+    }
     var slug = root.dataset.commentsSlug;
     var editor = root.querySelector(".wl-editor");
     var form = root.querySelector(".wl-panel");
@@ -83,28 +87,101 @@
     var assetsPromise = null;
     var imageInput = root.querySelector("[data-comment-image]");
     var preview = root.querySelector(".internal-comment-preview");
+    var isAuthenticated = root.dataset.authenticated === "true";
+    var commentRequiresLogin = root.dataset.commentRequireLogin === "true";
+    var toastRegion = root.querySelector("[data-comment-toasts]");
     var authModal = root.querySelector("[data-auth-modal]") || document.querySelector("[data-auth-modal]");
     if (authModal) authModal.dataset.internalOwned = "true";
     if (authModal && authModal.parentNode !== document.body) document.body.appendChild(authModal);
-    var authOpeners = root.querySelectorAll(".internal-auth-open");
-    authOpeners.forEach(function (opener) { if (authModal) opener.addEventListener("click", function (event) {
-      event.preventDefault();
+    function openAuthModal(requestedPanel) {
+      if (!authModal) return;
+      requestedPanel = requestedPanel || "login";
+      var requestedTab = authModal.querySelector('[data-auth-tab="' + requestedPanel + '"]');
+      if (!requestedTab) requestedPanel = "login";
+      requestedTab = authModal.querySelector('[data-auth-tab="' + requestedPanel + '"]');
+      if (requestedTab) requestedTab.click();
       authModal.hidden = false;
-      var loginTab = authModal.querySelector('[data-auth-tab="login"]');
-      if (loginTab) loginTab.click();
-      var first = authModal.querySelector('[data-auth-panel="login"] input');
+      var first = authModal.querySelector('[data-auth-panel="' + requestedPanel + '"] input');
       if (first) setTimeout(function () { first.focus(); }, 0);
-    }); });
+    }
+    function showToast(text, kind) {
+      if (!toastRegion || !text) return;
+      var toast = document.createElement("div");
+      toast.className = "internal-comment-toast is-" + (kind || "error");
+      toast.setAttribute("role", kind === "error" ? "alert" : "status");
+      var iconNode = document.createElement("i");
+      iconNode.className = "fa-solid " + (kind === "success" ? "fa-circle-check" : "fa-circle-exclamation");
+      iconNode.setAttribute("aria-hidden", "true");
+      var content = document.createElement("span");
+      content.textContent = text;
+      var close = document.createElement("button");
+      close.type = "button";
+      close.className = "internal-comment-toast-close";
+      close.setAttribute("aria-label", message("Cancel", "Close"));
+      close.innerHTML = '<i class="fa-solid fa-xmark" aria-hidden="true"></i>';
+      close.addEventListener("click", function () { toast.remove(); });
+      toast.append(iconNode, content, close);
+      toastRegion.appendChild(toast);
+      setTimeout(function () { toast.classList.add("is-leaving"); setTimeout(function () { toast.remove(); }, 180); }, 4200);
+    }
+    var confirmModal = root.querySelector("[data-comment-confirm]") || document.querySelector("[data-comment-confirm]");
+    var confirmResolver = null;
+    if (confirmModal) {
+      confirmModal.dataset.internalOwned = "true";
+      if (confirmModal.parentNode !== document.body) document.body.appendChild(confirmModal);
+    }
+    function closeConfirmation(result) {
+      if (!confirmModal || confirmModal.hidden) return;
+      confirmModal.hidden = true;
+      var resolver = confirmResolver;
+      confirmResolver = null;
+      if (resolver) resolver(Boolean(result));
+    }
+    function requestConfirmation(text) {
+      if (!confirmModal) return Promise.resolve(false);
+      var label = confirmModal.querySelector("[data-confirm-message]");
+      if (label) label.textContent = text;
+      if (confirmResolver) confirmResolver(false);
+      confirmModal.hidden = false;
+      var accept = confirmModal.querySelector("[data-confirm-accept]");
+      if (accept) setTimeout(function () { accept.focus(); }, 0);
+      return new Promise(function (resolve) { confirmResolver = resolve; });
+    }
+    // Delegate from the stable comments root. Swup and comment redraws may
+    // replace individual links, but the composer should still open its modal.
+    root.addEventListener("click", function (event) {
+      var opener = event.target.closest(".internal-auth-open");
+      if (!opener || !root.contains(opener) || !authModal) return;
+      event.preventDefault();
+      var requestedPanel = opener.dataset.authOpenPanel;
+      setTimeout(function () { openAuthModal(requestedPanel); }, 0);
+    }, true);
     var authClose = (authModal && authModal.querySelector("[data-auth-close]")) || root.querySelector("[data-auth-close]");
     if (authClose && authModal) authClose.addEventListener("click", function () { authModal.hidden = true; });
     if (authModal) {
       authModal.addEventListener("click", function (event) { if (event.target === authModal) authModal.hidden = true; });
-      document.addEventListener("keydown", function (event) { if (event.key === "Escape" && !authModal.hidden) authModal.hidden = true; }, { signal: lifecycleSignal });
+      document.addEventListener("keydown", function (event) {
+        if (event.key !== "Escape") return;
+        if (confirmModal && !confirmModal.hidden) closeConfirmation(false);
+        else if (!authModal.hidden) authModal.hidden = true;
+      }, { signal: lifecycleSignal });
       authModal.querySelectorAll("[data-auth-tab]").forEach(function (tab) { tab.addEventListener("click", function () {
         var panel = tab.dataset.authTab;
         authModal.querySelectorAll("[data-auth-tab]").forEach(function (item) { var active = item === tab; item.classList.toggle("is-active", active); item.setAttribute("aria-selected", active ? "true" : "false"); });
         authModal.querySelectorAll("[data-auth-panel]").forEach(function (form) { form.hidden = form.dataset.authPanel !== panel; });
+        var heading = authModal.querySelector("[data-auth-heading-title]");
+        var headingIcon = authModal.querySelector("[data-auth-heading-icon]");
+        if (heading) heading.textContent = tab.dataset.authLabel || tab.textContent.trim();
+        if (headingIcon) {
+          headingIcon.classList.remove("fa-right-to-bracket", "fa-user-plus");
+          headingIcon.classList.add(tab.dataset.authIcon || "fa-right-to-bracket");
+        }
       }); });
+    }
+    if (confirmModal) {
+      confirmModal.querySelectorAll("[data-confirm-cancel]").forEach(function (button) { button.addEventListener("click", function () { closeConfirmation(false); }); });
+      var confirmAccept = confirmModal.querySelector("[data-confirm-accept]");
+      if (confirmAccept) confirmAccept.addEventListener("click", function () { closeConfirmation(true); });
     }
     var authForms = authModal ? authModal.querySelectorAll("[data-auth-form]") : [];
     authForms.forEach(function (authForm) { authForm.addEventListener("submit", function (event) {
@@ -117,10 +194,10 @@
       var submitButton = authForm.querySelector("button[type=submit]");
       if (submitButton) submitButton.disabled = true;
       fetch(endpoint, { method: "POST", body: data, headers: { "X-CSRFToken": csrf(), Accept: "application/json" }, credentials: "same-origin" })
-        .then(function (response) { return response.json().catch(function () { return {}; }).then(function (body) { if (!response.ok) throw new Error(body.error || (isRegister ? "Unable to register." : "Unable to sign in.")); return body; }); })
+        .then(function (response) { return response.json().catch(function () { return {}; }).then(function (body) { if (!response.ok) throw new Error(body.error || (isRegister ? message("UnableRegister", "Unable to register.") : message("UnableSignIn", "Unable to sign in."))); return body; }); })
         .then(function (body) {
           if (isRegister && body.pending) {
-            if (errorBox) { errorBox.className = "internal-auth-success"; errorBox.textContent = "Verification email sent. Please check your inbox before signing in."; }
+            if (errorBox) { errorBox.className = "internal-auth-success"; errorBox.textContent = message("VerificationSent", "Verification email sent. Please check your inbox before signing in."); }
             authForm.reset();
             return;
           }
@@ -206,7 +283,7 @@
           credentials: "same-origin",
           signal: controller.signal
         })
-          .then(function (response) { if (!response.ok) throw new Error("Preview unavailable"); return response.json(); })
+          .then(function (response) { if (!response.ok) throw new Error(message("PreviewUnavailable", "Preview unavailable")); return response.json(); })
           .then(function (body) {
             if (input.value === source && body.ok && typeof body.html === "string") content.innerHTML = body.html;
           })
@@ -225,7 +302,7 @@
         if (input) input.placeholder = "@" + (item.author || "");
       } else if (mode === "edit" && item) {
         node.dataset.editId = item.id;
-        if (input) { input.value = item.content || ""; input.placeholder = "Edit your comment"; }
+        if (input) { input.value = item.content || ""; input.placeholder = message("EditPlaceholder", "Edit your comment"); }
       }
       var file = node.querySelector("[data-comment-image]");
       if (file) {
@@ -262,7 +339,7 @@
       }
       var panel = clone.querySelector(".wl-panel");
       if (panel && (mode === "reply" || mode === "edit")) {
-        panel.insertAdjacentHTML("beforeend", '<button type="button" class="wl-close" data-composer-cancel title="Cancel">' + icon("close") + '</button>');
+        panel.insertAdjacentHTML("beforeend", '<button type="button" class="wl-close" data-composer-cancel title="' + escapeHtml(message("Cancel", "Cancel")) + '">' + icon("close") + '</button>');
       }
       return bindComposer(clone, mode, item);
     }
@@ -307,7 +384,7 @@
         return new Date(b.created_at) - new Date(a.created_at);
       });
       root.querySelector("[data-comment-count]").textContent = comments.length;
-      if (!visible.length) { list.innerHTML = '<div class="wl-empty">No comments yet.</div>'; mountComposer(list); return; }
+      if (!visible.length) { list.innerHTML = '<div class="wl-empty">' + escapeHtml(message("NoComments", "No comments yet.")) + '</div>'; mountComposer(list); return; }
       var groups = {};
       visible.forEach(function (item) { (groups[item.parent_id || "root"] ||= []).push(item); });
       function card(item, isReply, nestedReplies) {
@@ -317,19 +394,21 @@
             .filter(function (entry) { return Boolean(entry[1]); })
             .map(function (entry) { var value = escapeHtml(entry[1]); return '<span class="wl-' + entry[0] + '" data-value="' + value + '">' + value + '</span>'; })
             .join('');
-          var ownerActions = item.can_edit ? '<button type="button" class="wl-edit" data-edit="' + item.id + '" title="Edit">' + icon("edit") + '</button>' : '';
-          var deleteAction = item.can_delete ? '<button type="button" class="wl-delete" data-delete="' + item.id + '" title="Delete">' + icon("delete") + '</button>' : '';
+          var ownerActions = item.can_edit ? '<button type="button" class="wl-edit" data-edit="' + item.id + '" title="' + escapeHtml(message("Edit", "Edit")) + '">' + icon("edit") + '</button>' : '';
+          var deleteAction = item.can_delete ? '<button type="button" class="wl-delete" data-delete="' + item.id + '" title="' + escapeHtml(message("Delete", "Delete")) + '">' + icon("delete") + '</button>' : '';
           var isReplyTarget = replyTarget && String(replyTarget.id) === String(item.id);
           var replyWrapper = isReplyTarget ? '<div class="wl-reply-wrapper" data-reply-wrapper="' + escapeHtml(item.id) + '"></div>' : '';
           var isEditTarget = editTarget && String(editTarget.id) === String(item.id);
           var editWrapper = isEditTarget ? '<div class="wl-edit-wrapper" data-edit-wrapper="' + escapeHtml(item.id) + '"></div>' : '';
-          var replyTitle = isReplyTarget ? "Cancel reply" : "Reply";
-          var replyClass = isReplyTarget ? "wl-reply active" : "wl-reply";
+          var replyTitle = isReplyTarget ? message("CancelReply", "Cancel reply") : message("Reply", "Reply");
+          var replyNeedsAuth = !isAuthenticated && commentRequiresLogin;
+          var replyClass = (isReplyTarget ? "wl-reply active" : "wl-reply") + (replyNeedsAuth ? " internal-auth-open" : "");
+          var replyAuthAttributes = replyNeedsAuth ? ' data-auth-open-panel="login"' : '';
           var website = externalUrl(item.website);
           var nickname = website ? '<a class="wl-nick" href="' + escapeHtml(website) + '" target="_blank" rel="nofollow noopener noreferrer">' + escapeHtml(item.author) + '</a>' : '<span class="wl-nick">' + escapeHtml(item.author) + '</span>';
           var badges = '';
           (item.badges || []).forEach(function (badge) { var color = safeBadgeColor(badge.color); badges += '<span class="wl-badge"' + (color ? ' style="color:' + color + ';border-color:' + color + '"' : '') + '>' + escapeHtml(badge.name) + '</span>'; });
-          if (item.is_sticky) badges += '<span class="wl-badge">置顶</span>';
+          if (item.is_sticky) badges += '<span class="wl-badge">' + escapeHtml(message("Pinned", "Pinned")) + '</span>';
           var content = item.content_html || escapeHtml(item.content).replace(/\n/g, "<br>");
           if (isReply && item.parent_id) {
             var parent = comments.find(function (candidate) { return String(candidate.id) === String(item.parent_id); });
@@ -339,11 +418,13 @@
               else content = '<p>' + mention + content + '</p>';
             }
           }
-          var adminActions = item.can_moderate && !isReply ? '<div class="wl-admin-actions"><button type="button" class="wl-btn wl-sticky" data-sticky="' + item.id + '">' + (item.is_sticky ? '取消置顶' : '置顶') + '</button></div>' : '';
+          var adminActions = item.can_moderate && !isReply ? '<div class="wl-admin-actions"><button type="button" class="wl-btn wl-sticky" data-sticky="' + item.id + '">' + escapeHtml(item.is_sticky ? message("Unpin", "Unpin") : message("Pin", "Pin")) + '</button></div>' : '';
           var nestedMarkup = nestedReplies ? '<div class="wl-quote internal-reply-quote">' + nestedReplies + '</div>' : '';
           var body = isEditTarget ? editWrapper : '<div class="wl-content">' + content + '</div>';
-          var likeTitle = item.liked ? "取消喜欢" : "喜欢";
-          return '<div class="wl-card-item' + (isReply ? ' internal-reply-card-item' : '') + '" id="comment-' + item.id + '">' + avatar + '<div class="wl-card"><div class="wl-head">' + nickname + badges + '<span class="wl-time">' + formatDate(item.created_at) + '</span><div class="wl-comment-actions">' + ownerActions + deleteAction + '<button type="button" class="wl-like" data-like="' + item.id + '" title="' + likeTitle + '">' + icon("like", item.liked) + '<span>' + item.like_count + '</span></button><button type="button" class="' + replyClass + '" data-reply="' + item.id + '" title="' + replyTitle + '">' + icon("reply") + '</button></div></div><div class="wl-meta" aria-hidden="true">' + meta + '</div>' + body + adminActions + replyWrapper + nestedMarkup + '</div></div>';
+          var likeTitle = item.liked ? message("Unlike", "Unlike") : message("Like", "Like");
+          var likeClass = "wl-like" + (!isAuthenticated ? " internal-auth-open" : "");
+          var likeAuthAttributes = !isAuthenticated ? ' data-auth-open-panel="login"' : '';
+          return '<div class="wl-card-item' + (isReply ? ' internal-reply-card-item' : '') + '" id="comment-' + item.id + '">' + avatar + '<div class="wl-card"><div class="wl-head">' + nickname + badges + '<span class="wl-time">' + formatDate(item.created_at) + '</span><div class="wl-comment-actions">' + ownerActions + deleteAction + '<button type="button" class="' + likeClass + '" data-like="' + item.id + '"' + likeAuthAttributes + ' title="' + likeTitle + '">' + icon("like", item.liked) + '<span>' + item.like_count + '</span></button><button type="button" class="' + replyClass + '" data-reply="' + item.id + '"' + replyAuthAttributes + ' title="' + replyTitle + '">' + icon("reply") + '</button></div></div><div class="wl-meta" aria-hidden="true">' + meta + '</div>' + body + adminActions + replyWrapper + nestedMarkup + '</div></div>';
       }
       function descendants(parentId, output) {
         (groups[parentId] || []).forEach(function (child) {
@@ -362,7 +443,7 @@
       fetch("/api/comments/" + encodeURIComponent(slug) + "/", { headers: { Accept: "application/json" } })
         .then(function (response) { return response.json(); })
         .then(function (data) { comments = data.comments || []; draw(); })
-        .catch(function () { root.querySelector("[data-comments-items]").innerHTML = '<div class="wl-empty">Unable to load comments.</div>'; });
+        .catch(function () { root.querySelector("[data-comments-items]").innerHTML = '<div class="wl-empty">' + escapeHtml(message("UnableLoadComments", "Unable to load comments.")) + '</div>'; });
     }
     function parseJsonResponse(response, fallbackMessage) {
       return response.text().then(function (text) {
@@ -375,7 +456,7 @@
     function loadAssets() {
       if (!assetsPromise) {
         assetsPromise = fetch("/api/comment-assets/", { headers: { Accept: "application/json" }, credentials: "same-origin" })
-          .then(function (response) { return parseJsonResponse(response, "Unable to load comment assets"); });
+          .then(function (response) { return parseJsonResponse(response, message("UnableLoadAssets", "Unable to load comment assets")); });
       }
       return assetsPromise;
     }
@@ -439,7 +520,7 @@
       if (!added) {
         var hint = document.createElement("span");
         hint.className = "internal-picker-empty";
-        hint.textContent = "暂无表情，请先在后台添加 Comment emoji（名称和图片 URL）";
+        hint.textContent = message("NoEmoji", "No emoji yet. Add a Comment emoji name and image URL in the admin.");
         tabWrapper.appendChild(hint);
       }
       if (packs.length > 1) {
@@ -479,7 +560,7 @@
       picker.innerHTML = "";
       var search = document.createElement("input");
       search.type = "search";
-      search.placeholder = "Search GIF";
+      search.placeholder = message("SearchGif", "Search GIF");
       search.className = "internal-gif-search";
       picker.appendChild(search);
       var results = document.createElement("div");
@@ -490,10 +571,10 @@
         var sequence = gifSearchSequence;
         var term = search.value.trim();
         if (!term) {
-          results.textContent = "Enter a keyword to search GIFs";
+          results.textContent = message("EnterGifKeyword", "Enter a keyword to search GIFs");
           return;
         }
-        results.textContent = "Loading...";
+        results.textContent = message("Loading", "Loading…");
         var requests = (sources || []).map(function (source) {
           var endpoint = String(source.endpoint || "");
           if (!endpoint) return Promise.resolve([]);
@@ -507,7 +588,7 @@
           if (sequence !== gifSearchSequence) return;
           results.innerHTML = "";
           var items = [].concat.apply([], groups);
-          if (!items.length) { results.textContent = "No GIFs found"; return; }
+          if (!items.length) { results.textContent = message("NoGifs", "No GIFs found"); return; }
           items.slice(0, 40).forEach(function (item) {
             var url = typeof item === "string" ? item : ((item.images && ((item.images.fixed_width_small && item.images.fixed_width_small.url) || (item.images.fixed_width && item.images.fixed_width.url) || (item.images.original && item.images.original.url))) || (item.media_formats && ((item.media_formats.gif && item.media_formats.gif.url) || (item.media_formats.mediumgif && item.media_formats.mediumgif.url))) || item.src || item.image || item.media || item.url || "");
             if (!/^https?:\/\//i.test(url)) return;
@@ -543,22 +624,30 @@
     }
     function submitComposer(node, submit) {
       var panel = node && node.querySelector(".wl-panel");
-      if (!panel || !submit) return;
+      if (!panel || !submit || submit.disabled || node.dataset.submitting === "true") return;
+      var contentInput = panel.querySelector('.wl-editor[name="content"], .wl-editor');
+      var content = contentInput ? contentInput.value.trim() : "";
+      if (!content || content.length > 5000) {
+        showToast(message("CommentLength", "Comment length must be between 1 and 5000 characters."), "error");
+        if (contentInput) contentInput.focus();
+        return;
+      }
+      node.dataset.submitting = "true";
       var data = new FormData();
       panel.querySelectorAll("input, textarea").forEach(function (input) { if (input.name) data.append(input.name, input.value); });
       submit.disabled = true;
       var editId = node.dataset.editId;
       var endpoint = editId ? "/api/comments/" + editId + "/edit/" : "/api/comments/" + encodeURIComponent(slug) + "/create/";
       fetch(endpoint, { method: "POST", body: data, headers: { "X-CSRFToken": csrf(), Accept: "application/json" }, credentials: "same-origin" })
-        .then(function (response) { return parseJsonResponse(response, "Unable to submit comment"); })
+        .then(function (response) { return parseJsonResponse(response, message("UnableSubmit", "Unable to submit comment")); })
         .then(function () {
           if (node === composer) { var mainEditor = node.querySelector(".wl-editor"); if (mainEditor) { mainEditor.value = ""; mainEditor.dispatchEvent(new Event("input")); } }
           if (node === replyComposer) { replyComposer.remove(); replyComposer = null; replyTarget = null; }
           if (node === editComposer) { editComposer.remove(); editComposer = null; editTarget = null; }
           draw(); load();
         })
-        .catch(function (error) { alert(error.message); })
-        .finally(function () { submit.disabled = false; });
+        .catch(function (error) { showToast(error.message, "error"); })
+        .finally(function () { submit.disabled = false; delete node.dataset.submitting; });
     }
     root.addEventListener("click", function (event) {
       var submitButton = event.target.closest(".internal-comment-submit");
@@ -583,7 +672,7 @@
           if (action.dataset.commentAction === "emoji") showEmojiPicker(actionComposer, assets.emoji, 0);
           else showGifPicker(actionComposer, assets.gif);
           action.classList.add("active");
-        }).catch(function (error) { alert(error.message); });
+        }).catch(function (error) { showToast(error.message, "error"); });
         return;
       }
       if (!action && !event.target.closest(".internal-comment-picker")) {
@@ -621,6 +710,10 @@
       if (sortButton) { sort = sortButton.dataset.sort; root.querySelectorAll("[data-sort]").forEach(function (node) { node.classList.toggle("active", node === sortButton); }); draw(); return; }
       var replyButton = event.target.closest("[data-reply]");
       if (replyButton) {
+        if (!isAuthenticated && commentRequiresLogin) {
+          openAuthModal("login");
+          return;
+        }
         var replyId = String(replyButton.dataset.reply);
         if (replyTarget && replyTarget.id === replyId) {
           clearReplyTarget(true);
@@ -646,9 +739,9 @@
       var stickyButton = event.target.closest("[data-sticky]");
       if (stickyButton) {
         fetch("/api/comments/" + stickyButton.dataset.sticky + "/sticky/", { method: "POST", headers: { "X-CSRFToken": csrf(), Accept: "application/json" }, credentials: "same-origin" })
-          .then(function (response) { return parseJsonResponse(response, "Unable to update pin status."); })
+          .then(function (response) { return parseJsonResponse(response, message("UnableUpdatePin", "Unable to update pin status.")); })
           .then(function () { load(); })
-          .catch(function (error) { alert(error.message); });
+          .catch(function (error) { showToast(error.message, "error"); });
         return;
       }
       var editButton = event.target.closest("[data-edit]");
@@ -664,14 +757,27 @@
         return;
       }
       var deleteButton = event.target.closest("[data-delete]");
-      if (deleteButton && confirm("Delete this comment?")) { fetch("/api/comments/" + deleteButton.dataset.delete + "/delete/", { method: "POST", headers: { "X-CSRFToken": csrf(), Accept: "application/json" }, credentials: "same-origin" }).then(function (response) { return parseJsonResponse(response, "Unable to delete comment."); }).then(load).catch(function (error) { alert(error.message); }); return; }
+      if (deleteButton) {
+        requestConfirmation(message("DeleteConfirm", "Delete this comment?")).then(function (confirmed) {
+          if (!confirmed) return;
+          fetch("/api/comments/" + deleteButton.dataset.delete + "/delete/", { method: "POST", headers: { "X-CSRFToken": csrf(), Accept: "application/json" }, credentials: "same-origin" })
+            .then(function (response) { return parseJsonResponse(response, message("UnableDelete", "Unable to delete comment.")); })
+            .then(load)
+            .catch(function (error) { showToast(error.message, "error"); });
+        });
+        return;
+      }
       var likeButton = event.target.closest("[data-like]");
       if (likeButton && !likeButton.disabled) {
+        if (!isAuthenticated) {
+          openAuthModal("login");
+          return;
+        }
         likeButton.disabled = true;
         fetch("/api/comments/" + likeButton.dataset.like + "/like/", { method: "POST", headers: { "X-CSRFToken": csrf(), Accept: "application/json" }, credentials: "same-origin" })
-          .then(function (response) { return parseJsonResponse(response, "Please sign in to like comments."); })
+          .then(function (response) { return parseJsonResponse(response, message("SignInLike", "Please sign in to like comments.")); })
           .then(load)
-          .catch(function (error) { alert(error.message); })
+          .catch(function (error) { showToast(error.message, "error"); })
           .finally(function () { likeButton.disabled = false; });
       }
     });
@@ -680,16 +786,16 @@
     }, { signal: lifecycleSignal });
     function uploadImage(file, owner) {
       if (!file) return;
-      if (file.size > 2 * 1024 * 1024) { alert("Image must be smaller than 2 MB."); return; }
+      if (file.size > 2 * 1024 * 1024) { showToast(message("ImageTooLarge", "Image must be smaller than 2 MB."), "error"); return; }
       var data = new FormData(); data.append("image", file, file.name || "pasted-image.png");
       fetch("/api/comments/upload/", { method: "POST", body: data, headers: { "X-CSRFToken": csrf(), Accept: "application/json" }, credentials: "same-origin" })
-        .then(function (response) { return parseJsonResponse(response, "Upload failed"); })
+        .then(function (response) { return parseJsonResponse(response, message("UploadFailed", "Upload failed")); })
         .then(function (body) {
-          if (!body.url) throw new Error("Upload failed: server did not return an image URL.");
+          if (!body.url) throw new Error(message("UploadUrlMissing", "Upload failed: server did not return an image URL."));
           var targetEditor = owner && owner.querySelector(".wl-editor");
           if (targetEditor) { targetEditor.value += "\n![image](" + body.url + ")\n"; targetEditor.dispatchEvent(new Event("input")); }
         })
-        .catch(function (error) { alert(error.message); });
+        .catch(function (error) { showToast(error.message, "error"); });
     }
     root.addEventListener("change", function (event) {
       var imageInput = event.target.closest("[data-comment-image]");

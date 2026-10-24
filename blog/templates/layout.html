@@ -1,3 +1,4 @@
+{% load blog_extensions %}
 <!DOCTYPE html>
 <html lang="{{ SITE_LANG }}"
       data-code-block-style="{{ site.code_block_style|default:'mac' }}"
@@ -8,10 +9,12 @@
     {% include 'components/header/head.html' %}
 
 <body>
+    {% render_blog_hook "body_start" %}
     {% block content %}
     {% endblock %}
 
     {% include 'components/scripts.html' %}
+    {% render_blog_hook "body_end" %}
 
     {% if site.aplayer_enabled %}
         {% include 'components/plugins/aplayer.html' %}

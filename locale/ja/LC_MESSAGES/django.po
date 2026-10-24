@@ -1,0 +1,612 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Django Redefine\n"
+"Language: ja\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Prev posts"
+msgstr "前一篇"
+
+msgid "Next posts"
+msgstr "次一篇"
+
+msgid "Tags"
+msgstr "タグ"
+
+msgid "Categories"
+msgstr "分類"
+
+msgid "Posts"
+msgstr "記事"
+
+msgid "Proudly powered by %(framework)s"
+msgstr "誇りをもって %(framework)s を採用"
+
+msgid "Based on"
+msgstr "ベース："
+
+msgid "Blog up for"
+msgstr "ブログが稼働する"
+
+msgid "days"
+msgstr "日"
+
+msgid "hrs"
+msgstr "時間"
+
+msgid "Min"
+msgstr "分"
+
+msgid "Sec"
+msgstr "秒"
+
+msgid "%(counter)s posts in total"
+msgstr "共 %(counter)s 記事"
+
+msgid "%(counter)s words in total"
+msgstr "共 %(counter)s 字"
+
+msgid "Search..."
+msgstr "検索..."
+
+msgid "Created"
+msgstr "作成"
+
+msgid "Updated"
+msgstr "更新"
+
+msgid "Words"
+msgstr "字"
+
+msgid "Mins"
+msgstr "分"
+
+msgid "Title"
+msgstr "タイトル"
+
+msgid "Author"
+msgstr "作者"
+
+msgid "Link"
+msgstr "リンク"
+
+msgid "License"
+msgstr "著作権宣言"
+
+msgid "On this page"
+msgstr "目次"
+
+msgid "VISITOR COUNT"
+msgstr "訪問者数"
+
+msgid "TOTAL PAGE VIEWS"
+msgstr "総アクセス数"
+
+msgid "Close"
+msgstr "閉じる"
+
+msgid "Go Back Home"
+msgstr "トップページに戻ります"
+
+msgid "Read more"
+msgstr "全文を読む"
+
+msgid "Created at"
+msgstr "で作成されました"
+
+msgid "Updated at"
+msgstr "で更新されました"
+
+msgid ""
+"This post is written %(days)s days ago, and the content may not be up to "
+"date."
+msgstr "この記事は %(days)s 日前に最後に更新される"
+
+msgid "%s seconds ago"
+msgstr "%s 秒前"
+
+msgid "%s minutes ago"
+msgstr "%s 分前"
+
+msgid "%s hours ago"
+msgstr "%s 時間前"
+
+msgid "%s days ago"
+msgstr "%s 日前"
+
+msgid "%s weeks ago"
+msgstr "%s 週間前"
+
+msgid "%s months ago"
+msgstr "%s 月前"
+
+msgid "%s years ago"
+msgstr "%s 年前"
+
+msgid "All Rights Reserved &#169; {author}"
+msgstr "著作権所有 &#169 {author}、転載禁止です。"
+
+msgid "This work is licensed under {license}."
+msgstr "この文章は {license} を使用して許可します。"
+
+msgid "This work is in the public domain."
+msgstr "この記事はパブリックドメインの著作物であて、転載、引用は自由。"
+
+msgid "No articles yet"
+msgstr "まだ記事がありません"
+
+msgid "This page is empty. Go to the backend and publish your first post."
+msgstr "このページは空です。管理画面から最初の記事を公開してください。"
+
+msgid "Language"
+msgstr "言語"
+
+msgid "Apply"
+msgstr "適用"
+
+msgid "Continue with GitHub"
+msgstr "GitHub で続行"
+
+msgid "Password"
+msgstr "パスワード"
+
+msgid "Log out"
+msgstr "ログアウト"
+
+msgid "Please"
+msgstr "コメントするには"
+
+msgid "sign in"
+msgstr "ログイン"
+
+msgid "to comment."
+msgstr "してください。"
+
+msgid "Nickname"
+msgstr "ニックネーム"
+
+msgid "Email"
+msgstr "メールアドレス"
+
+msgid "Website"
+msgstr "ウェブサイト"
+
+msgid "Write a comment…"
+msgstr "コメントを入力…"
+
+msgid "Preview"
+msgstr "プレビュー"
+
+msgid "Sign in"
+msgstr "ログイン"
+
+msgid "Sign up"
+msgstr "新規登録"
+
+msgid "Authentication required to comment"
+msgstr "コメントするにはログインまたは登録が必要です"
+
+msgid "Submit"
+msgstr "送信"
+
+msgid "Comments"
+msgstr "コメント"
+
+msgid "Latest"
+msgstr "新しい順"
+
+msgid "Oldest"
+msgstr "古い順"
+
+msgid "Most liked"
+msgstr "いいね順"
+
+msgid "Loading comments…"
+msgstr "コメントを読み込み中…"
+
+msgid "Powered by Django"
+msgstr "Django で動作"
+
+msgid "Register"
+msgstr "登録"
+
+msgid "Username"
+msgstr "ユーザー名"
+
+msgid "Forgot your password?"
+msgstr "パスワードをお忘れですか？"
+
+msgid "Confirm password"
+msgstr "確認用パスワード"
+
+msgid "Create an account"
+msgstr "アカウントを作成"
+
+msgid "Registration is currently disabled."
+msgstr "新規登録は現在無効です。"
+
+msgid "Page Not Found"
+msgstr "ページが見つかりません"
+
+msgid "Signed in"
+msgstr "ログインしました"
+
+msgid "You can close this dialog and continue commenting."
+msgstr "この画面を閉じてコメントを続けられます。"
+
+msgid "Password updated"
+msgstr "パスワードを更新しました"
+
+msgid "Your current session remains signed in."
+msgstr "現在のセッションはログインしたままです。"
+
+msgid "Change password"
+msgstr "パスワードを変更"
+
+msgid "Save password"
+msgstr "パスワードを保存"
+
+msgid "You can now"
+msgstr "これで"
+
+msgid "with the new password."
+msgstr "新しいパスワードでログインできます。"
+
+msgid "Choose a new password"
+msgstr "新しいパスワードを設定"
+
+msgid "This reset link is invalid or has expired. Please request a new one."
+msgstr "この再設定リンクは無効か、有効期限が切れています。新しいリンクを申請してください。"
+
+msgid "Check your email"
+msgstr "メールを確認してください"
+
+msgid ""
+"If an active account uses that address, a password reset link has been sent."
+msgstr "そのアドレスを使用する有効なアカウントがある場合、パスワード再設定リンクを送信しました。"
+
+msgid "Reset password"
+msgstr "パスワードを再設定"
+
+msgid ""
+"Enter the email address used by your comment account. If it exists, a reset "
+"link will be sent."
+msgstr "コメント用アカウントのメールアドレスを入力してください。アカウントが存在する場合は再設定リンクを送信します。"
+
+msgid "Send reset link"
+msgstr "再設定リンクを送信"
+
+msgid "Email verified"
+msgstr "メールアドレスを確認しました"
+
+msgid "Your account is active. You can now comment."
+msgstr "アカウントが有効になりました。コメントを投稿できます。"
+
+msgid "Invalid link"
+msgstr "無効なリンク"
+
+msgid "This verification link is invalid or has expired."
+msgstr "この確認リンクは無効か、有効期限が切れています。"
+
+msgid "Back to site"
+msgstr "サイトに戻る"
+
+msgid ""
+"We could not send the verification email right now. Please contact the site "
+"administrator."
+msgstr "確認メールを送信できませんでした。サイト管理者に連絡してください。"
+
+msgid ""
+"We sent a verification link to %(email)s. Your account will be ready after "
+"verification."
+msgstr "%(email)s に確認リンクを送信しました。確認が完了するとアカウントを利用できます。"
+
+msgid "Back"
+msgstr "戻る"
+
+msgid "Scroll to content"
+msgstr "本文へ移動"
+
+msgid "Change language"
+msgstr "言語を変更"
+
+msgid "Choose the language used by the blog interface."
+msgstr "ブログの表示言語を選択してください。"
+
+msgid "%(elapsed)s ago"
+msgstr "%(elapsed)s前"
+
+msgid "License: %(license)s"
+msgstr "ライセンス：%(license)s"
+
+msgid "Cancel"
+msgstr "キャンセル"
+
+msgid "Cancel reply"
+msgstr "返信をキャンセル"
+
+msgid "Comment length must be between 1 and 5000 characters."
+msgstr "コメントは1文字以上5000文字以内で入力してください。"
+
+msgid "Comment length must not exceed 5000 characters."
+msgstr "コメントは5000文字以内で入力してください。"
+
+msgid "Comment likes are disabled."
+msgstr "コメントへの「いいね」は無効です。"
+
+msgid "Comments are disabled for this article."
+msgstr "この記事のコメントは無効です。"
+
+msgid "Delete"
+msgstr "削除"
+
+msgid "Delete this comment?"
+msgstr "このコメントを削除しますか？"
+
+msgid "Edit"
+msgstr "編集"
+
+msgid "Edit your comment"
+msgstr "コメントを編集"
+
+msgid "Emoji"
+msgstr "絵文字"
+
+msgid "Enter a keyword to search GIFs"
+msgstr "GIFを検索するキーワードを入力"
+
+msgid "Enter a valid email address."
+msgstr "有効なメールアドレスを入力してください。"
+
+msgid "Enter a valid website URL."
+msgstr "有効なウェブサイトURLを入力してください。"
+
+msgid "Guest comments are disabled."
+msgstr "ゲストコメントは無効です。"
+
+msgid "Image contains too many pixels or animation frames."
+msgstr "画像のピクセル数またはアニメーションフレーム数が多すぎます。"
+
+msgid "Image data does not match its declared type."
+msgstr "画像データが申告された形式と一致しません。"
+
+msgid "Image data is invalid."
+msgstr "画像データが無効です。"
+
+msgid "Image dimensions are too large."
+msgstr "画像サイズが大きすぎます。"
+
+msgid "Image must be smaller than %(size)s MB."
+msgstr "画像は%(size)s MB未満にしてください。"
+
+msgid "Image must be smaller than 2 MB."
+msgstr "画像は2 MB未満にしてください。"
+
+msgid "Image upload failed. Please try again later."
+msgstr "画像のアップロードに失敗しました。後でもう一度お試しください。"
+
+msgid "Internal comment uploads are disabled."
+msgstr "内部コメントへの画像アップロードは無効です。"
+
+msgid "Internal comments are disabled."
+msgstr "内部コメントは無効です。"
+
+msgid "Like"
+msgstr "いいね"
+
+msgid "Loading…"
+msgstr "読み込み中…"
+
+msgid "Markdown Guide"
+msgstr "Markdownガイド"
+
+msgid "Markdown is supported"
+msgstr "Markdownを利用できます"
+
+msgid "My actions"
+msgstr "自分の操作"
+
+msgid "No GIFs found"
+msgstr "GIFが見つかりません"
+
+msgid "No comments yet."
+msgstr "まだコメントはありません。"
+
+msgid "No emoji yet. Add a Comment emoji name and image URL in the admin."
+msgstr "絵文字はまだありません。管理画面で名前と画像URLを追加してください。"
+
+msgid "None available"
+msgstr "利用できる項目はありません"
+
+msgid "Only administrators can pin comments."
+msgstr "コメントを固定できるのは管理者だけです。"
+
+msgid "Only one comment can be pinned at a time."
+msgstr "固定できるコメントは1件だけです。"
+
+msgid "Pin"
+msgstr "固定"
+
+msgid "Pinned"
+msgstr "固定済み"
+
+msgid "Please sign in to comment."
+msgstr "コメントするにはログインしてください。"
+
+msgid "Please sign in to delete comments."
+msgstr "コメントを削除するにはログインしてください。"
+
+msgid "Please sign in to edit comments."
+msgstr "コメントを編集するにはログインしてください。"
+
+msgid "Please sign in to like comments."
+msgstr "コメントに「いいね」するにはログインしてください。"
+
+msgid "Please sign in to manage notifications."
+msgstr "通知を管理するにはログインしてください。"
+
+msgid "Please sign in to upload images."
+msgstr "画像をアップロードするにはログインしてください。"
+
+msgid "Please sign in to view notifications."
+msgstr "通知を表示するにはログインしてください。"
+
+msgid "Preview unavailable"
+msgstr "プレビューを利用できません"
+
+msgid "Recent actions"
+msgstr "最近の操作"
+
+msgid "Registration failed because the verification email could not be sent."
+msgstr "確認メールを送信できなかったため、登録に失敗しました。"
+
+msgid "Registration is disabled."
+msgstr "新規登録は無効です。"
+
+msgid "Reply"
+msgstr "返信"
+
+msgid "Search GIF"
+msgstr "GIFを検索"
+
+msgid "The comment is invalid."
+msgstr "コメントが無効です。"
+
+msgid "Too many GIF searches. Please try again later."
+msgstr "GIF検索が多すぎます。後でもう一度お試しください。"
+
+msgid "Too many comments. Please try again later."
+msgstr "コメントの送信が多すぎます。後でもう一度お試しください。"
+
+msgid "Too many image uploads. Please try again later."
+msgstr "画像のアップロードが多すぎます。後でもう一度お試しください。"
+
+msgid "Too many password reset requests. Please try again later."
+msgstr "パスワード再設定の要求が多すぎます。後でもう一度お試しください。"
+
+msgid "Too many preview requests. Please try again later."
+msgstr "プレビュー要求が多すぎます。後でもう一度お試しください。"
+
+msgid "Too many registration attempts. Please try again later."
+msgstr "登録試行が多すぎます。後でもう一度お試しください。"
+
+msgid "Too many requests."
+msgstr "リクエストが多すぎます。"
+
+msgid "Too many sign-in attempts. Please try again later."
+msgstr "ログイン試行が多すぎます。後でもう一度お試しください。"
+
+msgid "Unable to delete comment."
+msgstr "コメントを削除できません。"
+
+msgid "Unable to load comment assets"
+msgstr "コメント用素材を読み込めません"
+
+msgid "Unable to load comments."
+msgstr "コメントを読み込めません。"
+
+msgid "Unable to register."
+msgstr "登録できません。"
+
+msgid "Unable to sign in."
+msgstr "ログインできません。"
+
+msgid "Unable to submit comment"
+msgstr "コメントを送信できません"
+
+msgid "Unable to update pin status."
+msgstr "固定状態を更新できません。"
+
+msgid "Unlike"
+msgstr "いいねを取り消す"
+
+msgid "Unpin"
+msgstr "固定を解除"
+
+msgid "Unsupported GIF provider."
+msgstr "対応していないGIFプロバイダーです。"
+
+msgid "Unsupported image type."
+msgstr "対応していない画像形式です。"
+
+msgid "Upload failed"
+msgstr "アップロードに失敗しました"
+
+msgid "Upload failed: server did not return an image URL."
+msgstr "アップロードに失敗しました。サーバーから画像URLが返されませんでした。"
+
+msgid "Upload image"
+msgstr "画像をアップロード"
+
+msgid "Verification email sent. Please check your inbox before signing in."
+msgstr "確認メールを送信しました。ログインする前に受信箱を確認してください。"
+
+msgid ""
+"We sent a verification email to your registered address. Please verify your "
+"email before signing in."
+msgstr "登録したアドレスに確認メールを送信しました。ログイン前に確認してください。"
+
+msgid "You cannot delete this comment."
+msgstr "このコメントは削除できません。"
+
+msgid "You cannot edit this comment."
+msgstr "このコメントは編集できません。"
+
+msgid "category"
+msgstr "カテゴリー"
+
+msgid "content"
+msgstr "内容"
+
+msgid "created at"
+msgstr "作成日時"
+
+msgid "default mode"
+msgstr "既定のモード"
+
+msgid "excerpt"
+msgstr "抜粋"
+
+msgid "expires at"
+msgstr "有効期限"
+
+msgid "is published"
+msgstr "公開済み"
+
+msgid "name"
+msgstr "名前"
+
+msgid "parent category"
+msgstr "親カテゴリー"
+
+msgid "site author"
+msgstr "サイト管理者"
+
+msgid "site description"
+msgstr "サイトの説明"
+
+msgid "site info subtitle"
+msgstr "サイト情報のサブタイトル"
+
+msgid "site keywords"
+msgstr "サイトのキーワード"
+
+msgid "site name"
+msgstr "サイト名"
+
+msgid "slug"
+msgstr "スラッグ"
+
+msgid "tags"
+msgstr "タグ"
+
+msgid "title"
+msgstr "タイトル"
+
+msgid "updated at"
+msgstr "更新日時"
+
+msgid "writer"
+msgstr "執筆者"

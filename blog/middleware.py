@@ -4,11 +4,55 @@ from ipaddress import ip_address
 
 from django.conf import settings
 from django.db import close_old_connections
-from django.utils import timezone
+from django.middleware.locale import LocaleMiddleware
+from django.utils import timezone, translation
+from django.utils.cache import patch_vary_headers
 from .models import TrafficModel
 
 
 executor = ThreadPoolExecutor(max_workers=5)
+
+
+class RegionLocaleMiddleware(LocaleMiddleware):
+    """Choose a regional default while preserving the reader's own choice."""
+
+    DEFAULT_LANGUAGE_MAP = {
+        "CN": "zh-hans",
+        "TW": "zh-tw",
+        "HK": "zh-hk",
+        # Macau uses the Hong Kong Traditional Chinese catalogue until a
+        # dedicated Macau translation is added.
+        "MO": "zh-hk",
+    }
+
+    def process_request(self, request):
+        cookie_name = settings.LANGUAGE_COOKIE_NAME
+        if (
+            not getattr(settings, "REGION_LANGUAGE_DETECTION", True)
+            or cookie_name in request.COOKIES
+        ):
+            return super().process_request(request)
+
+        language_map = getattr(
+            settings, "REGION_LANGUAGE_MAP", self.DEFAULT_LANGUAGE_MAP
+        )
+        for header in getattr(settings, "REGION_LANGUAGE_HEADERS", ()):
+            country_code = request.headers.get(header, "").split(",", 1)[0].strip().upper()
+            language = language_map.get(country_code)
+            if language and translation.check_for_language(language):
+                translation.activate(language)
+                request.LANGUAGE_CODE = language
+                request._region_language_header = header
+                return None
+
+        return super().process_request(request)
+
+    def process_response(self, request, response):
+        response = super().process_response(request, response)
+        region_header = getattr(request, "_region_language_header", "")
+        if region_header:
+            patch_vary_headers(response, (region_header,))
+        return response
 
 
 def get_client_ip(request):

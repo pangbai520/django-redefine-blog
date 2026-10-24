@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static i18n %}
 {% block page_content %}
 <link rel="stylesheet" href="{% static 'css/internal-comments.css' %}" />
 <div class="page-template-container">
   <div class="page-template-content markdown-body">
-    <h1>Create an account</h1>
+    <h1>{% translate "Sign up" %}</h1>
     {% if registration_disabled %}
-    <p>Registration is currently disabled.</p>
+    <p>{% translate "Registration is currently disabled." %}</p>
     {% else %}
     <form method="post" class="internal-auth-form">
       {% csrf_token %}{{ form.as_p }}
@@ -14,7 +14,7 @@
         class="wl-btn"
         type="submit"
       >
-        Register
+        {% translate "Sign up" %}
       </button>
     </form>
     {% endif %}

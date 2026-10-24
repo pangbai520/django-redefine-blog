@@ -1,0 +1,42 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      DJANGO_SECRET_KEY: release-check-N7c2P9x4V6m8Q1z3R5t7Y0u2I4o6A8s1D3f5G7h9J2k4L6n8
+      DJANGO_ALLOWED_HOSTS: example.com
+      DJANGO_CSRF_TRUSTED_ORIGINS: https://example.com
+      DJANGO_SECURE_SSL_REDIRECT: "1"
+      DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS: "1"
+      DJANGO_SECURE_HSTS_PRELOAD: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: python -m pip install -r requirements.txt
+      - run: |
+          python manage.py test blog --settings=config.settings_test
+          python manage.py makemigrations --check --dry-run --settings=config.settings_test
+          python manage.py check --deploy --settings=config.settings_production
+          python manage.py collectstatic --noinput --settings=config.settings_production
+      - run: node --test tests/frontend-regressions.cjs
+      - name: Build source archive
+        run: git archive --format=tar.gz --prefix="django-redefine-blog-${GITHUB_REF_NAME}/" --output="django-redefine-blog-${GITHUB_REF_NAME}.tar.gz" HEAD
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "django-redefine-blog-${GITHUB_REF_NAME}.tar.gz" --generate-notes --verify-tag

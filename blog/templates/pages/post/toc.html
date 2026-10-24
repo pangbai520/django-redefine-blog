@@ -1,7 +1,8 @@
+{% load i18n %}
 {% if site.toc_enabled and article.toc %}
 <div class="post-toc-wrap">
     <div class="post-toc">
-        <div class="toc-title">TOC</div>
+        <div class="toc-title">{% translate "On this page" %}</div>
         <div class="page-title">{{ article.title }}</div>
 
         <div class="redefine-toc-nav {% if not site.toc_expand %}toc-collapsed{% endif %}">{{ article.toc|safe }}</div>

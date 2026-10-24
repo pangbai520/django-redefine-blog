@@ -170,23 +170,22 @@ class StarterContentTests(TransactionTestCase):
 
     def test_installer_creates_public_defaults_without_user_assignments(self):
         SiteConfiguration.objects.all().delete()
-        with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as temporary:
-            with override_settings(MEDIA_ROOT=temporary):
-                installed = install_starter_content()
+        installed = install_starter_content()
 
-                site = SiteConfiguration.objects.get(is_active=True)
-                self.assertTrue(installed)
-                self.assertEqual(site.site_name, "Django Redefine")
-                self.assertTrue(Path(site.site_logo.path).is_file())
-                self.assertTrue(ArticleModel.objects.filter(slug="hello-world").exists())
-                self.assertTrue(MenuLink.objects.filter(config=site, name="Home").exists())
-                badge = CommentBadge.objects.get(config=site, name="博主")
-                self.assertEqual(badge.color, "")
-                self.assertFalse(CommentBadgeAssignment.objects.exists())
-                self.assertEqual(
-                    list(CommentEmojiPack.objects.filter(config=site).values_list("name", flat=True)),
-                    ["bilibili"],
-                )
+        site = SiteConfiguration.objects.get(is_active=True)
+        self.assertTrue(installed)
+        self.assertEqual(site.site_name, "Django Redefine")
+        self.assertFalse(site.site_avatar)
+        self.assertFalse(site.site_logo)
+        self.assertTrue(ArticleModel.objects.filter(slug="hello-world").exists())
+        self.assertTrue(MenuLink.objects.filter(config=site, name="Home").exists())
+        badge = CommentBadge.objects.get(config=site, name="博主")
+        self.assertEqual(badge.color, "")
+        self.assertFalse(CommentBadgeAssignment.objects.exists())
+        self.assertEqual(
+            list(CommentEmojiPack.objects.filter(config=site).values_list("name", flat=True)),
+            ["bilibili"],
+        )
 
 
 class PortableDataTests(TransactionTestCase):

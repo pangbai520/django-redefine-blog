@@ -553,7 +553,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             {
                 "classes": ("collapse",),
                 "fields": (
-                    ("navbar_autohide", "navbar_search_enabled", "navbar_search_preload"),
+                    ("navbar_autohide", "navbar_search_enabled"),
                     ("navbar_lcolor", "navbar_rcolor", "navbar_transparency"),
                     ("sidebar_enabled", "sidebar_position", "sidebar_on_mobile"),
                     ("sidebar_firstitem", "sidebar_announcement"),
@@ -749,13 +749,23 @@ class ArticleAdmin(admin.ModelAdmin):
     @admin.action(description="发布所选文章")
     def publish_articles(self, request, queryset):
         updated = queryset.update(is_published=True)
-        cache.delete_many(("total_word_count", "site_stats_counts"))
+        from .cache_utils import invalidate_content_caches
+        from .search import index_article
+
+        for article in queryset.iterator():
+            index_article(article)
+        invalidate_content_caches()
         self.message_user(request, f"已发布 {updated} 篇文章。")
 
     @admin.action(description="撤回所选文章")
     def unpublish_articles(self, request, queryset):
         updated = queryset.update(is_published=False)
-        cache.delete_many(("total_word_count", "site_stats_counts"))
+        from .cache_utils import invalidate_content_caches
+        from .search import index_article
+
+        for article in queryset.iterator():
+            index_article(article)
+        invalidate_content_caches()
         self.message_user(request, f"已撤回 {updated} 篇文章。")
 
     @admin.action(description="为所选文章开启评论")

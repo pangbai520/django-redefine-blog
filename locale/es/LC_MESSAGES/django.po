@@ -1,0 +1,630 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Django Redefine\n"
+"Language: es\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Prev posts"
+msgstr "Publicaciones anteriores"
+
+msgid "Next posts"
+msgstr "Publicaciones siguientes"
+
+msgid "Tags"
+msgstr "Etiquetas"
+
+msgid "Categories"
+msgstr "Categorías"
+
+msgid "Posts"
+msgstr "Publicaciones"
+
+msgid "Proudly powered by %(framework)s"
+msgstr "Impulsado con orgullo por %(framework)s"
+
+msgid "Based on"
+msgstr "Basado en"
+
+msgid "Blog up for"
+msgstr "Blog en línea por"
+
+msgid "days"
+msgstr "días"
+
+msgid "hrs"
+msgstr "horas"
+
+msgid "Min"
+msgstr "Min"
+
+msgid "Sec"
+msgstr "Seg"
+
+msgid "%(counter)s posts in total"
+msgstr "%(counter)s publicaciones en total"
+
+msgid "%(counter)s words in total"
+msgstr "%(counter)s palabras en total"
+
+msgid "Search..."
+msgstr "Buscar..."
+
+msgid "Created"
+msgstr "Creado"
+
+msgid "Updated"
+msgstr "Actualizado"
+
+msgid "Words"
+msgstr "Palabras"
+
+msgid "Mins"
+msgstr "Minutos"
+
+msgid "Title"
+msgstr "Título"
+
+msgid "Author"
+msgstr "Autor"
+
+msgid "Link"
+msgstr "Enlace"
+
+msgid "License"
+msgstr "Licencia"
+
+msgid "On this page"
+msgstr "En esta página"
+
+msgid "VISITOR COUNT"
+msgstr "CONTADOR DE VISITANTES"
+
+msgid "TOTAL PAGE VIEWS"
+msgstr "TOTAL DE VISITAS"
+
+msgid "Close"
+msgstr "Cerrar"
+
+msgid "Go Back Home"
+msgstr "Volver al inicio"
+
+msgid "Read more"
+msgstr "Leer más"
+
+msgid "Created at"
+msgstr "Creado el"
+
+msgid "Updated at"
+msgstr "Actualizado el"
+
+msgid ""
+"This post is written %(days)s days ago, and the content may not be up to "
+"date."
+msgstr ""
+"Esta publicación fue escrita hace %(days)s días, el contenido puede no estar"
+" actualizado."
+
+msgid "%s seconds ago"
+msgstr "hace %s segundos"
+
+msgid "%s minutes ago"
+msgstr "hace %s minutos"
+
+msgid "%s hours ago"
+msgstr "hace %s horas"
+
+msgid "%s days ago"
+msgstr "hace %s días"
+
+msgid "%s weeks ago"
+msgstr "hace %s semanas"
+
+msgid "%s months ago"
+msgstr "hace %s meses"
+
+msgid "%s years ago"
+msgstr "hace %s años"
+
+msgid "All Rights Reserved &#169; {author}"
+msgstr "Todos los derechos reservados &#169; {author}"
+
+msgid "This work is licensed under {license}."
+msgstr "Este trabajo está licenciado bajo {license}."
+
+msgid "This work is in the public domain."
+msgstr "Este trabajo es de dominio público."
+
+msgid "No articles yet"
+msgstr "Aún no hay artículos"
+
+msgid "This page is empty. Go to the backend and publish your first post."
+msgstr ""
+"Esta página está vacía. Ve al panel de administración y publica tu primer "
+"artículo."
+
+msgid "Language"
+msgstr "Idioma"
+
+msgid "Apply"
+msgstr "Aplicar"
+
+msgid "Continue with GitHub"
+msgstr "Continuar con GitHub"
+
+msgid "Password"
+msgstr "Contraseña"
+
+msgid "Log out"
+msgstr "Cerrar sesión"
+
+msgid "Please"
+msgstr "Por favor"
+
+msgid "sign in"
+msgstr "inicia sesión"
+
+msgid "to comment."
+msgstr "para comentar."
+
+msgid "Nickname"
+msgstr "Apodo"
+
+msgid "Email"
+msgstr "Correo electrónico"
+
+msgid "Website"
+msgstr "Sitio web"
+
+msgid "Write a comment…"
+msgstr "Escribe un comentario…"
+
+msgid "Preview"
+msgstr "Vista previa"
+
+msgid "Sign in"
+msgstr "Iniciar sesión"
+
+msgid "Sign up"
+msgstr "Registrarse"
+
+msgid "Authentication required to comment"
+msgstr "Inicia sesión o regístrate para comentar"
+
+msgid "Submit"
+msgstr "Enviar"
+
+msgid "Comments"
+msgstr "Comentarios"
+
+msgid "Latest"
+msgstr "Más recientes"
+
+msgid "Oldest"
+msgstr "Más antiguos"
+
+msgid "Most liked"
+msgstr "Más valorados"
+
+msgid "Loading comments…"
+msgstr "Cargando comentarios…"
+
+msgid "Powered by Django"
+msgstr "Desarrollado con Django"
+
+msgid "Register"
+msgstr "Registrarse"
+
+msgid "Username"
+msgstr "Nombre de usuario"
+
+msgid "Forgot your password?"
+msgstr "¿Olvidaste tu contraseña?"
+
+msgid "Confirm password"
+msgstr "Confirmar contraseña"
+
+msgid "Create an account"
+msgstr "Crear una cuenta"
+
+msgid "Registration is currently disabled."
+msgstr "El registro está desactivado actualmente."
+
+msgid "Page Not Found"
+msgstr "Página no encontrada"
+
+msgid "Signed in"
+msgstr "Sesión iniciada"
+
+msgid "You can close this dialog and continue commenting."
+msgstr "Puedes cerrar este cuadro de diálogo y seguir comentando."
+
+msgid "Password updated"
+msgstr "Contraseña actualizada"
+
+msgid "Your current session remains signed in."
+msgstr "Tu sesión actual sigue iniciada."
+
+msgid "Change password"
+msgstr "Cambiar contraseña"
+
+msgid "Save password"
+msgstr "Guardar contraseña"
+
+msgid "You can now"
+msgstr "Ahora puedes"
+
+msgid "with the new password."
+msgstr "con la nueva contraseña."
+
+msgid "Choose a new password"
+msgstr "Elige una contraseña nueva"
+
+msgid "This reset link is invalid or has expired. Please request a new one."
+msgstr ""
+"Este enlace de restablecimiento no es válido o ha caducado. Solicita uno "
+"nuevo."
+
+msgid "Check your email"
+msgstr "Revisa tu correo electrónico"
+
+msgid ""
+"If an active account uses that address, a password reset link has been sent."
+msgstr ""
+"Si hay una cuenta activa con esa dirección, se ha enviado un enlace para "
+"restablecer la contraseña."
+
+msgid "Reset password"
+msgstr "Restablecer contraseña"
+
+msgid ""
+"Enter the email address used by your comment account. If it exists, a reset "
+"link will be sent."
+msgstr ""
+"Introduce el correo electrónico de tu cuenta de comentarios. Si existe, se "
+"enviará un enlace de restablecimiento."
+
+msgid "Send reset link"
+msgstr "Enviar enlace de restablecimiento"
+
+msgid "Email verified"
+msgstr "Correo electrónico verificado"
+
+msgid "Your account is active. You can now comment."
+msgstr "Tu cuenta está activa. Ya puedes comentar."
+
+msgid "Invalid link"
+msgstr "Enlace no válido"
+
+msgid "This verification link is invalid or has expired."
+msgstr "Este enlace de verificación no es válido o ha caducado."
+
+msgid "Back to site"
+msgstr "Volver al sitio"
+
+msgid ""
+"We could not send the verification email right now. Please contact the site "
+"administrator."
+msgstr ""
+"No se ha podido enviar el correo de verificación. Ponte en contacto con el "
+"administrador del sitio."
+
+msgid ""
+"We sent a verification link to %(email)s. Your account will be ready after "
+"verification."
+msgstr ""
+"Hemos enviado un enlace de verificación a %(email)s. Tu cuenta estará lista "
+"cuando la verifiques."
+
+msgid "Back"
+msgstr "Volver"
+
+msgid "Scroll to content"
+msgstr "Ir al contenido"
+
+msgid "Change language"
+msgstr "Cambiar idioma"
+
+msgid "Choose the language used by the blog interface."
+msgstr "Elige el idioma de la interfaz del blog."
+
+msgid "%(elapsed)s ago"
+msgstr "hace %(elapsed)s"
+
+msgid "License: %(license)s"
+msgstr "Licencia: %(license)s"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Cancel reply"
+msgstr "Cancelar respuesta"
+
+msgid "Comment length must be between 1 and 5000 characters."
+msgstr "El comentario debe tener entre 1 y 5000 caracteres."
+
+msgid "Comment length must not exceed 5000 characters."
+msgstr "El comentario no puede superar los 5000 caracteres."
+
+msgid "Comment likes are disabled."
+msgstr "Los Me gusta de los comentarios están desactivados."
+
+msgid "Comments are disabled for this article."
+msgstr "Los comentarios están desactivados para este artículo."
+
+msgid "Delete"
+msgstr "Eliminar"
+
+msgid "Delete this comment?"
+msgstr "¿Eliminar este comentario?"
+
+msgid "Edit"
+msgstr "Editar"
+
+msgid "Edit your comment"
+msgstr "Edita tu comentario"
+
+msgid "Emoji"
+msgstr "Emoji"
+
+msgid "Enter a keyword to search GIFs"
+msgstr "Escribe una palabra clave para buscar GIF"
+
+msgid "Enter a valid email address."
+msgstr "Introduce una dirección de correo válida."
+
+msgid "Enter a valid website URL."
+msgstr "Introduce una URL de sitio web válida."
+
+msgid "Guest comments are disabled."
+msgstr "Los comentarios de invitados están desactivados."
+
+msgid "Image contains too many pixels or animation frames."
+msgstr "La imagen contiene demasiados píxeles o fotogramas."
+
+msgid "Image data does not match its declared type."
+msgstr "Los datos de la imagen no coinciden con el tipo declarado."
+
+msgid "Image data is invalid."
+msgstr "Los datos de la imagen no son válidos."
+
+msgid "Image dimensions are too large."
+msgstr "Las dimensiones de la imagen son demasiado grandes."
+
+msgid "Image must be smaller than %(size)s MB."
+msgstr "La imagen debe ser menor de %(size)s MB."
+
+msgid "Image must be smaller than 2 MB."
+msgstr "La imagen debe ser menor de 2 MB."
+
+msgid "Image upload failed. Please try again later."
+msgstr "No se pudo subir la imagen. Inténtalo más tarde."
+
+msgid "Internal comment uploads are disabled."
+msgstr "Las imágenes en comentarios internos están desactivadas."
+
+msgid "Internal comments are disabled."
+msgstr "Los comentarios internos están desactivados."
+
+msgid "Like"
+msgstr "Me gusta"
+
+msgid "Loading…"
+msgstr "Cargando…"
+
+msgid "Markdown Guide"
+msgstr "Guía de Markdown"
+
+msgid "Markdown is supported"
+msgstr "Se admite Markdown"
+
+msgid "My actions"
+msgstr "Mis acciones"
+
+msgid "No GIFs found"
+msgstr "No se encontraron GIF"
+
+msgid "No comments yet."
+msgstr "Aún no hay comentarios."
+
+msgid "No emoji yet. Add a Comment emoji name and image URL in the admin."
+msgstr ""
+"Aún no hay emojis. Añade un nombre y una URL de imagen en la administración."
+
+msgid "None available"
+msgstr "Ninguno disponible"
+
+msgid "Only administrators can pin comments."
+msgstr "Solo los administradores pueden fijar comentarios."
+
+msgid "Only one comment can be pinned at a time."
+msgstr "Solo se puede fijar un comentario a la vez."
+
+msgid "Pin"
+msgstr "Fijar"
+
+msgid "Pinned"
+msgstr "Fijado"
+
+msgid "Please sign in to comment."
+msgstr "Inicia sesión para comentar."
+
+msgid "Please sign in to delete comments."
+msgstr "Inicia sesión para eliminar comentarios."
+
+msgid "Please sign in to edit comments."
+msgstr "Inicia sesión para editar comentarios."
+
+msgid "Please sign in to like comments."
+msgstr "Inicia sesión para indicar que te gusta un comentario."
+
+msgid "Please sign in to manage notifications."
+msgstr "Inicia sesión para gestionar las notificaciones."
+
+msgid "Please sign in to upload images."
+msgstr "Inicia sesión para subir imágenes."
+
+msgid "Please sign in to view notifications."
+msgstr "Inicia sesión para ver las notificaciones."
+
+msgid "Preview unavailable"
+msgstr "Vista previa no disponible"
+
+msgid "Recent actions"
+msgstr "Acciones recientes"
+
+msgid "Registration failed because the verification email could not be sent."
+msgstr "El registro falló porque no se pudo enviar el correo de verificación."
+
+msgid "Registration is disabled."
+msgstr "El registro está desactivado."
+
+msgid "Reply"
+msgstr "Responder"
+
+msgid "Search GIF"
+msgstr "Buscar GIF"
+
+msgid "The comment is invalid."
+msgstr "El comentario no es válido."
+
+msgid "Too many GIF searches. Please try again later."
+msgstr "Demasiadas búsquedas de GIF. Inténtalo más tarde."
+
+msgid "Too many comments. Please try again later."
+msgstr "Demasiados comentarios. Inténtalo más tarde."
+
+msgid "Too many image uploads. Please try again later."
+msgstr "Demasiadas subidas de imágenes. Inténtalo más tarde."
+
+msgid "Too many password reset requests. Please try again later."
+msgstr "Demasiadas solicitudes de restablecimiento. Inténtalo más tarde."
+
+msgid "Too many preview requests. Please try again later."
+msgstr "Demasiadas solicitudes de vista previa. Inténtalo más tarde."
+
+msgid "Too many registration attempts. Please try again later."
+msgstr "Demasiados intentos de registro. Inténtalo más tarde."
+
+msgid "Too many requests."
+msgstr "Demasiadas solicitudes."
+
+msgid "Too many sign-in attempts. Please try again later."
+msgstr "Demasiados intentos de inicio de sesión. Inténtalo más tarde."
+
+msgid "Unable to delete comment."
+msgstr "No se pudo eliminar el comentario."
+
+msgid "Unable to load comment assets"
+msgstr "No se pudieron cargar los recursos de comentarios"
+
+msgid "Unable to load comments."
+msgstr "No se pudieron cargar los comentarios."
+
+msgid "Unable to register."
+msgstr "No se pudo completar el registro."
+
+msgid "Unable to sign in."
+msgstr "No se pudo iniciar sesión."
+
+msgid "Unable to submit comment"
+msgstr "No se pudo enviar el comentario"
+
+msgid "Unable to update pin status."
+msgstr "No se pudo actualizar el estado fijado."
+
+msgid "Unlike"
+msgstr "Ya no me gusta"
+
+msgid "Unpin"
+msgstr "Desfijar"
+
+msgid "Unsupported GIF provider."
+msgstr "Proveedor de GIF no compatible."
+
+msgid "Unsupported image type."
+msgstr "Tipo de imagen no compatible."
+
+msgid "Upload failed"
+msgstr "Error al subir"
+
+msgid "Upload failed: server did not return an image URL."
+msgstr "Error al subir: el servidor no devolvió una URL de imagen."
+
+msgid "Upload image"
+msgstr "Subir imagen"
+
+msgid "Verification email sent. Please check your inbox before signing in."
+msgstr ""
+"Correo de verificación enviado. Revisa tu bandeja antes de iniciar sesión."
+
+msgid ""
+"We sent a verification email to your registered address. Please verify your "
+"email before signing in."
+msgstr ""
+"Hemos enviado un correo de verificación a tu dirección. Verifícalo antes de "
+"iniciar sesión."
+
+msgid "You cannot delete this comment."
+msgstr "No puedes eliminar este comentario."
+
+msgid "You cannot edit this comment."
+msgstr "No puedes editar este comentario."
+
+msgid "category"
+msgstr "categoría"
+
+msgid "content"
+msgstr "contenido"
+
+msgid "created at"
+msgstr "creado el"
+
+msgid "default mode"
+msgstr "modo predeterminado"
+
+msgid "excerpt"
+msgstr "extracto"
+
+msgid "expires at"
+msgstr "caduca el"
+
+msgid "is published"
+msgstr "está publicado"
+
+msgid "name"
+msgstr "nombre"
+
+msgid "parent category"
+msgstr "categoría superior"
+
+msgid "site author"
+msgstr "autor del sitio"
+
+msgid "site description"
+msgstr "descripción del sitio"
+
+msgid "site info subtitle"
+msgstr "subtítulo de información del sitio"
+
+msgid "site keywords"
+msgstr "palabras clave del sitio"
+
+msgid "site name"
+msgstr "nombre del sitio"
+
+msgid "slug"
+msgstr "slug"
+
+msgid "tags"
+msgstr "etiquetas"
+
+msgid "title"
+msgstr "título"
+
+msgid "updated at"
+msgstr "actualizado el"
+
+msgid "writer"
+msgstr "autor"

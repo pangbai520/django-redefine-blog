@@ -1,21 +1,22 @@
+{% load i18n %}
 <div class="article-meta-info">
     <span class="article-date article-meta-item">
         <i class="fa-regular fa-pen-fancy"></i>&nbsp;
-        <span class="desktop">{% if site.article_dateformat == 'auto' or site.article_dateformat == 'relative' %}{{ article.created_at|timesince }} ago{% elif site.article_dateformat == 'YYYY-MM-DD' %}{{ article.created_at|date:'Y-m-d' }}{% elif site.article_dateformat == 'MMM D, YYYY' %}{{ article.created_at|date:'M j, Y' }}{% else %}{{ article.created_at|date:'Y-m-d H:i:s' }}{% endif %}</span>
-        <span class="mobile">{% if site.article_dateformat == 'auto' or site.article_dateformat == 'relative' %}{{ article.created_at|timesince }} ago{% elif site.article_dateformat == 'YYYY-MM-DD' %}{{ article.created_at|date:'Y-m-d' }}{% elif site.article_dateformat == 'MMM D, YYYY' %}{{ article.created_at|date:'M j, Y' }}{% else %}{{ article.created_at|date:'Y-m-d H:i:s' }}{% endif %}</span>
-        <span class="hover-info">Create Time</span>
+        <span class="desktop">{% if site.article_dateformat == 'auto' or site.article_dateformat == 'relative' %}{% blocktranslate with elapsed=article.created_at|timesince %}{{ elapsed }} ago{% endblocktranslate %}{% elif site.article_dateformat == 'YYYY-MM-DD' %}{{ article.created_at|date:'Y-m-d' }}{% elif site.article_dateformat == 'MMM D, YYYY' %}{{ article.created_at|date:'M j, Y' }}{% else %}{{ article.created_at|date:'Y-m-d H:i:s' }}{% endif %}</span>
+        <span class="mobile">{% if site.article_dateformat == 'auto' or site.article_dateformat == 'relative' %}{% blocktranslate with elapsed=article.created_at|timesince %}{{ elapsed }} ago{% endblocktranslate %}{% elif site.article_dateformat == 'YYYY-MM-DD' %}{{ article.created_at|date:'Y-m-d' }}{% elif site.article_dateformat == 'MMM D, YYYY' %}{{ article.created_at|date:'M j, Y' }}{% else %}{{ article.created_at|date:'Y-m-d H:i:s' }}{% endif %}</span>
+        <span class="hover-info">{% translate "Created" %}</span>
     </span>
 
     {% if article.updated_at and article.updated_at != article.created_at %}
     <span class="article-date article-meta-item">
         <i class="fa-regular fa-wrench"></i>&nbsp;
         <span class="desktop">
-            {% if site.article_dateformat == 'auto' or site.article_dateformat == 'relative' %}{{ article.updated_at|timesince }} ago{% elif site.article_dateformat == 'YYYY-MM-DD' %}{{ article.updated_at|date:'Y-m-d' }}{% elif site.article_dateformat == 'MMM D, YYYY' %}{{ article.updated_at|date:'M j, Y' }}{% else %}{{ article.updated_at|date:'Y-m-d H:i:s' }}{% endif %}
+            {% if site.article_dateformat == 'auto' or site.article_dateformat == 'relative' %}{% blocktranslate with elapsed=article.updated_at|timesince %}{{ elapsed }} ago{% endblocktranslate %}{% elif site.article_dateformat == 'YYYY-MM-DD' %}{{ article.updated_at|date:'Y-m-d' }}{% elif site.article_dateformat == 'MMM D, YYYY' %}{{ article.updated_at|date:'M j, Y' }}{% else %}{{ article.updated_at|date:'Y-m-d H:i:s' }}{% endif %}
         </span>
         <span class="mobile">
-            {% if site.article_dateformat == 'auto' or site.article_dateformat == 'relative' %}{{ article.updated_at|timesince }} ago{% elif site.article_dateformat == 'YYYY-MM-DD' %}{{ article.updated_at|date:'Y-m-d' }}{% elif site.article_dateformat == 'MMM D, YYYY' %}{{ article.updated_at|date:'M j, Y' }}{% else %}{{ article.updated_at|date:'Y-m-d H:i:s' }}{% endif %}
+            {% if site.article_dateformat == 'auto' or site.article_dateformat == 'relative' %}{% blocktranslate with elapsed=article.updated_at|timesince %}{{ elapsed }} ago{% endblocktranslate %}{% elif site.article_dateformat == 'YYYY-MM-DD' %}{{ article.updated_at|date:'Y-m-d' }}{% elif site.article_dateformat == 'MMM D, YYYY' %}{{ article.updated_at|date:'M j, Y' }}{% else %}{{ article.updated_at|date:'Y-m-d H:i:s' }}{% endif %}
         </span>
-        <span class="hover-info">Update time</span>
+        <span class="hover-info">{% translate "Updated" %}</span>
     </span>
     {% endif %}
 
@@ -51,14 +52,14 @@
         {% if site.show_word_counter and article.word_counter %}
         <span class="article-wordcount article-meta-item">
             <i class="fa-regular fa-typewriter"></i>&nbsp;
-            <span>{{ article.word_counter }} Wordcount</span>
+            <span>{{ article.word_counter }} {% translate "Words" %}</span>
         </span>
         {% endif %}
 
         {% if site.show_reading_time and article.reading_time %}
         <span class="article-min2read article-meta-item">
             <i class="fa-regular fa-clock"></i>&nbsp;
-            <span>{{ article.reading_time }} Reading time</span>
+            <span>{{ article.reading_time }} {% translate "Mins" %}</span>
         </span>
         {% endif %}
 
