@@ -1322,6 +1322,22 @@ class Comment(models.Model):
         elif not self.nickname:
             raise ValidationError({"nickname": "Guest comments require a nickname."})
 
+    def save(self, *args, **kwargs):
+        if not self.is_sticky or not self.article_id:
+            return super().save(*args, **kwargs)
+
+        # MySQL does not create conditional unique constraints. Lock the
+        # article row so concurrent saves still agree on a single pinned
+        # comment, while PostgreSQL and SQLite retain the database constraint
+        # as an additional safeguard.
+        with transaction.atomic():
+            ArticleModel.objects.select_for_update().filter(pk=self.article_id).exists()
+            type(self).objects.filter(
+                article_id=self.article_id,
+                is_sticky=True,
+            ).exclude(pk=self.pk).update(is_sticky=False)
+            return super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.display_name}: {self.content[:40]}"
 

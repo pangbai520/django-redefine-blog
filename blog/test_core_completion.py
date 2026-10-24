@@ -13,7 +13,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError, transaction
 from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -99,11 +98,25 @@ class PublicCoreFeatureTests(TestCase):
         deleted = self.client.post(reverse("comment_delete", args=[comment.pk]))
         self.assertEqual(deleted.status_code, 200)
 
-    def test_database_allows_only_one_sticky_comment_per_article(self):
+    def test_saving_a_sticky_comment_unpins_the_previous_one(self):
         article = ArticleModel.objects.create(title="Post", content="Body", is_published=True)
-        Comment.objects.create(article=article, nickname="One", content="First", is_sticky=True)
-        with self.assertRaises(IntegrityError), transaction.atomic():
-            Comment.objects.create(article=article, nickname="Two", content="Second", is_sticky=True)
+        first = Comment.objects.create(
+            article=article,
+            nickname="One",
+            content="First",
+            is_sticky=True,
+        )
+        second = Comment.objects.create(
+            article=article,
+            nickname="Two",
+            content="Second",
+            is_sticky=True,
+        )
+
+        first.refresh_from_db()
+        self.assertFalse(first.is_sticky)
+        self.assertTrue(second.is_sticky)
+        self.assertEqual(Comment.objects.filter(article=article, is_sticky=True).count(), 1)
 
     def test_comment_reply_cycles_are_rejected(self):
         article = ArticleModel.objects.create(title="Post", content="Body", is_published=True)

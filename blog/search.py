@@ -76,6 +76,13 @@ def rebuild_vendor_index():
         except DatabaseError:
             return "database-fallback"
     if connection.vendor == "mysql":
+        # MySQL implicitly commits around ALTER TABLE. Running this DDL from a
+        # Django TestCase or another caller-owned transaction would corrupt the
+        # surrounding transaction and leak data across tests. The portable
+        # search backend remains correct until the index can be built outside
+        # that transaction.
+        if connection.in_atomic_block:
+            return "database-fallback"
         try:
             table = ArticleSearchDocument._meta.db_table
             with connection.cursor() as cursor:

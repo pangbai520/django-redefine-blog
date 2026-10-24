@@ -10,7 +10,7 @@ from django.utils import timezone
 
 from .models import ArticleModel, ArticleSearchDocument, Category, SiteConfiguration, Tag
 from .recommendations import related_articles
-from .search import search_articles
+from .search import rebuild_vendor_index, search_articles
 
 
 class ContentGrowthTests(TestCase):
@@ -32,6 +32,14 @@ class ContentGrowthTests(TestCase):
         }
         values.update(overrides)
         return ArticleModel.objects.create(**values)
+
+    def test_mysql_index_ddl_is_deferred_inside_an_atomic_block(self):
+        with patch("blog.search.connection") as database:
+            database.vendor = "mysql"
+            database.in_atomic_block = True
+
+            self.assertEqual(rebuild_vendor_index(), "database-fallback")
+            database.cursor.assert_not_called()
 
     def test_server_search_is_bounded_and_excludes_non_public_articles(self):
         visible = self.create_article("Search target", "A distinctive pangbai phrase")
