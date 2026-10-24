@@ -37,6 +37,8 @@ htmlcov/
 coverage.xml
 dist/
 build/
+!blog/static/css/build/
+!blog/static/css/build/tailwind.css
 *.log
 *.map
 
