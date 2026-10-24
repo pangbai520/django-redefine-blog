@@ -59,6 +59,20 @@ test('short pages keep a stable mobile viewport height without a scripted footer
   assert.doesNotMatch(utils, /\.main-content-footer["']\)[\s\S]*?style\.marginTop/);
 });
 
+test('article avatars use the generated non-shrinking utility from upstream', () => {
+  const article = readFileSync(
+    path.join(blogRoot, 'templates/pages/post/article-content.html'),
+    'utf8',
+  );
+  const tailwind = readFileSync(
+    path.join(blogRoot, 'static/css/build/tailwind.css'),
+    'utf8',
+  );
+  assert.match(article, /class="avatar[^\"]*\bshrink-0\b/);
+  assert.doesNotMatch(article, /\bflex-shrink-0\b/);
+  assert.match(tailwind, /\.shrink-0\{flex-shrink:0\}/);
+});
+
 class Element {
   constructor(classes = []) {
     this.classes = new Set(classes);

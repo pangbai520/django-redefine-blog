@@ -1021,6 +1021,41 @@ class ArticleModel(models.Model):
     word_counter = models.PositiveIntegerField(default=0, editable=False)
     reading_time = models.PositiveIntegerField(default=0, editable=False)
 
+    def _categories_meta(self, site, *, limited):
+        categories_display = []
+        if not getattr(site, 'article_categories_enabled', True):
+            return categories_display
+
+        previous_parent_id = object()
+        category_limit = getattr(site, 'article_categories_limit', 0) if limited else 0
+        for index, cat in enumerate(self.category.all()):
+            if category_limit and index >= category_limit:
+                break
+            parent_id = getattr(cat, 'parent_id', None)
+            categories_display.append({
+                'name': cat.name,
+                'url': reverse('categories_detail', args=[cat.slug]),
+                'new_parent': previous_parent_id != parent_id,
+            })
+            previous_parent_id = parent_id
+        return categories_display
+
+    def _tags_meta(self, site, *, limited):
+        tags_display = []
+        if not getattr(site, 'article_tags_enabled', True):
+            return tags_display
+
+        tags_limit = getattr(site, 'article_tags_limit', 0) if limited else 0
+        for index, tag in enumerate(self.tags.all()):
+            if tags_limit and index >= tags_limit:
+                break
+            tags_display.append({
+                'name': tag.name,
+                'url': reverse('tags_detail', args=[tag.slug]),
+                'first': index == 0,
+            })
+        return tags_display
+
     @cached_property
     def meta(self):
         site = SiteConfiguration.get_config()
@@ -1044,43 +1079,24 @@ class ArticleModel(models.Model):
             if date_format == 'MMM D, YYYY':
                 home_date = home_date.replace(' 0', ' ')
 
-        categories_display = []
-        if getattr(site, 'article_categories_enabled', True):
-            previous_parent_id = object()
-            # all() reuses the prefetch cache when the queryset has one
-            category_limit = getattr(site, 'article_categories_limit', 0)
-            for index, cat in enumerate(self.category.all()):
-                if category_limit and index >= category_limit:
-                    break
-                parent_id = getattr(cat, 'parent_id', None)
-                categories_display.append({
-                    'name': cat.name,
-                    'url': reverse('categories_detail', args=[cat.slug]),
-                    'new_parent': previous_parent_id != parent_id
-                })
-                previous_parent_id = parent_id
-
-        tags_display = []
-        if getattr(site, 'article_tags_enabled', True):
-            tags_limit = getattr(site, 'article_tags_limit', 0)
-            for i, tag in enumerate(self.tags.all()):
-                if tags_limit and i >= tags_limit:
-                    break
-                tags_display.append({
-                    'name': tag.name,
-                    'url': reverse('tags_detail', args=[tag.slug]),
-                    'first': i == 0
-                })
-
         return {
             'title': self.title,
             'path': reverse('article', args=[self.slug]),
             'home_date': home_date,
-            'categories': categories_display,
-            'tags': tags_display,
+            'categories': self._categories_meta(site, limited=True),
+            'tags': self._tags_meta(site, limited=True),
             'thumbnail_url': self.thumbnail_url,
             'auto_excerpt': self.auto_excerpt,
             'sticky': self.sticky,
+        }
+
+    @cached_property
+    def detail_meta(self):
+        """Article-page metadata is complete; home limits belong to cards only."""
+        site = SiteConfiguration.get_config()
+        return {
+            'categories': self._categories_meta(site, limited=False),
+            'tags': self._tags_meta(site, limited=False),
         }
 
     

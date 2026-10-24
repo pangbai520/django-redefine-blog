@@ -20,11 +20,11 @@
     </span>
     {% endif %}
 
-    {% if article.meta.categories %}
+    {% if article.detail_meta.categories %}
     <span class="article-categories article-meta-item">
         <i class="fa-regular fa-folders"></i>&nbsp;
         <ul>
-            {% for cat in article.meta.categories %}
+            {% for cat in article.detail_meta.categories %}
                 <li>
                     {% if not forloop.first and cat.new_parent %}> {% elif not forloop.first %}| {% endif %}
                     <a href="{{ cat.url }}">{{ cat.name }}</a>
@@ -34,11 +34,11 @@
     </span>
     {% endif %}
 
-    {% if article.meta.tags %}
+    {% if article.detail_meta.tags %}
     <span class="article-tags article-meta-item">
         <i class="fa-regular fa-tags"></i>&nbsp;
         <ul>
-            {% for tag in article.meta.tags %}
+            {% for tag in article.detail_meta.tags %}
                 <li>
                     {% if not tag.first %}| {% endif %}
                     <a href="{{ tag.url }}">{{ tag.name }}</a>
