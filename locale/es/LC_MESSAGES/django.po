@@ -628,3 +628,29 @@ msgstr "actualizado el"
 
 msgid "writer"
 msgstr "autor"
+msgid "Home"
+msgstr "Inicio"
+
+msgid "Archives"
+msgstr "Archivos"
+
+msgid "Friends"
+msgstr "Amigos"
+
+msgid "Bookmarks"
+msgstr "Marcadores"
+
+msgid "Essays"
+msgstr "Ensayos"
+
+msgid "Masonry"
+msgstr "Galería"
+
+msgid "More"
+msgstr "Más"
+
+msgid "Admin"
+msgstr "Administración"
+
+msgid "Sticky"
+msgstr "Fijado"

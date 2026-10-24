@@ -631,3 +631,29 @@ msgstr "mis à jour le"
 
 msgid "writer"
 msgstr "auteur"
+msgid "Home"
+msgstr "Accueil"
+
+msgid "Archives"
+msgstr "Archives"
+
+msgid "Friends"
+msgstr "Amis"
+
+msgid "Bookmarks"
+msgstr "Favoris"
+
+msgid "Essays"
+msgstr "Essais"
+
+msgid "Masonry"
+msgstr "Galerie"
+
+msgid "More"
+msgstr "Plus"
+
+msgid "Admin"
+msgstr "Administration"
+
+msgid "Sticky"
+msgstr "Épinglé"

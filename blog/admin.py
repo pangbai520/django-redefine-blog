@@ -181,8 +181,8 @@ class SiteConfigurationForm(forms.ModelForm):
             "text_title_size": (0.5, 10),
             "text_subtitle_size": (0.5, 10),
             "text_line_height": (1, 5),
-            "article_categories_limit": (1, 100),
-            "article_tags_limit": (1, 100),
+            "article_categories_limit": (0, 100),
+            "article_tags_limit": (0, 100),
             "recommendation_limit": (1, 100),
             "recommendation_mobile_limit": (1, 100),
         }
@@ -659,6 +659,12 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
                     ("footer_runtime_enabled", "footer_sitestart"),
                     "footer_icon",
                     ("footer_statistics", "show_icp"),
+                    (
+                        "website_counter_enabled",
+                        "website_counter_site_pv",
+                        "website_counter_site_uv",
+                        "website_counter_post_pv",
+                    ),
                     ("icp_number", "icp_url"),
                     "footer_content",
                 ),

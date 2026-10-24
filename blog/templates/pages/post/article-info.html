@@ -2,19 +2,19 @@
 <div class="article-meta-info">
     <span class="article-date article-meta-item">
         <i class="fa-regular fa-pen-fancy"></i>&nbsp;
-        <span class="desktop">{% if site.article_dateformat == 'auto' or site.article_dateformat == 'relative' %}{% blocktranslate with elapsed=article.created_at|timesince %}{{ elapsed }} ago{% endblocktranslate %}{% elif site.article_dateformat == 'YYYY-MM-DD' %}{{ article.created_at|date:'Y-m-d' }}{% elif site.article_dateformat == 'MMM D, YYYY' %}{{ article.created_at|date:'M j, Y' }}{% else %}{{ article.created_at|date:'Y-m-d H:i:s' }}{% endif %}</span>
-        <span class="mobile">{% if site.article_dateformat == 'auto' or site.article_dateformat == 'relative' %}{% blocktranslate with elapsed=article.created_at|timesince %}{{ elapsed }} ago{% endblocktranslate %}{% elif site.article_dateformat == 'YYYY-MM-DD' %}{{ article.created_at|date:'Y-m-d' }}{% elif site.article_dateformat == 'MMM D, YYYY' %}{{ article.created_at|date:'M j, Y' }}{% else %}{{ article.created_at|date:'Y-m-d H:i:s' }}{% endif %}</span>
+        <span class="desktop">{{ article.created_at_display }}</span>
+        <span class="mobile">{{ article.created_at_display }}</span>
         <span class="hover-info">{% translate "Created" %}</span>
     </span>
 
-    {% if article.updated_at and article.updated_at != article.created_at %}
+    {% if article.has_meaningful_update %}
     <span class="article-date article-meta-item">
         <i class="fa-regular fa-wrench"></i>&nbsp;
         <span class="desktop">
-            {% if site.article_dateformat == 'auto' or site.article_dateformat == 'relative' %}{% blocktranslate with elapsed=article.updated_at|timesince %}{{ elapsed }} ago{% endblocktranslate %}{% elif site.article_dateformat == 'YYYY-MM-DD' %}{{ article.updated_at|date:'Y-m-d' }}{% elif site.article_dateformat == 'MMM D, YYYY' %}{{ article.updated_at|date:'M j, Y' }}{% else %}{{ article.updated_at|date:'Y-m-d H:i:s' }}{% endif %}
+            {{ article.updated_at_display }}
         </span>
         <span class="mobile">
-            {% if site.article_dateformat == 'auto' or site.article_dateformat == 'relative' %}{% blocktranslate with elapsed=article.updated_at|timesince %}{{ elapsed }} ago{% endblocktranslate %}{% elif site.article_dateformat == 'YYYY-MM-DD' %}{{ article.updated_at|date:'Y-m-d' }}{% elif site.article_dateformat == 'MMM D, YYYY' %}{{ article.updated_at|date:'M j, Y' }}{% else %}{{ article.updated_at|date:'Y-m-d H:i:s' }}{% endif %}
+            {{ article.updated_at_display }}
         </span>
         <span class="hover-info">{% translate "Updated" %}</span>
     </span>
@@ -63,11 +63,12 @@
         </span>
         {% endif %}
 
-        {% if article_pv %}
-        <span class="article-pv article-meta-item">
-            <i class="fa-regular fa-eye"></i>&nbsp;
-            <span>{{ article_pv }}</span>
-        </span>
-        {% endif %}
+    {% endif %}
+
+    {% if site.website_counter_enabled and site.website_counter_post_pv %}
+    <span class="article-pv article-meta-item">
+        <i class="fa-regular fa-eye"></i>&nbsp;
+        <span>{{ article_pv|default:0 }}</span>
+    </span>
     {% endif %}
 </div>

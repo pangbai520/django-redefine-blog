@@ -6,7 +6,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="keywords" content="{{ site.site_keywords }}">
-    <meta name="description" content="{% firstof site.site_description site.og_description site.site_subname %}">
+    {% firstof article.auto_excerpt site.site_description site.og_description site.site_subname as page_description %}
+    <meta name="description" content="{{ page_description|striptags }}">
     <meta name="author" content="{{ site.site_author }}">
     {% if site.rssfeed_enabled %}<link rel="alternate" type="application/rss+xml" title="{{ site.site_name }}" href="{{ site.rss_url }}">{% endif %}
 
@@ -198,21 +199,31 @@
 
     {% with url_name=request.resolver_match.url_name %}
     {% if site.og_enabled %}
+    {% firstof site.og_description article.auto_excerpt page_description as open_graph_description %}
+    {% static 'images/redefine-og.webp' as fallback_og_image %}
+    {% if site.og_image %}
+        {% absolute_uri site.og_image.url as og_image_url %}
+    {% else %}
+        {% absolute_uri fallback_og_image as og_image_url %}
+    {% endif %}
     <meta property="og:type" content="{% if url_name == "article" %}{{ url_name }}{% else %}website{% endif %}">
-    <meta property="og:title" content="{{ site.site_name }}">
+    <meta property="og:title" content="{% firstof page_title site.site_name %}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:site_name" content="{{ site.site_name }}">
-    <meta property="og:description" content="{{ site.og_description }}">
+    <meta property="og:description" content="{{ open_graph_description|striptags }}">
     <meta property="og:locale" content="{{ SITE_LANG }}">
-    <meta property="og:image" content="{% if site.og_image %}{{ site.og_image.url }}{% else %}{% static 'images/redefine-og.webp' %}{% endif %}">
+    <meta property="og:image" content="{{ og_image_url }}">
     {% if url_name == "article" %}
-        <meta property="article:published_time" content="{{ article.created_at }}">
-        <meta property="article:modified_time" content="{{ article.updated_at }}">
+        <meta property="article:published_time" content="{{ article.created_at|date:'c' }}">
+        <meta property="article:modified_time" content="{{ article.updated_at|date:'c' }}">
+        {% for tag in article.tags.all %}<meta property="article:tag" content="{{ tag.name }}">
+        {% endfor %}
     {% endif %}
     <meta property="article:author" content="{{ site.site_author }}">
-    <meta property="article:tag" content="{{ site.site_author }}">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:image" content="{% if site.og_image %}{{ site.og_image.url }}{% else %}{% static 'images/redefine-og.webp' %}{% endif %}">
+    <meta name="twitter:title" content="{% firstof page_title site.site_name %}">
+    <meta name="twitter:description" content="{{ open_graph_description|striptags }}">
+    <meta name="twitter:image" content="{{ og_image_url }}">
     {% endif %}
     {% endwith %}
     {% if site.google_analytics_enabled and site.google_analytics_id %}

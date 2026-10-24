@@ -1,3 +1,4 @@
+{% load navbar_utils %}
 <div class="home-sidebar-container">
     <div class="sticky-container sticky">
         {% if site.sidebar_firstitem == "info" %}
@@ -9,12 +10,12 @@
         {% endif %}
 
         {% if site.sidebar_links or site.sidebar_announcement %}
-            <div class="sidebar-links">
+            <div class="sidebar-links" {% if site.sidebar_firstitem == "info" %}marginTop{% endif %}>
                 <div class="site-info">
                     <div class="site-name">{{ site.site_name }}</div>
                     {% if site.sidebar_announcement and site.sidebar_links %}
                         <div class="announcement">
-                            {{ site.sidebar_announcement }}
+                            {{ site.sidebar_announcement|safe }}
                         </div>
                     {% endif %}
                 </div>
@@ -24,12 +25,12 @@
                             {% if sidebar_link.user_icon %}
                                 <i class="{{ sidebar_link.user_icon }} icon-space"></i>
                             {% endif %}
-                            <span class="link-name">{{ sidebar_link.name }}</span>
+                            <span class="link-name">{{ sidebar_link.name|theme_label }}</span>
                         </a>
                     {% endfor %}
                 {% else %}
                 <div class="announcement-outside">
-                    {{ site.sidebar_announcement }}
+                    {{ site.sidebar_announcement|safe }}
                 </div>
                 {% endif %}
             </div>

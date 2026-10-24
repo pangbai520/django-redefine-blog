@@ -1,5 +1,5 @@
 /* keep one page lifecycle here, so Swup refreshes every migrated component consistently */
-import initUtils from "./utils.js";
+import initUtils, { isHomeFirstPage } from "./utils.js";
 import initTyped, { destroyTyped } from "./plugins/typed.js";
 import initModeToggle from "./tools/lightDarkSwitch.js";
 import initLazyLoad from "./layouts/lazyload.js";
@@ -45,8 +45,7 @@ const main = {
         if (
             subtitleEl &&
             window.theme?.home_banner?.subtitle?.enable &&
-            (window.location.pathname === config.root ||
-                window.location.pathname === "/home/")
+            isHomeFirstPage()
         ) {
             initTyped("subtitle");
         }

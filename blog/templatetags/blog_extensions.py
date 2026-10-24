@@ -9,6 +9,15 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
+def absolute_uri(context, value):
+    """Build an absolute URL for metadata while keeping templates portable."""
+    request = context.get("request")
+    if not request or not value:
+        return value or ""
+    return request.build_absolute_uri(str(value))
+
+
+@register.simple_tag(takes_context=True)
 def render_blog_hook(context, hook_name):
     """Render registered templates in deterministic priority order."""
     values = context.flatten()

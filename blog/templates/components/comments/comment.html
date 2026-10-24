@@ -1,19 +1,23 @@
-{% load static %}
+{% load static i18n %}
 {% if site.comment_enabled and comment_system_configured %}
 <div class="comments-container mt-10 w-full ">
     <div id="comment-anchor" class="w-full h-2.5"></div>
     <div class="comment-area-title w-full my-1.5 md:my-2.5 text-xl md:text-3xl font-bold">
-        Comments
+        {% translate "Comments" %}
     </div>
     {% if site.comment_system == "waline" %}
         <div id="waline"></div>
+        {{ site.comment_options|json_script:"comment-provider-options" }}
         <script data-swup-reload-script>
             function loadWaline() {
                 import("{% static 'js/libs/waline.mjs' %}").then(function (module) {
+                    const optionsElement = document.getElementById("comment-provider-options");
+                    const options = optionsElement ? JSON.parse(optionsElement.textContent) : {};
                     module.init({
+                        ...options,
                         el: "#waline",
-                        serverURL: "{{ site.comment_options.serverUrl }}",
-                        lang: "{{ site.comment_options.lang|default:'zh-CN' }}",
+                        serverURL: options.serverUrl || options.serverURL,
+                        requiredMeta: ["nick", "mail"],
                         dark: "body[class~='dark-mode']"
                     });
                 }).catch(function (error) {
@@ -30,29 +34,39 @@
         {% include "components/comments/internal.html" %}
     {% elif site.comment_system == "gitalk" %}
         <div id="gitalk-container"></div>
+        {{ site.comment_options|json_script:"comment-provider-options" }}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js" data-swup-reload-script></script>
         <script data-swup-reload-script>
             function loadGitalk() {
                 if (!window.Gitalk) return;
+                const optionsElement = document.getElementById("comment-provider-options");
+                const options = optionsElement ? JSON.parse(optionsElement.textContent) : {};
+                let pathname = decodeURI(location.pathname);
+                if (pathname.length > 50) pathname = pathname.substring(0, 47) + "...";
                 new Gitalk({
-                    clientID: "{{ site.comment_options.clientID }}",
-                    clientSecret: "{{ site.comment_options.clientSecret }}",
-                    repo: "{{ site.comment_options.repo }}",
-                    owner: "{{ site.comment_options.owner }}",
-                    admin: ["{{ site.comment_options.owner }}"],
-                    id: location.pathname.slice(0, 50)
+                    ...options,
+                    admin: [options.owner],
+                    id: pathname,
+                    language: window.config?.language || "en",
+                    proxy: options.proxy || "https://github.com/login/oauth/access_token"
                 }).render("gitalk-container");
             }
             window.setTimeout(loadGitalk, 0);
         </script>
     {% elif site.comment_system == "twikoo" %}
         <div class="twikoo-container">
-            <script src="https://cdn.jsdelivr.net/npm/twikoo@1.6.44/dist/twikoo.all.min.js" data-swup-reload-script></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/twikoo/{{ site.comment_options.version|default:'1.6.44' }}/twikoo.all.min.js" data-swup-reload-script></script>
             <div id="twikoo-comment"></div>
+            {{ site.comment_options|json_script:"comment-provider-options" }}
             <script data-swup-reload-script>
                 window.setTimeout(function () {
-                    if (window.twikoo) twikoo.init({ el: "#twikoo-comment", envId: "{{ site.comment_options.server_url }}" });
+                    if (!window.twikoo) return;
+                    const optionsElement = document.getElementById("comment-provider-options");
+                    const options = optionsElement ? JSON.parse(optionsElement.textContent) : {};
+                    const config = { el: "#twikoo-comment", envId: options.server_url };
+                    if (options.region) config.region = options.region;
+                    twikoo.init(config);
                 }, 0);
             </script>
         </div>
@@ -66,7 +80,8 @@
                 data-mapping="{{ site.comment_options.mapping|default:'pathname' }}"
                 data-strict="{{ site.comment_options.strict|default:'0' }}"
                 data-reactions-enabled="{{ site.comment_options.reactions_enabled|default:'1' }}"
-                data-emit-metadata="{{ site.comment_options.emit_metadata|default:'0' }}"
+                data-emit-metadata="{{ site.comment_options.emit_metadata|default:'1' }}"
+                data-theme="preferred_color_scheme"
                 data-lang="{{ site.comment_options.lang|default:'en' }}"
                 data-input-position="{{ site.comment_options.input_position|default:'bottom' }}"
                 data-loading="{{ site.comment_options.loading|default:'lazy' }}"

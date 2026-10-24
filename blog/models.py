@@ -10,6 +10,7 @@ from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.dateformat import format as django_date_format
 from django.utils.html import format_html, strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify, Truncator
@@ -36,14 +37,14 @@ class SiteConfiguration(models.Model):
 
 
     site_name = models.CharField(
-        _("site name"), max_length=200, default="Theme Redefine"
+        _("site name"), max_length=200, default="Django Redefine"
     )
     site_subname = models.CharField(
         _("site info subtitle"),
         max_length=200,
         blank=True,
         null=True,
-        default="Redefine Your Hexo Journey.",
+        default="Redefine Your Django Journey.",
     )
     site_author = models.CharField(
         _("site author"), max_length=100, default="The Redefine Team"
@@ -83,6 +84,10 @@ class SiteConfiguration(models.Model):
     # split bar and percentage visibility, matching Redefine's two progress controls
     reading_bar_enabled = models.BooleanField(default=False)
     reading_bar_percentage = models.BooleanField(default=True)
+    website_counter_enabled = models.BooleanField(default=True)
+    website_counter_site_pv = models.BooleanField(default=True)
+    website_counter_site_uv = models.BooleanField(default=True)
+    website_counter_post_pv = models.BooleanField(default=True)
 
     swup_enabled = models.BooleanField(default=True)
 
@@ -93,11 +98,11 @@ class SiteConfiguration(models.Model):
         max_length=200,
         blank=True,
         null=True,
-        default="Hexo Theme Redefine, Redefine Your Hexo Journey.",
+        default="Django Redefine, Redefine Your Django Journey.",
     )
 
     preloader_enabled = models.BooleanField(default=False)
-    preloader_message = models.CharField(max_length=100, default="Loading...")
+    preloader_message = models.CharField(max_length=100, blank=True, default="")
 
     # preserve Redefine's compact side-tool behavior as reader-facing switches
     sidetools_gear_rotation = models.BooleanField(default=True)
@@ -117,7 +122,7 @@ class SiteConfiguration(models.Model):
     )
     light_image = models.FileField(upload_to="banner/", blank=True, null=True, validators=[validate_theme_image])
     dark_image = models.FileField(upload_to="banner/", blank=True, null=True, validators=[validate_theme_image])
-    hb_title = models.CharField(max_length=100, default="Theme Redefine")
+    hb_title = models.CharField(max_length=100, default="Django Redefine")
     subtitle_enabled = models.BooleanField(default=False)
     subtitle_text = models.JSONField(default=list, blank=True)
     st_hitokoto_enable = models.BooleanField(default=False)
@@ -214,14 +219,11 @@ class SiteConfiguration(models.Model):
     )
     article_dateformat = models.CharField(
         max_length=50,
-        choices=[
-            ("auto", "Auto"),
-            ("relative", "Relative"),
-            ("YYYY-MM-DD", "YYYY-MM-DD"),
-            ("YYYY-MM-DD HH:mm:ss", "YYYY-MM-DD HH:mm:ss"),
-            ("MMM D, YYYY", "MMM D, YYYY"),
-        ],
         default="auto",
+        help_text=(
+            "Use auto, relative, or a Moment.js-style format such as "
+            "YYYY-MM-DD, YYYY/MM/DD HH:mm, or MMM D, YYYY."
+        ),
     )
     article_excerpt_length = models.PositiveIntegerField(default=200)
     article_categories_enabled = models.BooleanField(default=True)
@@ -490,6 +492,21 @@ class SiteConfiguration(models.Model):
         """Return links assigned to the sidebar."""
         return self.links.filter(link_location='sidebar').order_by('order')
 
+    @property
+    def mobile_sidebar_links(self):
+        """Avoid repeating links already present in the mobile navbar."""
+        navbar = self.links.filter(
+            link_location='navbar', parent__isnull=True
+        )
+        navbar_urls = set(navbar.values_list('url', flat=True))
+        navbar_names = {
+            name.casefold() for name in navbar.values_list('name', flat=True)
+        }
+        return [
+            link for link in self.sidebar_links
+            if link.url not in navbar_urls and link.name.casefold() not in navbar_names
+        ]
+
     @classmethod
     def get_config(cls):
         site = cache.get(CACHE_KEY)
@@ -539,8 +556,8 @@ class SiteConfiguration(models.Model):
             "text_title_size": (0.5, 10),
             "text_subtitle_size": (0.5, 10),
             "text_line_height": (1, 5),
-            "article_categories_limit": (1, 100),
-            "article_tags_limit": (1, 100),
+            "article_categories_limit": (0, 100),
+            "article_tags_limit": (0, 100),
             "recommendation_limit": (1, 100),
             "recommendation_mobile_limit": (1, 100),
         }
@@ -583,7 +600,7 @@ class SiteConfiguration(models.Model):
 
         if not obj:
             obj = cls.objects.create(
-                config_name="Default Config", site_name="My Site", is_active=True
+                config_name="Default Config", is_active=True
             )
         return obj
 
@@ -1023,7 +1040,9 @@ class ArticleModel(models.Model):
 
     def _categories_meta(self, site, *, limited):
         categories_display = []
-        if not getattr(site, 'article_categories_enabled', True):
+        # These are home-card switches. Article pages always show their full
+        # metadata, as Redefine 2.8.5 does.
+        if limited and not getattr(site, 'article_categories_enabled', True):
             return categories_display
 
         previous_parent_id = object()
@@ -1042,7 +1061,7 @@ class ArticleModel(models.Model):
 
     def _tags_meta(self, site, *, limited):
         tags_display = []
-        if not getattr(site, 'article_tags_enabled', True):
+        if limited and not getattr(site, 'article_tags_enabled', True):
             return tags_display
 
         tags_limit = getattr(site, 'article_tags_limit', 0) if limited else 0
@@ -1062,22 +1081,15 @@ class ArticleModel(models.Model):
 
         date_format = getattr(site, 'article_dateformat', 'auto')
         local_time = localtime(self.created_at)
-        if date_format in ('auto', 'relative'):
+        if date_format == 'relative':
             home_date = gettext("%(elapsed)s ago") % {
                 "elapsed": timesince(local_time)
             }
         else:
-            # these values come from the old Moment.js setting
-            python_formats = {
-                'YYYY-MM-DD': '%Y-%m-%d',
-                'YYYY-MM-DD HH:mm:ss': '%Y-%m-%d %H:%M:%S',
-                'MMM D, YYYY': '%b %d, %Y',
-            }
-            home_date = local_time.strftime(
-                python_formats.get(date_format, '%Y-%m-%d')
+            home_date = self._format_moment_datetime(
+                local_time,
+                'YYYY-MM-DD' if date_format == 'auto' else date_format,
             )
-            if date_format == 'MMM D, YYYY':
-                home_date = home_date.replace(' 0', ' ')
 
         return {
             'title': self.title,
@@ -1089,6 +1101,47 @@ class ArticleModel(models.Model):
             'auto_excerpt': self.auto_excerpt,
             'sticky': self.sticky,
         }
+
+    @staticmethod
+    def _format_moment_datetime(value, pattern):
+        """Render the Moment.js tokens accepted by Redefine's date option."""
+        hour12 = value.hour % 12 or 12
+        offset = value.strftime("%z")
+        tokens = {
+            "YYYY": f"{value.year:04d}",
+            "YY": f"{value.year % 100:02d}",
+            "MMMM": django_date_format(value, "F"),
+            "MMM": django_date_format(value, "M"),
+            "MM": f"{value.month:02d}",
+            "M": str(value.month),
+            "DD": f"{value.day:02d}",
+            "D": str(value.day),
+            "dddd": django_date_format(value, "l"),
+            "ddd": django_date_format(value, "D"),
+            "HH": f"{value.hour:02d}",
+            "H": str(value.hour),
+            "hh": f"{hour12:02d}",
+            "h": str(hour12),
+            "mm": f"{value.minute:02d}",
+            "m": str(value.minute),
+            "ss": f"{value.second:02d}",
+            "s": str(value.second),
+            "A": "AM" if value.hour < 12 else "PM",
+            "a": "am" if value.hour < 12 else "pm",
+            "ZZ": offset,
+            "Z": f"{offset[:3]}:{offset[3:]}" if offset else "",
+        }
+        token_pattern = re.compile(
+            r"\[[^\]]*\]|YYYY|MMMM|dddd|MMM|ddd|YY|MM|DD|HH|hh|mm|ss|ZZ|M|D|H|h|m|s|A|a|Z"
+        )
+
+        def replace_token(match):
+            token = match.group(0)
+            if token.startswith("["):
+                return token[1:-1]
+            return tokens[token]
+
+        return token_pattern.sub(replace_token, pattern or "YYYY-MM-DD")
 
     @cached_property
     def detail_meta(self):
@@ -1200,15 +1253,71 @@ class ArticleModel(models.Model):
 
     @property
     def thumbnail_url(self):
+        """Image used by home cards and recommendation tiles.
+
+        Redefine 2.8.5 deliberately gives ``thumbnail`` first priority on
+        listing pages, then falls back to ``cover`` and ``banner``.
+        """
         for img in (self.thumbnail, self.cover, self.banner):
             if img:
                 return img.url
         return None
 
+    @property
+    def article_cover_url(self):
+        """Image used behind the title on an article page.
+
+        This order differs from the home card in upstream Redefine: an
+        explicit cover wins, followed by banner and finally thumbnail.
+        """
+        for img in (self.cover, self.banner, self.thumbnail):
+            if img:
+                return img.url
+        return None
+
+    @staticmethod
+    def _format_article_datetime(value):
+        if not value:
+            return ""
+        rendered = localtime(value).strftime("%Y-%m-%d %H:%M:%S")
+        if rendered.endswith(" 00:00:00"):
+            return rendered[:-9]
+        if rendered.endswith(":00"):
+            return rendered[:-3]
+        return rendered
+
+    @property
+    def created_at_display(self):
+        return self._format_article_datetime(self.created_at)
+
+    @property
+    def updated_at_display(self):
+        return self._format_article_datetime(self.updated_at)
+
+    @property
+    def has_meaningful_update(self):
+        """Avoid showing a duplicate update time immediately after creation."""
+        if not self.updated_at or not self.created_at:
+            return False
+        return abs((self.updated_at - self.created_at).total_seconds()) >= 1
+
     @cached_property
     def auto_excerpt(self):
         if self.excerpt:
-            return self.excerpt
+            # Redefine renders a manually supplied excerpt as Markdown.
+            # Otherwise syntax such as emphasis and links leaks into the home
+            # card as literal punctuation.
+            site = SiteConfiguration.get_config()
+            md = Markdown(
+                extensions=get_extensions(site),
+                extension_configs={
+                    "markdown.extensions.toc": {
+                        "toc_depth": f"1-{getattr(site, 'toc_max_depth', 3)}",
+                        "slugify": slugify,
+                    }
+                },
+            )
+            return mark_safe(md.convert(self.excerpt))
         site = SiteConfiguration.get_config()
         length = getattr(site, "article_excerpt_length", 200)
         # code blocks make poor excerpts and may include copied toolbar text

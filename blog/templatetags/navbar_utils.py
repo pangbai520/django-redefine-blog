@@ -1,6 +1,26 @@
 from django import template
+from django.utils.translation import gettext_lazy
 
 register = template.Library()
+
+THEME_LABELS = {
+    "home": gettext_lazy("Home"),
+    "archives": gettext_lazy("Archives"),
+    "categories": gettext_lazy("Categories"),
+    "tags": gettext_lazy("Tags"),
+    "friends": gettext_lazy("Friends"),
+    "bookmarks": gettext_lazy("Bookmarks"),
+    "essays": gettext_lazy("Essays"),
+    "masonry": gettext_lazy("Masonry"),
+    "more": gettext_lazy("More"),
+    "admin": gettext_lazy("Admin"),
+}
+
+
+@register.filter
+def theme_label(value):
+    """Translate Redefine's standard labels without changing custom names."""
+    return THEME_LABELS.get(str(value).casefold(), value)
 
 @register.filter
 def is_active(nav_link, request):

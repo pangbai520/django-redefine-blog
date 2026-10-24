@@ -610,3 +610,29 @@ msgstr "更新时间"
 
 msgid "writer"
 msgstr "作者"
+msgid "Home"
+msgstr "首页"
+
+msgid "Archives"
+msgstr "归档"
+
+msgid "Friends"
+msgstr "友情链接"
+
+msgid "Bookmarks"
+msgstr "书签"
+
+msgid "Essays"
+msgstr "随笔"
+
+msgid "Masonry"
+msgstr "照片墙"
+
+msgid "More"
+msgstr "更多"
+
+msgid "Admin"
+msgstr "管理后台"
+
+msgid "Sticky"
+msgstr "置顶"

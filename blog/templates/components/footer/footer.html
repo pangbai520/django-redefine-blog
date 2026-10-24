@@ -9,7 +9,7 @@
             {% if site.footer_sitestart %}{{ site.footer_sitestart|date:"Y" }} - {% endif %}{% now "Y" %}
             {{ site.footer_icon|safe }} <a href="/">{{ site.site_author }}</a>
 
-            {% if articles_count %}
+            {% if site.footer_statistics %}
                 <p class="post-count space-x-0.5">
                     <span>{% blocktranslate with counter=articles_count %}{{ counter }} posts in total{% endblocktranslate %}</span>
                     {% if total_words %}
@@ -18,18 +18,20 @@
                 </p>
             {% endif %}
         </div>
-        {% if site.footer_statistics %}
+        {% if site.website_counter_enabled %}
             <div class="relative text-center lg:absolute lg:right-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-right">
-                {# keep UV and PV separate, so future counter switches can hide either metric #}
+                {% if site.website_counter_site_uv %}
                 <span class="lg:!block">
                     <span class="text-sm">{% translate "VISITOR COUNT" %}</span>
                     <span class="font-bold">{{ site_uv|default:0 }}</span>
                 </span>
-
+                {% endif %}
+                {% if site.website_counter_site_pv %}
                 <span class="lg:!block">
                     <span class="text-sm">{% translate "TOTAL PAGE VIEWS" %}</span>
                     <span class="font-bold">{{ site_pv|default:0 }}</span>
                 </span>
+                {% endif %}
             </div>
         {% endif %}
         <div class="relative text-center lg:absolute lg:left-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-left">

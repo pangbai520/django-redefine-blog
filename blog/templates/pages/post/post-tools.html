@@ -8,7 +8,7 @@
         {% endif %}
 
 		<!-- target the provider-neutral anchor, so every comment system uses the same action -->
-        {% if site.comment_enabled and article.show_comment %}
+        {% if site.comment_enabled and article.show_comment and comment_system_configured %}
         <li class="go-comment">
 			<i class="fa-regular fa-comments"></i>
 		</li>

@@ -610,3 +610,29 @@ msgstr "更新日時"
 
 msgid "writer"
 msgstr "執筆者"
+msgid "Home"
+msgstr "ホーム"
+
+msgid "Archives"
+msgstr "アーカイブ"
+
+msgid "Friends"
+msgstr "友達リンク"
+
+msgid "Bookmarks"
+msgstr "ブックマーク"
+
+msgid "Essays"
+msgstr "エッセイ"
+
+msgid "Masonry"
+msgstr "ギャラリー"
+
+msgid "More"
+msgstr "その他"
+
+msgid "Admin"
+msgstr "管理"
+
+msgid "Sticky"
+msgstr "固定"

@@ -9,6 +9,9 @@ export const navigationState = {
   isNavigating: false,
 };
 
+export const isHomeFirstPage = () =>
+  document.querySelector("#swup")?.dataset.homeFirstPage === "true";
+
 export default function initUtils() {
   utilsController?.abort();
   utilsController = new AbortController();
@@ -134,7 +137,7 @@ export default function initUtils() {
 
       if (
         window.theme?.home_banner?.style === "fixed" &&
-        location.pathname === config.root
+        isHomeFirstPage()
       ) {
         const scrollY = window.scrollY || window.pageYOffset;
         const blurValue = scrollY >= this.triggerViewHeight ? 15 : 0;
@@ -162,7 +165,7 @@ export default function initUtils() {
       for (let i = 0; i < toolList.length; i++) {
         const tools = toolList[i];
         if (y <= 100) {
-          if (location.pathname === config.root) {
+          if (isHomeFirstPage()) {
             tools.classList.add("hide");
             if (aplayer !== null) {
               aplayer.classList.add("hide");

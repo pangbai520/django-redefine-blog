@@ -73,6 +73,22 @@
     .markdown-body h5, .markdown-body .h5 { margin-top: {{ ARTICLE_HEADINGS_TOP_SPACING.h5|default:'1.4rem' }}; }
     .markdown-body h6, .markdown-body .h6 { margin-top: {{ ARTICLE_HEADINGS_TOP_SPACING.h6|default:'1.3rem' }}; }
 
+    {% if site.tags_page_style == "cloud" %}
+    .tagcloud-content > a {
+        display: inline-block;
+        box-sizing: border-box;
+        padding: 0.7rem 0.5rem;
+        line-height: 0.7;
+    }
+    @media (max-width: 640px) {
+        .page-template-container {
+            padding: 1.2rem 0.2rem;
+            box-shadow: none;
+        }
+        .page-template-container:hover { box-shadow: none; }
+    }
+    {% endif %}
+
     {% if not site.effect_hover_shadow %}
     :root {
         --redefine-box-shadow-hover: var(--redefine-box-shadow);

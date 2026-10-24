@@ -1,3 +1,5 @@
+{% load pagination_utils %}
+{% redefine_page_range articles_page as page_range %}
 <div class="paginator">
     {% if articles_page.has_previous %}
         <a class="extend prev" rel="prev" href="?page={{ articles_page.previous_page_number }}">
@@ -5,8 +7,10 @@
         </a>
     {% endif %}
 
-    {% for num in articles_page.paginator.page_range %}
-        {% if num == articles_page.number %}
+    {% for num in page_range %}
+        {% if num == articles_page.paginator.ELLIPSIS %}
+            <span class="space">&hellip;</span>
+        {% elif num == articles_page.number %}
             <span class="page-number current">{{ num }}</span>
         {% else %}
             <a class="page-number" href="?page={{ num }}">{{ num }}</a>

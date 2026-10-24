@@ -19,6 +19,7 @@ from core.markdown.extensions import get_extensions
 from markdown import Markdown
 from django.utils.safestring import mark_safe
 from django.utils import timezone
+from django.utils.translation import gettext as _
 import re
 
 from .cache_utils import versioned_cache_page
@@ -29,7 +30,7 @@ from .search import search_articles
 def page_not_found(request, exception):
     """Render Redefine's 404 page instead of Django's generic response."""
     return render(request, "404.html", {
-        "page_title": "Page Not Found",
+        "page_title": _("Page Not Found"),
         "is_homepage": False,
         "has_header": True,
     }, status=404)
@@ -126,7 +127,7 @@ def archives(request):
 
     context = {
         # render the complete archive on one page, matching Hexo's archive helper
-        "page_title": "Archives",
+        "page_title": _("Archives"),
         "articles_page": articles_qs,
         "is_homepage": False,
         "has_header": True,
@@ -175,7 +176,7 @@ def categories(request):
         "is_homepage": False,
         "is_paginated": False,
         "has_header": True,
-        "page_title": "Categories",
+        "page_title": _("Categories"),
         'categories': categories,
         'category_tree': category_tree,
     }
@@ -207,7 +208,8 @@ def categories_detail(request, slug):
 @versioned_cache_page("content", timeout=10 * 60)
 def tags(request):
     now = timezone.now()
-    tags = (
+    site = SiteConfiguration.get_config()
+    tags = list(
         Tag.objects
         .annotate(
             post_count=Count(
@@ -221,6 +223,11 @@ def tags(request):
         .filter(post_count__gt=0)
         .order_by('-post_count', 'name')
     )
+
+    # Hexo's tagcloud helper caps cloud mode at 100 entries.  The blur list
+    # deliberately remains complete.
+    if site.tags_page_style == "cloud":
+        tags = tags[:100]
 
     if tags:
         # normalize tag counts first, so the smallest and largest cloud labels stay bounded
@@ -238,7 +245,7 @@ def tags(request):
 
     context = {
         "tags": tags,
-        "page_title": "Tags",
+        "page_title": _("Tags"),
         "is_paginated": False,
         "has_header": True,
     }
@@ -291,7 +298,7 @@ def bookmarks(request):
         used_anchors.add(anchor)
         category.anchor_id = anchor
     return render(request, "pages/bookmarks/bookmarks.html", {
-        "page_title": "Bookmarks",
+        "page_title": _("Bookmarks"),
         "categories": categories,
         "is_homepage": False,
         "has_header": True,
@@ -315,7 +322,7 @@ def essays(request):
         })
 
     return render(request, "pages/essays/essays.html", {
-        "page_title": "Essays",
+        "page_title": _("Essays"),
         "essays": entries,
         "is_homepage": False,
         "has_header": True,
@@ -329,7 +336,7 @@ def masonry(request):
 
     images = MasonryImage.objects.filter(config=site)
     return render(request, "pages/masonry/masonry.html", {
-        "page_title": "Masonry",
+        "page_title": _("Masonry"),
         "images": images,
         "is_homepage": False,
         "has_header": True,
@@ -339,7 +346,7 @@ def masonry(request):
 def friends(request):
     categories = FriendCategory.objects.prefetch_related("links")
     return render(request, "pages/friends/friends.html", {
-        "page_title": "Friends",
+        "page_title": _("Friends"),
         "categories": categories,
         "is_homepage": False,
         "has_header": True,
