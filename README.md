@@ -63,9 +63,16 @@ python manage.py runserver
 The blog is now available at `http://127.0.0.1:8000/`; Django Admin is at
 `http://127.0.0.1:8000/admin/`.
 
-The first migration installs a starter configuration and article so that a new
-checkout is not an empty page. Both can be changed or removed from the admin.
-Development uses SQLite and writes email to the terminal.
+A new database has no demo content. Set up the site from Django Admin, or create
+the optional demo first:
+
+```bash
+python manage.py create_demo
+```
+
+The command creates the demo navigation, Hello World post, categories, tags and
+comment presets. It does not replace an existing site configuration. Development
+uses SQLite and writes email to the terminal.
 
 ## Deployment
 

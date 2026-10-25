@@ -60,15 +60,12 @@ volumes up before removing the stack.
 
 ## Demo content
 
-The starter article is created automatically. To add three more sample posts
-for testing archive, category and tag pages:
+To create the same sample content used by the demo site, create a superuser and
+then run:
 
 ```bash
-python manage.py create_demo_data
+python manage.py create_demo
 ```
-
-`python manage.py create_demo_data --clear` removes only posts created by this
-command.
 
 ## Languages
 

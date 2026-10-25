@@ -11,6 +11,7 @@ from .models import (
     MenuLink,
     SiteConfiguration,
     Tag,
+    UserProfile,
 )
 
 
@@ -49,7 +50,17 @@ MENU_DEFAULTS = (
     {"link_location": "navbar", "name": "Archives", "url": "/archives", "icon": "fa-regular fa-archive", "order": 5},
     {"link_location": "navbar", "name": "More", "url": "#", "icon": "fa-regular fa-link", "order": 12},
     {"link_location": "navbar", "name": "Redefine", "url": "https://redefine.ohevan.com/", "order": 13, "parent": "More"},
+    {"link_location": "navbar", "name": "Admin", "url": "/admin/", "order": 14, "parent": "More"},
     {"link_location": "social", "name": "Github", "url": "https://github.com", "order": 16},
+)
+
+DEMO_TAGS = (
+    ("Demo", "demo"),
+    ("First Post", "first-post"),
+    ("Hello World", "hello-world"),
+    ("Django", "django"),
+    ("Django Blog", "django-blog"),
+    ("Django Redefine", "django-redefine"),
 )
 
 HELLO_WORLD_CONTENT = """Welcome to [Django](https://www.djangoproject.com/)! This is your very first post. Check [documentation](https://docs.djangoproject.com/) for more info. If you get any problems when using Django, you may find the answer in [Stack Overflow](https://stackoverflow.com/questions/tagged/django) or you can ask on [GitHub](https://github.com/django/django/issues).
@@ -96,8 +107,8 @@ Deployment varies by platform. See Django's [deployment checklist](https://docs.
 
 
 @transaction.atomic
-def install_starter_content(update_existing=False):
-    """Install a useful public starting point without importing owner data."""
+def create_demo_content(*, owner, update_existing=False):
+    """Install the optional public demo without importing owner data."""
     site = SiteConfiguration.objects.filter(is_active=True).first()
     if site is None:
         site = SiteConfiguration.objects.first()
@@ -116,6 +127,11 @@ def install_starter_content(update_existing=False):
         site.is_active = True
         site.save()
 
+    profile, _ = UserProfile.objects.get_or_create(user=owner)
+    if profile.display_name != "The Redefine Team":
+        profile.display_name = "The Redefine Team"
+        profile.save(update_fields=("display_name",))
+
     parents = {}
     for item in MENU_DEFAULTS:
         values = dict(item)
@@ -130,19 +146,37 @@ def install_starter_content(update_existing=False):
         )
         parents[link.name] = link
 
-    Category.objects.get_or_create(name="Category", defaults={"slug": "category"})
-    Tag.objects.get_or_create(name="Tag", defaults={"slug": "tag"})
-    if not ArticleModel.objects.exists():
-        ArticleModel.objects.create(
+    start, _ = Category.objects.get_or_create(
+        slug="start",
+        defaults={"name": "Start"},
+    )
+    run, _ = Category.objects.get_or_create(
+        slug="run",
+        defaults={"name": "Run", "parent": start},
+    )
+    if run.parent_id != start.pk:
+        run.parent = start
+        run.save(update_fields=("parent",))
+
+    tags = [
+        Tag.objects.get_or_create(slug=slug, defaults={"name": name})[0]
+        for name, slug in DEMO_TAGS
+    ]
+    article = ArticleModel.objects.filter(slug="hello-world").first()
+    if article is None:
+        article = ArticleModel.objects.create(
             title="Hello World",
             slug="hello-world",
             content=HELLO_WORLD_CONTENT,
+            writer="The Redefine Team",
             is_published=True,
             created_at=django_timezone.make_aware(
                 datetime(1900, 1, 1, 0, 0),
                 django_timezone.get_default_timezone(),
             ),
         )
+    article.category.set([run])
+    article.tags.set(tags)
 
     CommentBadge.objects.update_or_create(
         config=site,

@@ -37,7 +37,7 @@ pinned on each article. Comment deletion and pinning use Django's normal model
 permissions, so a staff account does not automatically receive every moderation
 action.
 
-The **Blogger** badge is created with the starter configuration and is assigned
+The **Blogger** badge is created with the optional demo configuration and is assigned
 to superusers automatically. Badge colours may either follow the active theme
 or use an explicit colour.
 

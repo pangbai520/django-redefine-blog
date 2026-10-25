@@ -215,7 +215,6 @@ STATIC_ROOT = Path(os.getenv("STATIC_ROOT", BASE_DIR / "staticfiles"))
 
 MEDIA_URL = "/resources/"
 MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT", BASE_DIR / "blog" / "resources"))
-INSTALL_STARTER_CONTENT = env_bool("INSTALL_STARTER_CONTENT", True)
 BLOG_EXTENSION_MODULES = env_list("BLOG_EXTENSION_MODULES")
 
 # bound request bodies before application code runs, then apply stricter image

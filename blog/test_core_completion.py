@@ -26,7 +26,6 @@ from .models import (
     MenuLink,
     SiteConfiguration,
 )
-from .starter_content import install_starter_content
 from .validators import validate_theme_image
 
 
@@ -178,16 +177,35 @@ class ThemeImageValidationTests(TestCase):
             validate_theme_image(upload)
 
 
-class StarterContentTests(TransactionTestCase):
+class DemoContentTests(TransactionTestCase):
     reset_sequences = True
 
-    def test_installer_creates_public_defaults_without_user_assignments(self):
+    def test_create_demo_requires_a_superuser(self):
         SiteConfiguration.objects.all().delete()
-        installed = install_starter_content()
+
+        with self.assertRaisesMessage(
+            CommandError,
+            "python manage.py createsuperuser",
+        ):
+            call_command("create_demo", stdout=StringIO())
+
+        self.assertFalse(SiteConfiguration.objects.exists())
+        self.assertFalse(ArticleModel.objects.exists())
+
+    def test_create_demo_command_creates_the_public_demo(self):
+        SiteConfiguration.objects.all().delete()
+        User.objects.create_superuser(
+            username="owner",
+            email="owner@example.com",
+            password="not-a-demo-password",
+        )
+        output = StringIO()
+        call_command("create_demo", stdout=output)
 
         site = SiteConfiguration.objects.get(is_active=True)
-        self.assertTrue(installed)
+        self.assertIn("Demo site created.", output.getvalue())
         self.assertEqual(site.site_name, "Django Redefine")
+        self.assertEqual(User.objects.get(username="owner").profile.display_name, "The Redefine Team")
         self.assertFalse(site.site_avatar)
         self.assertFalse(site.site_logo)
         article = ArticleModel.objects.get(slug="hello-world")
@@ -195,14 +213,52 @@ class StarterContentTests(TransactionTestCase):
             timezone.localtime(article.created_at).strftime("%Y-%m-%d %H:%M:%S"),
             "1900-01-01 00:00:00",
         )
+        self.assertEqual(
+            list(article.category.values_list("slug", flat=True)),
+            ["run"],
+        )
+        self.assertEqual(article.category.get().parent.slug, "start")
+        self.assertEqual(
+            set(article.tags.values_list("slug", flat=True)),
+            {
+                "demo",
+                "first-post",
+                "hello-world",
+                "django",
+                "django-blog",
+                "django-redefine",
+            },
+        )
         self.assertTrue(MenuLink.objects.filter(config=site, name="Home").exists())
+        self.assertTrue(MenuLink.objects.filter(config=site, name="Admin").exists())
         badge = CommentBadge.objects.get(config=site, name="博主")
         self.assertEqual(badge.color, "")
-        self.assertFalse(CommentBadgeAssignment.objects.exists())
+        self.assertTrue(CommentBadgeAssignment.objects.filter(user__username="owner").exists())
         self.assertEqual(
             list(CommentEmojiPack.objects.filter(config=site).values_list("name", flat=True)),
             ["bilibili"],
         )
+
+    def test_create_demo_command_does_not_replace_an_existing_site(self):
+        SiteConfiguration.objects.all().delete()
+        User.objects.create_superuser(
+            username="owner",
+            email="owner@example.com",
+            password="not-a-demo-password",
+        )
+        SiteConfiguration.objects.create(
+            config_name="Existing",
+            site_name="Existing Blog",
+            is_active=True,
+        )
+        output = StringIO()
+
+        call_command("create_demo", stdout=output)
+
+        self.assertEqual(SiteConfiguration.objects.count(), 1)
+        self.assertEqual(SiteConfiguration.objects.get().site_name, "Existing Blog")
+        self.assertFalse(ArticleModel.objects.exists())
+        self.assertIn("nothing changed", output.getvalue())
 
 
 class PortableDataTests(TransactionTestCase):

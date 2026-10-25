@@ -1,5 +1,4 @@
 import ast
-from io import StringIO
 from gettext import GNUTranslations
 from pathlib import Path
 import re
@@ -7,7 +6,6 @@ from unittest.mock import Mock
 
 from django.core.cache import cache
 from django.conf import settings
-from django.core.management import call_command
 from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.test import TestCase, override_settings
@@ -82,33 +80,6 @@ class ArticleLifecycleSignalTests(TestCase):
             article_published.disconnect(published)
             article_unpublished.disconnect(unpublished)
             article_deleted.disconnect(deleted)
-
-
-class DemoDataCommandTests(TestCase):
-    def test_command_is_repeatable_and_keeps_taxonomy_relationships(self):
-        call_command("create_demo_data", stdout=StringIO())
-        call_command("create_demo_data", stdout=StringIO())
-
-        articles = ArticleModel.objects.filter(slug__startswith="redefine-demo-")
-        self.assertEqual(articles.count(), 3)
-        for article in articles:
-            self.assertTrue(article.is_published)
-            self.assertEqual(list(article.category.values_list("slug", flat=True)), ["getting-started"])
-            self.assertEqual(list(article.tags.values_list("slug", flat=True)), ["demo"])
-
-    def test_clear_removes_only_command_owned_articles(self):
-        user_article = ArticleModel.objects.create(
-            title="Keep me", slug="keep-me", content="User content"
-        )
-        call_command("create_demo_data", stdout=StringIO())
-        self.assertEqual(
-            ArticleModel.objects.filter(slug__startswith="redefine-demo-").count(), 3
-        )
-        call_command("create_demo_data", "--clear", stdout=StringIO())
-        self.assertTrue(ArticleModel.objects.filter(pk=user_article.pk).exists())
-        self.assertFalse(
-            ArticleModel.objects.filter(slug__startswith="redefine-demo-").exists()
-        )
 
 
 class LanguageSwitchTests(TestCase):
