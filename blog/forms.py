@@ -37,7 +37,11 @@ class CommentRegistrationForm(forms.Form):
         password = cleaned.get("password")
         if password:
             try:
-                validate_password(password)
+                candidate = User(
+                    username=cleaned.get("username", ""),
+                    email=cleaned.get("email", ""),
+                )
+                validate_password(password, user=candidate)
             except forms.ValidationError as exc:
                 self.add_error("password", exc)
         if password and cleaned.get("password_confirm") and password != cleaned["password_confirm"]:

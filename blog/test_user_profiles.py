@@ -14,6 +14,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from .cache_utils import cache_version
 from .models import ArticleModel, Comment, SiteConfiguration, UserProfile
 
 
@@ -468,6 +469,28 @@ class UserProfileTests(TestCase):
             self.assertContains(response, "Blog Owner")
             self.assertContains(response, owner.profile.avatar.url)
 
+    def test_owner_profile_invalidates_public_content_and_license_author(self):
+        owner = User.objects.create_superuser(
+            "license-owner",
+            email="owner@example.com",
+            password=self.password,
+        )
+        article = ArticleModel.objects.create(
+            title="Reserved article",
+            slug="reserved-article",
+            content="Content",
+            is_published=True,
+        )
+        self.site.copyright_type = "all_rights_reserved"
+        self.site.save(update_fields=("copyright_type",))
+        before = cache_version("content")
+
+        owner.profile.display_name = "Named Blog Owner"
+        owner.profile.save(update_fields=("display_name",))
+
+        self.assertGreater(cache_version("content"), before)
+        self.assertIn("Named Blog Owner", str(article.licence_label))
+
     def test_article_author_override_still_wins_over_the_owner_profile(self):
         owner = User.objects.create_superuser(
             "owner",
@@ -534,6 +557,48 @@ class UserProfileTests(TestCase):
         follow_up = self.client.get(response.url)
         self.assertTrue(follow_up.wsgi_request.user.is_authenticated)
         self.assertContains(follow_up, "Password updated")
+
+    def test_oauth_style_account_can_set_its_first_password(self):
+        self.user.set_unusable_password()
+        self.user.save(update_fields=("password",))
+        self.client.force_login(self.user)
+        new_password = "first-local-password-for-tests"
+
+        page = self.client.get(reverse("comment_profile"))
+        response = self.client.post(
+            reverse("comment_profile"),
+            {
+                "action": "password",
+                "new_password1": new_password,
+                "new_password2": new_password,
+            },
+        )
+
+        self.assertContains(page, "Set password")
+        self.assertNotContains(page, 'class="profile-form profile-email-form"')
+        self.assertRedirects(response, reverse("comment_profile") + "?password=updated")
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(new_password))
+        self.assertTrue(self.client.get(reverse("comment_profile")).wsgi_request.user.is_authenticated)
+
+    def test_oauth_style_account_cannot_change_email_without_a_password(self):
+        self.user.set_unusable_password()
+        self.user.save(update_fields=("password",))
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("comment_profile"),
+            {"action": "email", "email": "new-reader@example.com"},
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertContains(
+            response,
+            "Set a password before changing your email address.",
+            status_code=400,
+        )
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, "reader@example.com")
 
     def test_profile_back_button_returns_to_the_source_comment_section(self):
         self.client.force_login(self.user)

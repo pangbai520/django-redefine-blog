@@ -106,6 +106,19 @@ jobs:
       - run: python manage.py check --deploy --settings=config.settings_production
       - run: python manage.py collectstatic --noinput --settings=config.settings_production
 
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install pip-audit
+      # django-mdeditor's vulnerable upload URL is not exposed; config/urls.py
+      # replaces it with the authenticated, CSRF-protected project endpoint.
+      - run: pip-audit -r requirements.txt --ignore-vuln PYSEC-2026-2450
+
   frontend:
     runs-on: ubuntu-latest
     steps:

@@ -74,6 +74,9 @@
 
                 <section class="profile-email-section">
                     <h2><i class="fa-solid fa-envelope" aria-hidden="true"></i>{% translate "Email" %}</h2>
+                    {% if not password_is_set %}
+                    <div class="profile-notice" role="status"><i class="fa-solid fa-key" aria-hidden="true"></i><span>{% translate "Set a password before changing your email address." %}</span></div>
+                    {% else %}
                     <form method="post" class="profile-form profile-email-form">
                         {% csrf_token %}<input type="hidden" name="action" value="email"><input type="hidden" name="next" value="{{ return_to }}">
                         <div class="profile-field">
@@ -108,10 +111,11 @@
                         <button type="submit"><i class="fa-solid fa-ban" aria-hidden="true"></i><span>{% translate "Cancel pending email change" %}</span></button>
                     </form>
                     {% endif %}
+                    {% endif %}
                 </section>
 
                 <section id="profile-password" class="profile-password-section">
-                    <h2><i class="fa-solid fa-key" aria-hidden="true"></i>{% translate "Change password" %}</h2>
+                    <h2><i class="fa-solid fa-key" aria-hidden="true"></i>{% if password_is_set %}{% translate "Change password" %}{% else %}{% translate "Set password" %}{% endif %}</h2>
                     <form method="post" class="profile-form profile-password-form">
                         {% csrf_token %}<input type="hidden" name="action" value="password"><input type="hidden" name="next" value="{{ return_to }}">
                         {% for field in password_form %}
@@ -125,7 +129,7 @@
                         {% endfor %}
                         {% if password_form.non_field_errors %}<div class="profile-notice is-error" role="alert">{{ password_form.non_field_errors }}</div>{% endif %}
                         <div class="profile-actions">
-                            <button class="profile-primary-button" type="submit"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>{% translate "Save password" %}</span></button>
+                            <button class="profile-primary-button" type="submit"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>{% if password_is_set %}{% translate "Save password" %}{% else %}{% translate "Set password" %}{% endif %}</span></button>
                         </div>
                     </form>
                 </section>

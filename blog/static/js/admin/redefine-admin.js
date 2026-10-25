@@ -1,6 +1,19 @@
 (function () {
   "use strict";
 
+  document.addEventListener("submit", function (event) {
+    var form = event.target;
+    if (!(form instanceof HTMLFormElement) || !form.classList.contains("editormd-form")) return;
+    if (form.querySelector('input[name="csrfmiddlewaretoken"]')) return;
+    var token = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    if (!token || !token.value) return;
+    var hidden = document.createElement("input");
+    hidden.type = "hidden";
+    hidden.name = "csrfmiddlewaretoken";
+    hidden.value = token.value;
+    form.appendChild(hidden);
+  }, true);
+
   function normalize(value) {
     return (value || "").toLocaleLowerCase().replace(/\s+/g, " ").trim();
   }

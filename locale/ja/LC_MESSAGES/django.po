@@ -248,6 +248,24 @@ msgstr "パスワードを変更"
 msgid "Save password"
 msgstr "パスワードを保存"
 
+msgid "Set password"
+msgstr "パスワードを設定"
+
+msgid "Set a password before changing your email address."
+msgstr "メールアドレスを変更する前に、パスワードを設定してください。"
+
+msgid "Sign in to upload images."
+msgstr "画像をアップロードするにはログインしてください。"
+
+msgid "You do not have permission to upload article images."
+msgstr "記事の画像をアップロードする権限がありません。"
+
+msgid "Image data does not match its filename extension."
+msgstr "画像データとファイル名の拡張子が一致しません。"
+
+msgid "Upload complete."
+msgstr "アップロードが完了しました。"
+
 msgid "You can now"
 msgstr "これで"
 

@@ -17,7 +17,7 @@ from django.contrib.auth import (
     update_session_auth_hash,
 )
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import PasswordResetView
 from django.core.cache import cache
@@ -676,7 +676,9 @@ def profile(request):
         },
     )
     email_form = UserEmailChangeForm(user=request.user)
-    password_form = PasswordChangeForm(request.user)
+    password_is_set = request.user.has_usable_password()
+    password_form_class = PasswordChangeForm if password_is_set else SetPasswordForm
+    password_form = password_form_class(request.user)
 
     if request.method == "POST" and request.POST.get("action", "profile") == "profile":
         profile_form = UserProfileForm(
@@ -726,7 +728,14 @@ def profile(request):
 
     if request.method == "POST" and request.POST.get("action") == "email":
         email_form = UserEmailChangeForm(request.POST, user=request.user)
-        if email_form.is_valid():
+        if not password_is_set:
+            email_form.is_valid()
+            email_form.add_error(
+                None,
+                _("Set a password before changing your email address."),
+            )
+            response_status = 400
+        if password_is_set and email_form.is_valid():
             requested_email = email_form.cleaned_data["email"]
             if _rate_limited(request, "profile-email", limit=5, period=60 * 60):
                 email_form.add_error(
@@ -763,7 +772,7 @@ def profile(request):
                     return _profile_redirect(return_to, email="pending")
 
     if request.method == "POST" and request.POST.get("action") == "password":
-        password_form = PasswordChangeForm(request.user, request.POST)
+        password_form = password_form_class(request.user, request.POST)
         if password_form.is_valid():
             user = password_form.save()
             update_session_auth_hash(request, user)
@@ -794,6 +803,7 @@ def profile(request):
             "profile_review_withdrawn": request.GET.get("review") == "withdrawn",
             "email_confirmation_sent": request.GET.get("email") == "pending",
             "password_updated": request.GET.get("password") == "updated",
+            "password_is_set": password_is_set,
         },
         status=response_status,
     )
