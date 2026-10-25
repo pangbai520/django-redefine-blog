@@ -1,6 +1,7 @@
 services:
   web:
     build: .
+    init: true
     restart: unless-stopped
     env_file: .env
     environment:
@@ -14,6 +15,7 @@ services:
       MEDIA_ROOT: /srv/django-redefine-blog/media
       DJANGO_LOG_DIR: /srv/django-redefine-blog/logs
       DJANGO_TRUST_PROXY_PROTO: "1"
+      TRUST_X_FORWARDED_FOR: "1"
     volumes:
       - static_data:/srv/django-redefine-blog/static
       - media_data:/srv/django-redefine-blog/media

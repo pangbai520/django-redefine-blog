@@ -252,6 +252,24 @@ msgstr "Cambiar contraseña"
 msgid "Save password"
 msgstr "Guardar contraseña"
 
+msgid "Set password"
+msgstr "Establecer contraseña"
+
+msgid "Set a password before changing your email address."
+msgstr "Establece una contraseña antes de cambiar tu correo electrónico."
+
+msgid "Sign in to upload images."
+msgstr "Inicia sesión para subir imágenes."
+
+msgid "You do not have permission to upload article images."
+msgstr "No tienes permiso para subir imágenes de artículos."
+
+msgid "Image data does not match its filename extension."
+msgstr "Los datos de la imagen no coinciden con la extensión del nombre de archivo."
+
+msgid "Upload complete."
+msgstr "Carga completada."
+
 msgid "You can now"
 msgstr "Ahora puedes"
 

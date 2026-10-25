@@ -594,8 +594,24 @@ class InternalCommentTests(TestCase):
         self.assertEqual(response.status_code, 200)
         payload = response.json()["comment"]
         self.assertEqual(payload["ip_address"], "192.0.2.10")
+        self.assertEqual(Comment.objects.get(pk=payload["id"]).ip_address, "192.0.2.10")
         self.assertEqual(payload["browser"], "Chrome120.0")
         self.assertEqual(payload["operating_system"], "Windows 10")
+
+    def test_comment_ip_is_visible_in_public_metadata(self):
+        comment = Comment.objects.create(
+            article=self.article,
+            nickname="Guest",
+            content="Hello",
+            ip_address="192.0.2.44",
+        )
+
+        payload = self.client.get(
+            reverse("comment_list", args=[self.article.slug])
+        ).json()["comments"][0]
+
+        self.assertEqual(payload["id"], comment.pk)
+        self.assertEqual(payload["ip_address"], "192.0.2.44")
 
     def test_login_requirement_blocks_guest(self):
         self.site.comment_require_login = True
@@ -708,7 +724,23 @@ class InternalCommentTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+        comment_id = response.json()["comment"]["id"]
         self.assertEqual(response.json()["comment"]["ip_address"], "192.0.2.30")
+        self.assertEqual(Comment.objects.get(pk=comment_id).ip_address, "192.0.2.30")
+
+    def test_registration_rejects_a_password_similar_to_the_username(self):
+        response = self.client.post(
+            reverse("comment_register_ajax"),
+            {
+                "username": "distinctive-reader-name",
+                "email": "similarity@example.com",
+                "password": "distinctive-reader-name",
+                "password_confirm": "distinctive-reader-name",
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(User.objects.filter(username="distinctive-reader-name").exists())
 
     def test_unverified_login_explains_email_verification(self):
         User.objects.create_user("pending", password="A-strong-password-123", is_active=False)

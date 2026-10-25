@@ -252,6 +252,24 @@ msgstr "Modifier le mot de passe"
 msgid "Save password"
 msgstr "Enregistrer le mot de passe"
 
+msgid "Set password"
+msgstr "Définir un mot de passe"
+
+msgid "Set a password before changing your email address."
+msgstr "Définissez un mot de passe avant de modifier votre adresse e-mail."
+
+msgid "Sign in to upload images."
+msgstr "Connectez-vous pour téléverser des images."
+
+msgid "You do not have permission to upload article images."
+msgstr "Vous n’avez pas l’autorisation de téléverser des images d’article."
+
+msgid "Image data does not match its filename extension."
+msgstr "Les données de l’image ne correspondent pas à l’extension du nom de fichier."
+
+msgid "Upload complete."
+msgstr "Téléversement terminé."
+
 msgid "You can now"
 msgstr "Vous pouvez maintenant"
 

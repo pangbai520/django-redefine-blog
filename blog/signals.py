@@ -118,6 +118,18 @@ def grant_owner_badge_to_superuser(sender, instance, **kwargs):
         # auth users can be saved while the profile migration is still running
         pass
     grant_owner_badge(instance)
+    if instance.is_superuser:
+        from .cache_utils import invalidate_content_caches
+
+        invalidate_content_caches()
+
+
+@receiver([post_save, post_delete], sender=UserProfile)
+def invalidate_owner_profile_content(sender, instance, **kwargs):
+    if instance.user.is_superuser:
+        from .cache_utils import invalidate_content_caches
+
+        invalidate_content_caches()
 
 
 @receiver(post_save, sender=CommentBadge)

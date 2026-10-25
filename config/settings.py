@@ -229,6 +229,17 @@ PROFILE_AVATAR_MAX_BYTES = int(os.getenv("PROFILE_AVATAR_MAX_BYTES", str(2 * 102
 PROFILE_AVATAR_MAX_DIMENSION = int(os.getenv("PROFILE_AVATAR_MAX_DIMENSION", "4096"))
 PROFILE_AVATAR_MAX_PIXELS = int(os.getenv("PROFILE_AVATAR_MAX_PIXELS", "16000000"))
 PROFILE_EMAIL_CHANGE_MAX_AGE = int(os.getenv("PROFILE_EMAIL_CHANGE_MAX_AGE", str(24 * 60 * 60)))
+EDITOR_UPLOAD_MAX_BYTES = int(os.getenv("EDITOR_UPLOAD_MAX_BYTES", str(5 * 1024 * 1024)))
+EDITOR_UPLOAD_MAX_DIMENSION = int(os.getenv("EDITOR_UPLOAD_MAX_DIMENSION", "8192"))
+EDITOR_UPLOAD_MAX_PIXELS = int(os.getenv("EDITOR_UPLOAD_MAX_PIXELS", "24000000"))
+TRAFFIC_RETENTION_DAYS = int(os.getenv("TRAFFIC_RETENTION_DAYS", "90"))
+
+MDEDITOR_CONFIGS = {
+    "default": {
+        "upload_image_formats": ["jpg", "jpeg", "png", "gif", "webp"],
+        "upload_image_url": "/mdeditor/uploads/",
+    }
+}
 
 
 # keep language and timezone project-owned, so saved content has one consistent interpretation
@@ -306,7 +317,7 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
 EMAIL_USE_SSL = env_bool("EMAIL_USE_SSL")
 EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", "10"))
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "blog@example.com")
+DEFAULT_FROM_EMAIL = (os.getenv("DEFAULT_FROM_EMAIL") or "").strip() or "blog@example.com"
 
 # local memory keeps development dependency-free; production may opt into Redis
 # without changing application code or making Redis a mandatory service

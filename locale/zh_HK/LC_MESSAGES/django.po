@@ -162,6 +162,24 @@ msgstr "更改密碼"
 msgid "Save password"
 msgstr "儲存密碼"
 
+msgid "Set password"
+msgstr "設定密碼"
+
+msgid "Set a password before changing your email address."
+msgstr "更改電郵地址前，請先設定密碼。"
+
+msgid "Sign in to upload images."
+msgstr "請先登入再上載圖片。"
+
+msgid "You do not have permission to upload article images."
+msgstr "你沒有上載文章圖片的權限。"
+
+msgid "Image data does not match its filename extension."
+msgstr "圖片資料與檔案副檔名不相符。"
+
+msgid "Upload complete."
+msgstr "上載完成。"
+
 msgid "You can now"
 msgstr "現在可以"
 

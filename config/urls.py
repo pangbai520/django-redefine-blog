@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.conf import settings
 from django.urls import path, include
+from blog.editor_views import editor_image_upload
 
 handler404 = "blog.views.page_not_found"
 
@@ -24,7 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('i18n/', include('django.conf.urls.i18n')),
     path('', include('blog.urls')),
-    path('mdeditor/', include('mdeditor.urls')),
+    path('mdeditor/uploads/', editor_image_upload, name='mdeditor_upload'),
 ]
 
 if settings.GITHUB_OAUTH_ENABLED:

@@ -1,16 +1,17 @@
-from concurrent.futures import ThreadPoolExecutor
+import hashlib
+import logging
 from datetime import timedelta
 from ipaddress import ip_address
 
 from django.conf import settings
-from django.db import close_old_connections
+from django.core.cache import cache
 from django.middleware.locale import LocaleMiddleware
 from django.utils import timezone, translation
 from django.utils.cache import patch_vary_headers
 from .models import TrafficModel
 
 
-executor = ThreadPoolExecutor(max_workers=5)
+logger = logging.getLogger(__name__)
 
 
 class RegionLocaleMiddleware(LocaleMiddleware):
@@ -96,8 +97,6 @@ class TrafficModelMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-
-
         content_type = response.get("Content-Type", "").lower()
         if (request.method == "GET" and response.status_code == 200
             and content_type.startswith("text/html")
@@ -105,21 +104,31 @@ class TrafficModelMiddleware:
             ua = request.META.get("HTTP_USER_AGENT", "").lower()
             client_ip = get_client_ip(request)
             if client_ip and ua and not any(bot in ua for bot in self.BOTS):
-                executor.submit(
-                    self._record_traffic,
-                    request.path,
-                    client_ip,
-                    ua[:255],
-                )
+                self._record_traffic(request.path, client_ip, ua[:255])
 
         return response
 
     def _record_traffic(self, path, ip, ua):
-        """Record a request without delaying the response."""
-        close_old_connections()
+        """Record at most one visit per address and path each hour."""
+        digest = hashlib.sha256(f"{ip}\0{path}".encode("utf-8")).hexdigest()
+        dedupe_key = f"blog:traffic:hour:{digest}"
         try:
-            one_hour_ago = timezone.now() - timedelta(hours=1)
-            if not TrafficModel.objects.filter(ip=ip, path=path, created_at__gte=one_hour_ago).exists():
-                TrafficModel.objects.create(path=path, ip=ip, user_agent=ua)
-        finally:
-            close_old_connections()
+            if not cache.add(dedupe_key, True, 60 * 60):
+                return
+            TrafficModel.objects.create(path=path, ip=ip, user_agent=ua)
+            cleanup_key = "blog:traffic:retention-cleanup"
+            if cache.add(cleanup_key, True, 60 * 60):
+                retention_days = max(int(settings.TRAFFIC_RETENTION_DAYS), 1)
+                cutoff = timezone.now() - timedelta(days=retention_days)
+                expired_ids = list(
+                    TrafficModel.objects.filter(created_at__lt=cutoff)
+                    .order_by("created_at")
+                    .values_list("pk", flat=True)[:1000]
+                )
+                if expired_ids:
+                    TrafficModel.objects.filter(pk__in=expired_ids).delete()
+                if len(expired_ids) < 1000:
+                    cache.set(cleanup_key, True, 24 * 60 * 60)
+        except Exception:
+            # Analytics must never turn a successful page response into a 500.
+            logger.exception("Failed to record traffic for %s", path)

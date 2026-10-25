@@ -1244,7 +1244,21 @@ class ArticleModel(models.Model):
             licence_type = SiteConfiguration.get_config().copyright_type
 
         if licence_type == "all_rights_reserved":
-            author = SiteConfiguration.get_config().site_author
+            owner_profile = (
+                UserProfile.objects.filter(
+                    user__is_superuser=True,
+                    user__is_active=True,
+                )
+                .select_related("user")
+                .order_by("user__date_joined", "user_id")
+                .first()
+            )
+            author = (
+                owner_profile.display_name.strip()
+                if owner_profile
+                and owner_profile.display_name.strip()
+                else SiteConfiguration.get_config().site_author
+            )
             return format_html(
                 gettext("All Rights Reserved &#169; {author}"), author=author
             )
