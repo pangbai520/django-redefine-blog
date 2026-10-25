@@ -628,6 +628,7 @@ msgstr "actualizado el"
 
 msgid "writer"
 msgstr "autor"
+
 msgid "Home"
 msgstr "Inicio"
 
@@ -654,3 +655,205 @@ msgstr "Administración"
 
 msgid "Sticky"
 msgstr "Fijado"
+
+msgid "Profile"
+msgstr "Perfil"
+
+msgid "Edit profile"
+msgstr "Editar perfil"
+
+msgid "Choose how your account appears in the comment section."
+msgstr "Elige cómo aparece tu cuenta en los comentarios."
+
+msgid "Profile updated."
+msgstr "Perfil actualizado."
+
+msgid ""
+"Confirmation email sent. Your current address remains active until the new "
+"one is confirmed."
+msgstr ""
+"Correo de confirmación enviado. Tu dirección actual seguirá activa hasta que"
+" confirmes la nueva."
+
+msgid "Profile preview"
+msgstr "Vista previa del perfil"
+
+msgid "Display name"
+msgstr "Nombre visible"
+
+msgid "Leave this empty to use your username."
+msgstr "Déjalo vacío para usar tu nombre de usuario."
+
+msgid "Avatar"
+msgstr "Avatar"
+
+msgid "JPEG, PNG, GIF or WebP; no larger than 2 MB."
+msgstr "JPEG, PNG, GIF o WebP; máximo 2 MB."
+
+msgid "Remove current avatar"
+msgstr "Eliminar el avatar actual"
+
+msgid "Username cannot be changed."
+msgstr "El nombre de usuario no se puede cambiar."
+
+msgid "A changed address becomes active only after confirmation."
+msgstr "La nueva dirección solo se activará después de confirmarla."
+
+msgid "Waiting for confirmation from %(email)s."
+msgstr "Esperando la confirmación de %(email)s."
+
+msgid "Current password"
+msgstr "Contraseña actual"
+
+msgid "Required only when changing the email address."
+msgstr "Solo es necesaria para cambiar el correo electrónico."
+
+msgid "Save profile"
+msgstr "Guardar perfil"
+
+msgid "Cancel pending email change"
+msgstr "Cancelar el cambio de correo pendiente"
+
+msgid "Email updated"
+msgstr "Correo actualizado"
+
+msgid "Your new email address is now active."
+msgstr "Tu nueva dirección de correo ya está activa."
+
+msgid "Return to profile"
+msgstr "Volver al perfil"
+
+msgid "Invalid confirmation link"
+msgstr "Enlace de confirmación no válido"
+
+msgid ""
+"This email confirmation link is invalid, expired, or has already been used."
+msgstr "Este enlace no es válido, ha caducado o ya se ha utilizado."
+
+msgid "Confirm your new email address"
+msgstr "Confirma tu nueva dirección de correo"
+
+msgid "Hello %(username)s,"
+msgstr "Hola, %(username)s:"
+
+msgid "Open the link below to confirm this address for your comment account:"
+msgstr ""
+"Abre el siguiente enlace para confirmar esta dirección en tu cuenta de "
+"comentarios:"
+
+msgid ""
+"If you did not request this change, you can ignore this email and your "
+"current address will remain active."
+msgstr ""
+"Si no solicitaste este cambio, ignora este correo; tu dirección actual "
+"seguirá activa."
+
+msgid ""
+"Confirm this address before it replaces the email currently attached to your"
+" comment account."
+msgstr ""
+"Confirma esta dirección antes de que sustituya el correo actual de tu cuenta"
+" de comentarios."
+
+msgid "Confirm email"
+msgstr "Confirmar correo"
+
+msgid "This email address is awaiting confirmation for another account."
+msgstr "Esta dirección está pendiente de confirmación para otra cuenta."
+
+msgid "Enter your current password to change your email address."
+msgstr "Introduce tu contraseña actual para cambiar el correo electrónico."
+
+msgid "Too many email-change requests. Please try again later."
+msgstr ""
+"Demasiadas solicitudes de cambio de correo. Inténtalo de nuevo más tarde."
+
+msgid ""
+"We could not send the confirmation email. Your email address was not "
+"changed."
+msgstr ""
+"No se pudo enviar el correo de confirmación. Tu dirección no se ha cambiado."
+
+msgid "Avatar images must be no larger than %(size)s MB."
+msgstr "El avatar no puede superar %(size)s MB."
+
+msgid "Avatar image data does not match its filename extension."
+msgstr "Los datos de la imagen no coinciden con la extensión del archivo."
+
+msgid "Avatar dimensions are too large."
+msgstr "Las dimensiones del avatar son demasiado grandes."
+
+msgid "Avatar contains too many pixels or animation frames."
+msgstr "El avatar contiene demasiados píxeles o fotogramas."
+
+msgid "Upload a valid avatar image."
+msgstr "Sube una imagen de avatar válida."
+
+msgid "display name"
+msgstr "nombre visible"
+
+msgid "avatar"
+msgstr "avatar"
+
+msgid "pending email"
+msgstr "correo pendiente"
+
+msgid "This email address is already registered."
+msgstr "Esta dirección de correo ya está registrada."
+
+msgid "Change email"
+msgstr "Cambiar correo"
+
+msgid "Enter a different email address."
+msgstr "Introduce una dirección de correo diferente."
+
+msgid "Review profile changes"
+msgstr "Revisar cambios de perfil"
+
+msgid "pending display name"
+msgstr "nombre visible pendiente"
+
+msgid "pending avatar"
+msgstr "avatar pendiente"
+
+msgid "Choose the avatar crop again."
+msgstr "Vuelve a elegir el recorte del avatar."
+
+msgid "Pending profile changes withdrawn."
+msgstr "Se retiraron los cambios de perfil pendientes."
+
+msgid "Profile changes are waiting for review."
+msgstr "Los cambios del perfil están pendientes de revisión."
+
+msgid "Your current public profile remains visible until an administrator approves the changes."
+msgstr "Tu perfil público actual seguirá visible hasta que un administrador apruebe los cambios."
+
+msgid "Withdraw pending changes"
+msgstr "Retirar cambios pendientes"
+
+msgid "Change avatar"
+msgstr "Cambiar avatar"
+
+msgid "Click the avatar to crop a new image."
+msgstr "Haz clic en el avatar para elegir y recortar una imagen nueva."
+
+msgid "Remove avatar"
+msgstr "Quitar avatar"
+
+msgid "The selected file is not a supported image."
+msgstr "El archivo seleccionado no es una imagen compatible."
+
+msgid "The selected image could not be opened."
+msgstr "No se pudo abrir la imagen seleccionada."
+
+msgid "Crop avatar"
+msgstr "Recortar avatar"
+
+msgid "Drag the image to choose the visible area."
+msgstr "Arrastra la imagen para elegir el área visible."
+
+msgid "Zoom"
+msgstr "Zoom"
+
+msgid "Use this crop"
+msgstr "Usar este recorte"

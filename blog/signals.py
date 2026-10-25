@@ -2,6 +2,7 @@ from django.db.models.signals import m2m_changed, post_delete, post_save, pre_sa
 from django.dispatch import receiver
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
+from django.db.utils import OperationalError, ProgrammingError
 
 from .models import (
     ArticleModel,
@@ -11,6 +12,7 @@ from .models import (
     SiteConfiguration,
     Tag,
     TrafficModel,
+    UserProfile,
 )
 
 
@@ -110,6 +112,11 @@ def sync_owner_badges():
 
 @receiver(post_save, sender=get_user_model())
 def grant_owner_badge_to_superuser(sender, instance, **kwargs):
+    try:
+        UserProfile.objects.get_or_create(user=instance)
+    except (OperationalError, ProgrammingError):
+        # auth users can be saved while the profile migration is still running
+        pass
     grant_owner_badge(instance)
 
 

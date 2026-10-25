@@ -31,6 +31,7 @@ from .models import (
     SiteConfiguration,
     Tag,
     TrafficModel,
+    UserProfile,
 )
 
 
@@ -38,6 +39,106 @@ admin.site.site_header = "Django Redefine Administration"
 admin.site.site_title = "Django Redefine Admin"
 admin.site.index_title = "Administration"
 admin.site.site_url = "/"
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "display_name",
+        "review_pending",
+        "pending_email",
+        "pending_email_requested_at",
+    )
+    list_filter = ("profile_review_pending",)
+    search_fields = (
+        "user__username",
+        "user__email",
+        "display_name",
+        "pending_display_name",
+        "pending_email",
+    )
+    raw_id_fields = ("user",)
+    readonly_fields = (
+        "avatar_preview",
+        "pending_avatar_preview",
+        "profile_review_requested_at",
+        "pending_email_requested_at",
+    )
+    list_select_related = ("user",)
+    actions = ("approve_profile_changes", "reject_profile_changes")
+    fieldsets = (
+        (
+            "Public profile",
+            {"fields": ("user", "display_name", "avatar", "avatar_preview")},
+        ),
+        (
+            "Pending profile review",
+            {
+                "fields": (
+                    "profile_review_pending",
+                    "profile_review_requested_at",
+                    "pending_display_name",
+                    "pending_avatar",
+                    "pending_avatar_preview",
+                    "pending_avatar_change",
+                )
+            },
+        ),
+        (
+            "Pending email change",
+            {"fields": ("pending_email", "pending_email_requested_at")},
+        ),
+    )
+
+    @admin.display(description="Review pending", boolean=True, ordering="profile_review_pending")
+    def review_pending(self, obj):
+        return obj.profile_review_pending
+
+    @admin.display(description="Current avatar")
+    def avatar_preview(self, obj):
+        if not obj.avatar:
+            return "—"
+        return format_html(
+            '<img src="{}" alt="" style="width:72px;height:72px;object-fit:contain;'
+            'border-radius:14px;background:var(--body-bg);">',
+            obj.avatar.url,
+        )
+
+    @admin.display(description="Pending avatar")
+    def pending_avatar_preview(self, obj):
+        if not obj.profile_review_pending or not obj.pending_avatar_change:
+            return "No avatar change"
+        if not obj.pending_avatar:
+            return "Remove current avatar"
+        return format_html(
+            '<img src="{}" alt="" style="width:72px;height:72px;object-fit:contain;'
+            'border-radius:14px;background:var(--body-bg);">',
+            obj.pending_avatar.url,
+        )
+
+    @admin.action(description="Approve selected profile changes")
+    def approve_profile_changes(self, request, queryset):
+        approved = 0
+        for profile in queryset.filter(profile_review_pending=True).iterator():
+            approved += int(profile.approve_pending_profile_changes())
+        self.message_user(
+            request,
+            f"Approved {approved} profile change{'s' if approved != 1 else ''}.",
+            messages.SUCCESS,
+        )
+
+    @admin.action(description="Reject selected profile changes")
+    def reject_profile_changes(self, request, queryset):
+        rejected = 0
+        for profile in queryset.filter(profile_review_pending=True).iterator():
+            profile.clear_pending_profile_changes()
+            rejected += 1
+        self.message_user(
+            request,
+            f"Rejected {rejected} profile change{'s' if rejected != 1 else ''}.",
+            messages.SUCCESS,
+        )
 
 
 class SiteConfigurationForm(forms.ModelForm):
@@ -572,6 +673,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
                     ("comment_auto_approve", "comment_allow_likes"),
                     ("comment_email_notifications", "comment_emoji_enabled", "comment_gif_enabled"),
                     ("comment_registration_enabled", "comment_require_email_verification"),
+                    "comment_profile_review_enabled",
                     ("waline_server_url", "waline_lang"),
                     "waline_emoji",
                     "waline_reaction",

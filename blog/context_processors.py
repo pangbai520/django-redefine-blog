@@ -5,7 +5,14 @@ from django.utils import timezone, translation
 from django.db.models import Count, Q
 from django.urls import reverse
 from .cache_utils import published_cache_timeout
-from .models import SiteConfiguration, ArticleModel, TrafficModel, Tag, Category
+from .models import (
+    ArticleModel,
+    Category,
+    SiteConfiguration,
+    Tag,
+    TrafficModel,
+    UserProfile,
+)
 
 
 CACHE_KEY = "actived_site_config"
@@ -95,9 +102,22 @@ def site_configuration_processor(request):
     }
     comment_config = site.comment_options
     required_keys = required_comment_keys.get(site.comment_system, ())
+    owner_profile = (
+        UserProfile.objects.filter(user__is_superuser=True, user__is_active=True)
+        .select_related("user")
+        .order_by("user__date_joined", "user_id")
+        .first()
+    )
+    blog_author_name = site.site_author
+    blog_author_avatar = None
+    if owner_profile:
+        blog_author_name = owner_profile.display_name.strip() or site.site_author
+        blog_author_avatar = owner_profile.avatar or None
 
     return {
         'site': site,
+        'blog_author_name': blog_author_name,
+        'blog_author_avatar': blog_author_avatar,
         'total_words': total_words,
         'comment_system_configured': bool(
             site.comment_enabled

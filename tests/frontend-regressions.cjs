@@ -73,6 +73,34 @@ test('article avatars use the generated non-shrinking utility from upstream', ()
   assert.match(tailwind, /\.shrink-0\{flex-shrink:0\}/);
 });
 
+test('profile avatars use the cropper and transparent-image background', () => {
+  const profile = readFileSync(
+    path.join(blogRoot, 'templates/comments/profile.html'),
+    'utf8',
+  );
+  const script = source('profile.js');
+  const styles = readFileSync(path.join(blogRoot, 'static/css/profile.css'), 'utf8');
+  const commentStyles = readFileSync(
+    path.join(blogRoot, 'static/css/internal-comments.css'),
+    'utf8',
+  );
+  assert.match(profile, /data-avatar-trigger/);
+  assert.match(profile, /data-avatar-cropper/);
+  assert.match(profile, /data-crop-canvas/);
+  assert.doesNotMatch(profile, /profile-preview-picker/);
+  assert.doesNotMatch(profile, /fa-crop-simple/);
+  assert.doesNotMatch(profile, /profile-avatar-hint/);
+  assert.doesNotMatch(profile, /profile-heading-icon/);
+  assert.match(profile, /page-title-header profile-heading-title/);
+  assert.match(profile, /field\.name == "old_password"[\s\S]*?password_reset/);
+  assert.match(script, /cropX\.value/);
+  assert.match(script, /canvas\.toDataURL\("image\/webp"/);
+  assert.match(script, /document\.body\.appendChild\(modal\)/);
+  assert.match(styles, /\.profile-avatar-preview\.has-image \{ background: var\(--background-color\); \}/);
+  assert.match(styles, /\.profile-page \.page-template-content \{ padding: 0; \}/);
+  assert.match(commentStyles, /img\.wl-user-avatar \{ background: var\(--background-color\); \}/);
+});
+
 class Element {
   constructor(classes = []) {
     this.classes = new Set(classes);

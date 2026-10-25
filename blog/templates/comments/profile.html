@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block page_content %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<div class="page-template-container profile-page">
+    <div class="page-template-content">
+        <header class="profile-heading">
+            <h1 class="page-title-header profile-heading-title">{% translate "Edit profile" %}</h1>
+            <a class="profile-back-button" href="{{ return_to }}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>{% translate "Back" %}</span></a>
+        </header>
+
+        {% if profile_updated %}<div class="profile-notice is-success" role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>{% translate "Profile updated." %}</span></div>{% endif %}
+        {% if profile_review_withdrawn %}<div class="profile-notice is-success" role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>{% translate "Pending profile changes withdrawn." %}</span></div>{% endif %}
+        {% if email_confirmation_sent %}<div class="profile-notice is-success" role="status"><i class="fa-solid fa-envelope-circle-check" aria-hidden="true"></i><span>{% translate "Confirmation email sent. Your current address remains active until the new one is confirmed." %}</span></div>{% endif %}
+        {% if password_updated %}<div class="profile-notice is-success" role="status"><i class="fa-solid fa-shield-check" aria-hidden="true"></i><span>{% translate "Password updated" %}</span></div>{% endif %}
+        {% if profile_form.non_field_errors %}<div class="profile-notice is-error" role="alert">{{ profile_form.non_field_errors }}</div>{% endif %}
+        {% if email_form.non_field_errors %}<div class="profile-notice is-error" role="alert">{{ email_form.non_field_errors }}</div>{% endif %}
+
+        {% if profile.profile_review_pending %}
+        <div class="profile-review-notice" role="status">
+            <i class="fa-solid fa-user-clock" aria-hidden="true"></i>
+            <div>
+                <strong>{% translate "Profile changes are waiting for review." %}</strong>
+                <span>{% translate "Your current public profile remains visible until an administrator approves the changes." %}</span>
+            </div>
+            <form method="post">
+                {% csrf_token %}<input type="hidden" name="action" value="cancel-profile-review"><input type="hidden" name="next" value="{{ return_to }}">
+                <button type="submit">{% translate "Withdraw pending changes" %}</button>
+            </form>
+        </div>
+        {% endif %}
+
+        <div class="profile-layout">
+            <aside class="profile-preview" aria-label="{% translate 'Profile preview' %}">
+                <button class="profile-avatar-trigger" type="button" data-avatar-trigger aria-label="{% translate 'Change avatar' %}">
+                    <span class="profile-avatar-preview{% if profile_preview_avatar %} has-image{% endif %}" data-profile-avatar-preview data-fallback-initial="{{ request.user.get_username|first|upper }}">
+                        {% if profile_preview_avatar %}<img src="{{ profile_preview_avatar.url }}" alt="">
+                        {% else %}<span class="profile-avatar-initial">{{ profile_preview_display_name|first|upper }}</span>{% endif %}
+                        <span class="profile-avatar-edit-badge" aria-hidden="true"><i class="fa-solid fa-camera"></i></span>
+                    </span>
+                </button>
+                <strong data-profile-display-preview data-fallback="{{ request.user.get_username }}">{{ profile_preview_display_name }}</strong>
+                <small>@{{ request.user.get_username }}</small>
+                <div class="profile-avatar-form-controls">
+                    {{ profile_form.avatar }}
+                    {{ profile_form.avatar_crop_x }}{{ profile_form.avatar_crop_y }}{{ profile_form.avatar_crop_size }}
+                    {{ profile_form.remove_avatar }}
+                    {{ profile_form.avatar.errors }}
+                    <button class="profile-avatar-remove" type="button" data-avatar-remove-trigger{% if not profile_preview_avatar and not profile.avatar %} hidden{% endif %}><i class="fa-solid fa-trash-can" aria-hidden="true"></i>{% translate "Remove avatar" %}</button>
+                </div>
+            </aside>
+
+            <div class="profile-forms">
+                <form id="profile-details-form" method="post" enctype="multipart/form-data" class="profile-form" data-profile-form>
+                    {% csrf_token %}<input type="hidden" name="action" value="profile"><input type="hidden" name="next" value="{{ return_to }}">
+                    <div class="profile-field">
+                        <label for="{{ profile_form.display_name.id_for_label }}"><i class="fa-solid fa-signature" aria-hidden="true"></i>{% translate "Display name" %}</label>
+                        {{ profile_form.display_name }}
+                        <small>{% translate "Leave this empty to use your username." %}</small>
+                        {{ profile_form.display_name.errors }}
+                    </div>
+
+                    <div class="profile-field">
+                        <label for="profile-username"><i class="fa-solid fa-at" aria-hidden="true"></i>{% translate "Username" %}</label>
+                        <input id="profile-username" value="{{ request.user.get_username }}" disabled>
+                        <small>{% translate "Username cannot be changed." %}</small>
+                    </div>
+
+                    <div class="profile-actions">
+                        <button class="profile-primary-button" type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>{% translate "Save profile" %}</span></button>
+                    </div>
+                </form>
+
+                <section class="profile-email-section">
+                    <h2><i class="fa-solid fa-envelope" aria-hidden="true"></i>{% translate "Email" %}</h2>
+                    <form method="post" class="profile-form profile-email-form">
+                        {% csrf_token %}<input type="hidden" name="action" value="email"><input type="hidden" name="next" value="{{ return_to }}">
+                        <div class="profile-field">
+                            <label for="{{ email_form.email.id_for_label }}">{% translate "Email" %}</label>
+                            {{ email_form.email }}
+                            <small>{% translate "A changed address becomes active only after confirmation." %}</small>
+                            {{ email_form.email.errors }}
+                        </div>
+
+                        {% if profile.pending_email %}
+                        <div class="profile-pending-email">
+                            <i class="fa-solid fa-clock" aria-hidden="true"></i>
+                            <span>{% blocktranslate with email=profile.pending_email %}Waiting for confirmation from {{ email }}.{% endblocktranslate %}</span>
+                        </div>
+                        {% endif %}
+
+                        <div class="profile-field">
+                            <label for="{{ email_form.current_password.id_for_label }}"><i class="fa-solid fa-lock" aria-hidden="true"></i>{% translate "Current password" %}</label>
+                            {{ email_form.current_password }}
+                            <small>{% translate "Required only when changing the email address." %}</small>
+                            {{ email_form.current_password.errors }}
+                        </div>
+
+                        <div class="profile-actions">
+                            <button class="profile-primary-button" type="submit"><i class="fa-solid fa-envelope-circle-check" aria-hidden="true"></i><span>{% translate "Change email" %}</span></button>
+                        </div>
+                    </form>
+
+                    {% if profile.pending_email %}
+                    <form method="post" class="profile-cancel-email-form">
+                        {% csrf_token %}<input type="hidden" name="action" value="cancel-email"><input type="hidden" name="next" value="{{ return_to }}">
+                        <button type="submit"><i class="fa-solid fa-ban" aria-hidden="true"></i><span>{% translate "Cancel pending email change" %}</span></button>
+                    </form>
+                    {% endif %}
+                </section>
+
+                <section id="profile-password" class="profile-password-section">
+                    <h2><i class="fa-solid fa-key" aria-hidden="true"></i>{% translate "Change password" %}</h2>
+                    <form method="post" class="profile-form profile-password-form">
+                        {% csrf_token %}<input type="hidden" name="action" value="password"><input type="hidden" name="next" value="{{ return_to }}">
+                        {% for field in password_form %}
+                        <div class="profile-field">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}<div class="profile-help">{{ field.help_text|safe }}</div>{% endif %}
+                            {% if password_is_set and field.name == "old_password" %}<a class="profile-forgot-password" href="{% url 'password_reset' %}"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>{% translate "Forgot your password?" %}</a>{% endif %}
+                            {{ field.errors }}
+                        </div>
+                        {% endfor %}
+                        {% if password_form.non_field_errors %}<div class="profile-notice is-error" role="alert">{{ password_form.non_field_errors }}</div>{% endif %}
+                        <div class="profile-actions">
+                            <button class="profile-primary-button" type="submit"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>{% translate "Save password" %}</span></button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="profile-crop-modal" data-avatar-cropper hidden
+    data-msg-invalid-type="{% translate 'The selected file is not a supported image.' %}"
+    data-msg-load-failed="{% translate 'The selected image could not be opened.' %}">
+    <button class="profile-crop-backdrop" type="button" data-crop-close aria-label="{% translate 'Cancel' %}"></button>
+    <section class="profile-crop-dialog" role="dialog" aria-modal="true" aria-labelledby="profile-crop-title">
+        <button class="profile-crop-close" type="button" data-crop-close aria-label="{% translate 'Cancel' %}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        <header class="profile-crop-heading">
+            <span aria-hidden="true"><i class="fa-solid fa-crop"></i></span>
+            <div><h2 id="profile-crop-title">{% translate "Crop avatar" %}</h2><p>{% translate "Drag the image to choose the visible area." %}</p></div>
+        </header>
+        <div class="profile-crop-workspace">
+            <canvas width="512" height="512" data-crop-canvas></canvas>
+        </div>
+        <label class="profile-crop-zoom"><i class="fa-solid fa-image" aria-hidden="true"></i><span>{% translate "Zoom" %}</span><input type="range" min="1" max="3" value="1" step="0.01" data-crop-zoom><i class="fa-solid fa-image fa-lg" aria-hidden="true"></i></label>
+        <p class="profile-crop-error" data-crop-error role="alert" hidden></p>
+        <p class="profile-crop-file-help">{% translate "JPEG, PNG, GIF or WebP; no larger than 2 MB." %}</p>
+        <div class="profile-crop-actions">
+            <button class="profile-secondary-button" type="button" data-crop-close>{% translate "Cancel" %}</button>
+            <button class="profile-primary-button" type="button" data-crop-apply><i class="fa-solid fa-check" aria-hidden="true"></i>{% translate "Use this crop" %}</button>
+        </div>
+    </section>
+</div>
+<script src="{% static 'js/profile.js' %}" defer data-swup-reload-script></script>
+{% endblock %}

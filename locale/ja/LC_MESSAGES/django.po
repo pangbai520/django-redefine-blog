@@ -610,6 +610,7 @@ msgstr "更新日時"
 
 msgid "writer"
 msgstr "執筆者"
+
 msgid "Home"
 msgstr "ホーム"
 
@@ -636,3 +637,195 @@ msgstr "管理"
 
 msgid "Sticky"
 msgstr "固定"
+
+msgid "Profile"
+msgstr "プロフィール"
+
+msgid "Edit profile"
+msgstr "プロフィールを編集"
+
+msgid "Choose how your account appears in the comment section."
+msgstr "コメント欄に表示するアカウント情報を設定します。"
+
+msgid "Profile updated."
+msgstr "プロフィールを更新しました。"
+
+msgid ""
+"Confirmation email sent. Your current address remains active until the new "
+"one is confirmed."
+msgstr "確認メールを送信しました。新しいアドレスを確認するまでは、現在のアドレスが引き続き有効です。"
+
+msgid "Profile preview"
+msgstr "プロフィールのプレビュー"
+
+msgid "Display name"
+msgstr "表示名"
+
+msgid "Leave this empty to use your username."
+msgstr "空欄の場合はユーザー名を使用します。"
+
+msgid "Avatar"
+msgstr "アバター"
+
+msgid "JPEG, PNG, GIF or WebP; no larger than 2 MB."
+msgstr "JPEG、PNG、GIF、WebP（2 MB 以下）に対応しています。"
+
+msgid "Remove current avatar"
+msgstr "現在のアバターを削除"
+
+msgid "Username cannot be changed."
+msgstr "ユーザー名は変更できません。"
+
+msgid "A changed address becomes active only after confirmation."
+msgstr "新しいアドレスは確認後に有効になります。"
+
+msgid "Waiting for confirmation from %(email)s."
+msgstr "%(email)s の確認を待っています。"
+
+msgid "Current password"
+msgstr "現在のパスワード"
+
+msgid "Required only when changing the email address."
+msgstr "メールアドレスを変更する場合のみ必要です。"
+
+msgid "Save profile"
+msgstr "プロフィールを保存"
+
+msgid "Cancel pending email change"
+msgstr "保留中のメール変更を取り消す"
+
+msgid "Email updated"
+msgstr "メールアドレスを更新しました"
+
+msgid "Your new email address is now active."
+msgstr "新しいメールアドレスが有効になりました。"
+
+msgid "Return to profile"
+msgstr "プロフィールに戻る"
+
+msgid "Invalid confirmation link"
+msgstr "確認リンクが無効です"
+
+msgid ""
+"This email confirmation link is invalid, expired, or has already been used."
+msgstr "この確認リンクは無効、期限切れ、または使用済みです。"
+
+msgid "Confirm your new email address"
+msgstr "新しいメールアドレスを確認"
+
+msgid "Hello %(username)s,"
+msgstr "%(username)s さん、"
+
+msgid "Open the link below to confirm this address for your comment account:"
+msgstr "以下のリンクを開き、コメント用アカウントのメールアドレスを確認してください。"
+
+msgid ""
+"If you did not request this change, you can ignore this email and your "
+"current address will remain active."
+msgstr "この変更を依頼していない場合は、このメールを無視してください。現在のアドレスはそのまま有効です。"
+
+msgid ""
+"Confirm this address before it replaces the email currently attached to your"
+" comment account."
+msgstr "コメント用アカウントに登録中のアドレスを置き換えるには、このアドレスを確認してください。"
+
+msgid "Confirm email"
+msgstr "メールアドレスを確認"
+
+msgid "This email address is awaiting confirmation for another account."
+msgstr "このメールアドレスは別のアカウントで確認待ちです。"
+
+msgid "Enter your current password to change your email address."
+msgstr "メールアドレスを変更するには現在のパスワードを入力してください。"
+
+msgid "Too many email-change requests. Please try again later."
+msgstr "メール変更のリクエストが多すぎます。しばらくしてからお試しください。"
+
+msgid ""
+"We could not send the confirmation email. Your email address was not "
+"changed."
+msgstr "確認メールを送信できなかったため、メールアドレスは変更されていません。"
+
+msgid "Avatar images must be no larger than %(size)s MB."
+msgstr "アバター画像は %(size)s MB 以下にしてください。"
+
+msgid "Avatar image data does not match its filename extension."
+msgstr "画像データとファイル拡張子が一致しません。"
+
+msgid "Avatar dimensions are too large."
+msgstr "アバター画像の寸法が大きすぎます。"
+
+msgid "Avatar contains too many pixels or animation frames."
+msgstr "アバターの画素数またはアニメーションフレーム数が多すぎます。"
+
+msgid "Upload a valid avatar image."
+msgstr "有効なアバター画像をアップロードしてください。"
+
+msgid "display name"
+msgstr "表示名"
+
+msgid "avatar"
+msgstr "アバター"
+
+msgid "pending email"
+msgstr "確認待ちのメールアドレス"
+
+msgid "This email address is already registered."
+msgstr "このメールアドレスはすでに登録されています。"
+
+msgid "Change email"
+msgstr "メールアドレスを変更"
+
+msgid "Enter a different email address."
+msgstr "現在とは異なるメールアドレスを入力してください。"
+
+msgid "Review profile changes"
+msgstr "プロフィール変更を審査する"
+
+msgid "pending display name"
+msgstr "審査待ちの表示名"
+
+msgid "pending avatar"
+msgstr "審査待ちのアバター"
+
+msgid "Choose the avatar crop again."
+msgstr "アバターの切り抜き範囲をもう一度選択してください。"
+
+msgid "Pending profile changes withdrawn."
+msgstr "審査待ちのプロフィール変更を取り消しました。"
+
+msgid "Profile changes are waiting for review."
+msgstr "プロフィール変更は審査待ちです。"
+
+msgid "Your current public profile remains visible until an administrator approves the changes."
+msgstr "管理者が変更を承認するまでは、現在の公開プロフィールが表示されます。"
+
+msgid "Withdraw pending changes"
+msgstr "審査待ちの変更を取り消す"
+
+msgid "Change avatar"
+msgstr "アバターを変更"
+
+msgid "Click the avatar to crop a new image."
+msgstr "アバターをクリックして新しい画像を選択し、切り抜きます。"
+
+msgid "Remove avatar"
+msgstr "アバターを削除"
+
+msgid "The selected file is not a supported image."
+msgstr "選択したファイルは対応している画像ではありません。"
+
+msgid "The selected image could not be opened."
+msgstr "選択した画像を開けませんでした。"
+
+msgid "Crop avatar"
+msgstr "アバターを切り抜く"
+
+msgid "Drag the image to choose the visible area."
+msgstr "画像をドラッグして表示範囲を選択します。"
+
+msgid "Zoom"
+msgstr "ズーム"
+
+msgid "Use this crop"
+msgstr "この切り抜きを使用"

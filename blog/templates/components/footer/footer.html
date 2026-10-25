@@ -7,7 +7,7 @@
         <div class="text-center">
             &copy;
             {% if site.footer_sitestart %}{{ site.footer_sitestart|date:"Y" }} - {% endif %}{% now "Y" %}
-            {{ site.footer_icon|safe }} <a href="/">{{ site.site_author }}</a>
+            {{ site.footer_icon|safe }} <a href="/">{% firstof blog_author_name site.site_author %}</a>
 
             {% if site.footer_statistics %}
                 <p class="post-count space-x-0.5">

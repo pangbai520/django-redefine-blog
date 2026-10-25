@@ -8,7 +8,7 @@
     <meta name="keywords" content="{{ site.site_keywords }}">
     {% firstof article.auto_excerpt site.site_description site.og_description site.site_subname as page_description %}
     <meta name="description" content="{{ page_description|striptags }}">
-    <meta name="author" content="{{ site.site_author }}">
+    <meta name="author" content="{% firstof blog_author_name site.site_author %}">
     {% if site.rssfeed_enabled %}<link rel="alternate" type="application/rss+xml" title="{{ site.site_name }}" href="{{ site.rss_url }}">{% endif %}
 
     <!-- resolve the saved mode before CSS loads, so the first paint uses the correct palette -->
@@ -219,7 +219,7 @@
         {% for tag in article.tags.all %}<meta property="article:tag" content="{{ tag.name }}">
         {% endfor %}
     {% endif %}
-    <meta property="article:author" content="{{ site.site_author }}">
+    <meta property="article:author" content="{% firstof blog_author_name site.site_author %}">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="{% firstof page_title site.site_name %}">
     <meta name="twitter:description" content="{{ open_graph_description|striptags }}">

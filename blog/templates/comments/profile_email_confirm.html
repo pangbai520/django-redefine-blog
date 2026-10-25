@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block page_content %}
+<div class="page-template-container"><div class="page-template-content markdown-body">
+    {% if verified %}
+        <h1>{% translate "Email updated" %}</h1>
+        <p>{% translate "Your new email address is now active." %}</p>
+        <p><a href="{% url 'comment_profile' %}">{% translate "Return to profile" %}</a></p>
+    {% else %}
+        <h1>{% translate "Invalid confirmation link" %}</h1>
+        <p>{% translate "This email confirmation link is invalid, expired, or has already been used." %}</p>
+        <p><a href="{% url 'comment_profile' %}">{% translate "Return to profile" %}</a></p>
+    {% endif %}
+</div></div>
+{% endblock %}
