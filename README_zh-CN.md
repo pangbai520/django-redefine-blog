@@ -29,7 +29,7 @@
 - 首页、文章、归档、分类、标签，以及 Friends、Bookmarks、Essays、Masonry 等 Redefine 页面
 - Markdown 与 Redefine 常用的提示块、折叠、标签页、按钮和代码块写法
 - 草稿、定时发布、相关文章、RSS、Sitemap 和服务端搜索
-- 自带评论系统：账号、回复、点赞、审核、徽章、表情、GIF 和图片上传
+- 自带评论系统：账号资料、显示名称、头像、回复、点赞、审核、徽章、表情、GIF 和图片上传
 - 浅色/深色模式、Swup 无刷新切换和七种界面语言
 - 本地默认 SQLite，部署时可换 PostgreSQL 或 MySQL
 

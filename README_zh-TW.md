@@ -29,7 +29,7 @@
 - 首頁、文章、彙整、分類、標籤，以及 Friends、Bookmarks、Essays、Masonry 等 Redefine 頁面
 - Markdown 與 Redefine 常用的提示區塊、折疊、分頁、按鈕和程式碼區塊語法
 - 草稿、排程發佈、相關文章、RSS、Sitemap 和伺服器端搜尋
-- 內建留言系統：帳號、回覆、按讚、審核、徽章、表情、GIF 和圖片上傳
+- 內建留言系統：帳號資料、顯示名稱、頭像、回覆、按讚、審核、徽章、表情、GIF 和圖片上傳
 - 淺色/深色模式、Swup 無重新整理切換和七種介面語言
 - 本機預設 SQLite，部署時可改用 PostgreSQL 或 MySQL
 

@@ -44,6 +44,12 @@ urlpatterns = [
     path('friends/', views.friends, name='friends'),
     path('comments/register/', comment_views.register, name='comment_register'),
     path('comments/login/', comment_views.login_view, name='comment_login'),
+    path('comments/profile/', comment_views.profile, name='comment_profile'),
+    path(
+        'comments/profile/email/<str:token>/',
+        comment_views.profile_email_confirm,
+        name='comment_profile_email_confirm',
+    ),
     path(
         'comments/password-reset/',
         comment_views.RateLimitedPasswordResetView.as_view(
@@ -79,17 +85,12 @@ urlpatterns = [
     ),
     path(
         'comments/password-change/',
-        auth_views.PasswordChangeView.as_view(
-            template_name='comments/password_change_form.html',
-            success_url=reverse_lazy('password_change_done'),
-        ),
+        comment_views.profile_password_redirect,
         name='password_change',
     ),
     path(
         'comments/password-change/done/',
-        auth_views.PasswordChangeDoneView.as_view(
-            template_name='comments/password_change_done.html'
-        ),
+        comment_views.profile_password_redirect,
         name='password_change_done',
     ),
     path('api/comments/login/', comment_views.login_ajax, name='comment_login_ajax'),

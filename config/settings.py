@@ -189,6 +189,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
+LOGIN_URL = "comment_login"
 if GITHUB_OAUTH_ENABLED:
     AUTHENTICATION_BACKENDS.append("allauth.account.auth_backends.AuthenticationBackend")
     ACCOUNT_EMAIL_VERIFICATION = "none"
@@ -224,6 +225,10 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = int(os.getenv("FILE_UPLOAD_MAX_MEMORY_SIZE", str(2
 COMMENT_UPLOAD_MAX_BYTES = int(os.getenv("COMMENT_UPLOAD_MAX_BYTES", str(2 * 1024 * 1024)))
 COMMENT_UPLOAD_MAX_DIMENSION = int(os.getenv("COMMENT_UPLOAD_MAX_DIMENSION", "8192"))
 COMMENT_UPLOAD_MAX_PIXELS = int(os.getenv("COMMENT_UPLOAD_MAX_PIXELS", "24000000"))
+PROFILE_AVATAR_MAX_BYTES = int(os.getenv("PROFILE_AVATAR_MAX_BYTES", str(2 * 1024 * 1024)))
+PROFILE_AVATAR_MAX_DIMENSION = int(os.getenv("PROFILE_AVATAR_MAX_DIMENSION", "4096"))
+PROFILE_AVATAR_MAX_PIXELS = int(os.getenv("PROFILE_AVATAR_MAX_PIXELS", "16000000"))
+PROFILE_EMAIL_CHANGE_MAX_AGE = int(os.getenv("PROFILE_EMAIL_CHANGE_MAX_AGE", str(24 * 60 * 60)))
 
 
 # keep language and timezone project-owned, so saved content has one consistent interpretation

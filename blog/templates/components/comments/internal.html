@@ -1,6 +1,6 @@
 {% load static i18n %}
 <link rel="stylesheet" href="{% static 'css/internal-comments.css' %}">
-<div class="internal-comments" data-comments-slug="{{ article.slug }}"
+<div id="comments" class="internal-comments" data-comments-slug="{{ article.slug }}"
     data-authenticated="{{ request.user.is_authenticated|yesno:'true,false' }}"
     data-comment-require-login="{{ site.comment_require_login|yesno:'true,false' }}"
     data-msg-unable-register="{% translate 'Unable to register.' %}"
@@ -37,7 +37,16 @@
     data-msg-upload-url-missing="{% translate 'Upload failed: server did not return an image URL.' %}">
     <div class="wl-comment">
         {% if request.user.is_authenticated %}
-            <div class="wl-login-info"><span class="internal-avatar-fallback wl-avatar" aria-hidden="true">{{ request.user.get_username|first|upper }}</span><div class="wl-login-details"><span class="wl-login-nick">{{ request.user.get_username }}</span><a class="wl-btn" href="{% url 'password_change' %}">{% translate "Password" %}</a><form method="post" action="{% url 'comment_logout' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="wl-btn" type="submit">{% translate "Log out" %}</button></form></div></div>
+            {% firstof request.user.profile.display_name request.user.get_full_name request.user.get_username as current_display_name %}
+            <div class="wl-login-info">
+                {% if request.user.profile.avatar %}<img class="wl-avatar internal-login-avatar" src="{{ request.user.profile.avatar.url }}" alt="">
+                {% else %}<span class="internal-avatar-fallback wl-avatar" aria-hidden="true">{{ current_display_name|first|upper }}</span>{% endif %}
+                <div class="wl-login-details">
+                    <span class="wl-login-nick">{{ current_display_name }}</span>
+                    <a class="wl-btn" href="{% url 'comment_profile' %}?next={{ request.path|urlencode }}%23comments"><i class="fa-solid fa-user-pen" aria-hidden="true"></i> {% translate "Profile" %}</a>
+                    <form method="post" action="{% url 'comment_logout' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="wl-btn" type="submit">{% translate "Log out" %}</button></form>
+                </div>
+            </div>
         {% endif %}
         <div class="wl-panel internal-comment-panel{% if not request.user.is_authenticated and site.comment_require_login %} is-locked{% endif %}">
             {% if not request.user.is_authenticated and site.comment_require_login %}

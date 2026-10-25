@@ -9,12 +9,20 @@ from urllib.parse import parse_qs, urlencode, urljoin, urlparse
 from urllib.request import Request, urlopen
 
 from django.conf import settings
-from django.contrib.auth import authenticate, get_user_model, login, logout
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import (
+    authenticate,
+    get_user_model,
+    login,
+    logout,
+    update_session_auth_hash,
+)
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import PasswordResetView
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.core import signing
 from django.core.mail import EmailMultiAlternatives, send_mail
 from django.core.files.storage import default_storage
 from django.core.validators import URLValidator, validate_email
@@ -34,7 +42,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from core.markdown.blocks.code_block import render_highlighted_code
 
-from .forms import CommentRegistrationForm
+from .forms import CommentRegistrationForm, UserEmailChangeForm, UserProfileForm
 from .middleware import get_client_ip
 from .models import (
     ArticleModel,
@@ -46,6 +54,7 @@ from .models import (
     CommentLike,
     CommentNotification,
     SiteConfiguration,
+    UserProfile,
 )
 
 
@@ -332,6 +341,13 @@ def _safe_next(request, candidate):
     return "/"
 
 
+def _profile_redirect(return_to, **status):
+    query = dict(status)
+    if return_to != "/":
+        query["next"] = return_to
+    return redirect(f"{reverse('comment_profile')}?{urlencode(query)}")
+
+
 def _json_error(message, status=400):
     return JsonResponse({"ok": False, "error": message}, status=status)
 
@@ -442,6 +458,41 @@ def _send_verification_email(request, user):
     )
     if message.send() != 1:
         raise RuntimeError("The verification email was not accepted by the mail backend.")
+
+
+def _send_profile_email_confirmation(request, user, email):
+    token = signing.dumps(
+        {"user_id": user.pk, "email": email},
+        salt="blog.profile-email-change",
+        compress=True,
+    )
+    confirm_url = request.build_absolute_uri(
+        reverse("comment_profile_email_confirm", kwargs={"token": token})
+    )
+    site = _site()
+    subject = render_to_string(
+        "emails/profile_email_change_subject.txt",
+        {"site": site},
+        request=request,
+    ).strip()
+    context = {
+        "confirm_url": confirm_url,
+        "email": email,
+        "user": user,
+        "site": site,
+    }
+    message = EmailMultiAlternatives(
+        subject,
+        render_to_string("emails/profile_email_change.txt", context, request=request),
+        settings.DEFAULT_FROM_EMAIL,
+        [email],
+    )
+    message.attach_alternative(
+        render_to_string("emails/profile_email_change.html", context, request=request),
+        "text/html",
+    )
+    if message.send() != 1:
+        raise RuntimeError("The email-change confirmation was not accepted by the mail backend.")
 
 
 def _create_registered_user(request, form, site):
@@ -590,12 +641,228 @@ def logout_view(request):
     return redirect(next_url)
 
 
+@login_required
+def profile(request):
+    profile_record, _profile_created = UserProfile.objects.get_or_create(
+        user=request.user
+    )
+    public_display_name = profile_record.display_name
+    public_avatar_name = profile_record.avatar.name
+    response_status = 200
+    return_to = _safe_next(
+        request,
+        request.POST.get("next") or request.GET.get("next"),
+    )
+
+    if request.method == "POST" and request.POST.get("action") == "cancel-email":
+        profile_record.pending_email = ""
+        profile_record.pending_email_requested_at = None
+        profile_record.save(update_fields=("pending_email", "pending_email_requested_at"))
+        return _profile_redirect(return_to, updated="1")
+
+    if request.method == "POST" and request.POST.get("action") == "cancel-profile-review":
+        if profile_record.profile_review_pending:
+            profile_record.clear_pending_profile_changes()
+        return _profile_redirect(return_to, review="withdrawn")
+
+    profile_form = UserProfileForm(
+        instance=profile_record,
+        initial={
+            "display_name": (
+                profile_record.pending_display_name
+                if profile_record.profile_review_pending
+                else profile_record.display_name
+            )
+        },
+    )
+    email_form = UserEmailChangeForm(user=request.user)
+    password_form = PasswordChangeForm(request.user)
+
+    if request.method == "POST" and request.POST.get("action", "profile") == "profile":
+        profile_form = UserProfileForm(
+            request.POST,
+            request.FILES,
+            instance=profile_record,
+        )
+        if profile_form.is_valid():
+            submitted_name = profile_form.cleaned_data["display_name"]
+            uploaded_avatar = (
+                profile_form.cleaned_data.get("avatar")
+                if "avatar" in request.FILES
+                else None
+            )
+            remove_avatar = profile_form.cleaned_data.get("remove_avatar", False)
+            site = _site()
+            review_required = bool(
+                site.comment_profile_review_enabled
+                and not request.user.is_staff
+                and not request.user.is_superuser
+            )
+            has_public_change = bool(
+                submitted_name != public_display_name
+                or uploaded_avatar is not None
+                or (remove_avatar and public_avatar_name)
+                or profile_record.profile_review_pending
+            )
+            if review_required and has_public_change:
+                # ModelForm validation assigns cleaned values to its instance.
+                # Restore the live identity before saving those values as a draft.
+                profile_record.display_name = public_display_name
+                profile_record.avatar = public_avatar_name
+                profile_record.stage_profile_changes(
+                    display_name=submitted_name,
+                    avatar=uploaded_avatar,
+                    remove_avatar=remove_avatar,
+                )
+                return _profile_redirect(return_to, review="pending")
+
+            updated_profile = profile_form.save(commit=False)
+            if remove_avatar:
+                updated_profile.avatar = None
+            updated_profile.save()
+            if updated_profile.profile_review_pending:
+                updated_profile.clear_pending_profile_changes()
+            return _profile_redirect(return_to, updated="1")
+
+    if request.method == "POST" and request.POST.get("action") == "email":
+        email_form = UserEmailChangeForm(request.POST, user=request.user)
+        if email_form.is_valid():
+            requested_email = email_form.cleaned_data["email"]
+            if _rate_limited(request, "profile-email", limit=5, period=60 * 60):
+                email_form.add_error(
+                    "email",
+                    _("Too many email-change requests. Please try again later."),
+                )
+                response_status = 429
+            else:
+                profile_record.pending_email = requested_email
+                profile_record.pending_email_requested_at = timezone.now()
+                profile_record.save(
+                    update_fields=("pending_email", "pending_email_requested_at")
+                )
+                try:
+                    _send_profile_email_confirmation(
+                        request, request.user, requested_email
+                    )
+                except Exception:
+                    logger.exception(
+                        "Failed to send email-change confirmation for user %s",
+                        request.user.pk,
+                    )
+                    profile_record.pending_email = ""
+                    profile_record.pending_email_requested_at = None
+                    profile_record.save(
+                        update_fields=("pending_email", "pending_email_requested_at")
+                    )
+                    email_form.add_error(
+                        "email",
+                        _("We could not send the confirmation email. Your email address was not changed."),
+                    )
+                    response_status = 502
+                else:
+                    return _profile_redirect(return_to, email="pending")
+
+    if request.method == "POST" and request.POST.get("action") == "password":
+        password_form = PasswordChangeForm(request.user, request.POST)
+        if password_form.is_valid():
+            user = password_form.save()
+            update_session_auth_hash(request, user)
+            return _profile_redirect(return_to, password="updated")
+
+    preview_display_name = (
+        profile_record.pending_resolved_display_name
+        if profile_record.profile_review_pending
+        else profile_record.resolved_display_name
+    )
+    if profile_record.profile_review_pending and profile_record.pending_avatar_change:
+        preview_avatar = profile_record.pending_avatar or None
+    else:
+        preview_avatar = profile_record.avatar or None
+
+    return render(
+        request,
+        "comments/profile.html",
+        {
+            "profile_form": profile_form,
+            "email_form": email_form,
+            "password_form": password_form,
+            "profile": profile_record,
+            "profile_preview_display_name": preview_display_name,
+            "profile_preview_avatar": preview_avatar,
+            "return_to": return_to,
+            "profile_updated": request.GET.get("updated") == "1",
+            "profile_review_withdrawn": request.GET.get("review") == "withdrawn",
+            "email_confirmation_sent": request.GET.get("email") == "pending",
+            "password_updated": request.GET.get("password") == "updated",
+        },
+        status=response_status,
+    )
+
+
+@login_required
+def profile_password_redirect(request):
+    return_to = _safe_next(
+        request,
+        request.POST.get("next") or request.GET.get("next"),
+    )
+    target = f"{reverse('comment_profile')}?{urlencode({'next': return_to})}"
+    return redirect(target + "#profile-password")
+
+
+@require_GET
+def profile_email_confirm(request, token):
+    verified = False
+    try:
+        payload = signing.loads(
+            token,
+            salt="blog.profile-email-change",
+            max_age=settings.PROFILE_EMAIL_CHANGE_MAX_AGE,
+        )
+        user = User.objects.get(pk=payload["user_id"], is_active=True)
+        profile_record = UserProfile.objects.get(user=user)
+        pending_email = str(payload["email"]).strip().lower()
+        if (
+            pending_email
+            and profile_record.pending_email.casefold() == pending_email.casefold()
+            and not User.objects.filter(email__iexact=pending_email).exclude(pk=user.pk).exists()
+        ):
+            with transaction.atomic():
+                user.email = pending_email
+                user.save(update_fields=("email",))
+                profile_record.pending_email = ""
+                profile_record.pending_email_requested_at = None
+                profile_record.save(
+                    update_fields=("pending_email", "pending_email_requested_at")
+                )
+            verified = True
+    except (
+        signing.BadSignature,
+        signing.SignatureExpired,
+        KeyError,
+        TypeError,
+        ValueError,
+        User.DoesNotExist,
+        UserProfile.DoesNotExist,
+    ):
+        pass
+    return render(
+        request,
+        "comments/profile_email_confirm.html",
+        {"verified": verified},
+        status=200 if verified else 400,
+    )
+
+
 @require_GET
 def comments(request, slug):
     article = get_object_or_404(ArticleModel.objects.published(), slug=slug)
     if not _internal_comments_available(_site(), article):
         return _json_error(_("Comments are disabled for this article."), 403)
-    qs = Comment.objects.filter(article=article, is_approved=True).select_related("author").order_by("-is_sticky", "-created_at")
+    qs = (
+        Comment.objects.filter(article=article, is_approved=True)
+        .select_related("author", "author__profile")
+        .order_by("-is_sticky", "-created_at")
+    )
     comments = [_comment_payload(item, request) for item in qs]
     return JsonResponse({"ok": True, "comments": comments})
 

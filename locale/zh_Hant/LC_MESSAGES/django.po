@@ -157,7 +157,7 @@ msgid "Your current session remains signed in."
 msgstr "目前工作階段仍保持登入。"
 
 msgid "Change password"
-msgstr "修改密碼"
+msgstr "變更密碼"
 
 msgid "Save password"
 msgstr "儲存密碼"
@@ -610,6 +610,7 @@ msgstr "更新時間"
 
 msgid "writer"
 msgstr "作者"
+
 msgid "Home"
 msgstr "首頁"
 
@@ -636,3 +637,195 @@ msgstr "管理後台"
 
 msgid "Sticky"
 msgstr "置頂"
+
+msgid "Profile"
+msgstr "個人資料"
+
+msgid "Edit profile"
+msgstr "編輯個人資料"
+
+msgid "Choose how your account appears in the comment section."
+msgstr "設定你的帳號在留言區中的顯示方式。"
+
+msgid "Profile updated."
+msgstr "個人資料已更新。"
+
+msgid ""
+"Confirmation email sent. Your current address remains active until the new "
+"one is confirmed."
+msgstr "確認郵件已寄出。在新電子郵件確認前，目前的地址仍然有效。"
+
+msgid "Profile preview"
+msgstr "個人資料預覽"
+
+msgid "Display name"
+msgstr "顯示名稱"
+
+msgid "Leave this empty to use your username."
+msgstr "留空時使用使用者名稱。"
+
+msgid "Avatar"
+msgstr "頭像"
+
+msgid "JPEG, PNG, GIF or WebP; no larger than 2 MB."
+msgstr "支援 JPEG、PNG、GIF 或 WebP，檔案不得超過 2 MB。"
+
+msgid "Remove current avatar"
+msgstr "移除目前頭像"
+
+msgid "Username cannot be changed."
+msgstr "使用者名稱無法變更。"
+
+msgid "A changed address becomes active only after confirmation."
+msgstr "新電子郵件須完成確認後才會生效。"
+
+msgid "Waiting for confirmation from %(email)s."
+msgstr "正在等待 %(email)s 的確認。"
+
+msgid "Current password"
+msgstr "目前密碼"
+
+msgid "Required only when changing the email address."
+msgstr "只有變更電子郵件時才需要填寫。"
+
+msgid "Save profile"
+msgstr "儲存個人資料"
+
+msgid "Cancel pending email change"
+msgstr "取消待確認的電子郵件變更"
+
+msgid "Email updated"
+msgstr "電子郵件已更新"
+
+msgid "Your new email address is now active."
+msgstr "你的新電子郵件現已生效。"
+
+msgid "Return to profile"
+msgstr "返回個人資料"
+
+msgid "Invalid confirmation link"
+msgstr "確認連結無效"
+
+msgid ""
+"This email confirmation link is invalid, expired, or has already been used."
+msgstr "此電子郵件確認連結無效、已過期或已使用。"
+
+msgid "Confirm your new email address"
+msgstr "確認你的新電子郵件"
+
+msgid "Hello %(username)s,"
+msgstr "你好，%(username)s："
+
+msgid "Open the link below to confirm this address for your comment account:"
+msgstr "開啟以下連結，為你的留言帳號確認此電子郵件："
+
+msgid ""
+"If you did not request this change, you can ignore this email and your "
+"current address will remain active."
+msgstr "若你未要求這項變更，請忽略此郵件；目前的電子郵件仍會有效。"
+
+msgid ""
+"Confirm this address before it replaces the email currently attached to your"
+" comment account."
+msgstr "確認此電子郵件後，它才會取代留言帳號目前綁定的地址。"
+
+msgid "Confirm email"
+msgstr "確認電子郵件"
+
+msgid "This email address is awaiting confirmation for another account."
+msgstr "此電子郵件正等待另一個帳號確認。"
+
+msgid "Enter your current password to change your email address."
+msgstr "請輸入目前密碼以變更電子郵件。"
+
+msgid "Too many email-change requests. Please try again later."
+msgstr "電子郵件變更請求過多，請稍後再試。"
+
+msgid ""
+"We could not send the confirmation email. Your email address was not "
+"changed."
+msgstr "無法寄出確認郵件，電子郵件未變更。"
+
+msgid "Avatar images must be no larger than %(size)s MB."
+msgstr "頭像檔案不得超過 %(size)s MB。"
+
+msgid "Avatar image data does not match its filename extension."
+msgstr "頭像內容與副檔名不符。"
+
+msgid "Avatar dimensions are too large."
+msgstr "頭像尺寸過大。"
+
+msgid "Avatar contains too many pixels or animation frames."
+msgstr "頭像的像素或動畫影格過多。"
+
+msgid "Upload a valid avatar image."
+msgstr "請上傳有效的頭像圖片。"
+
+msgid "display name"
+msgstr "顯示名稱"
+
+msgid "avatar"
+msgstr "頭像"
+
+msgid "pending email"
+msgstr "待確認電子郵件"
+
+msgid "This email address is already registered."
+msgstr "此電子郵件已被註冊。"
+
+msgid "Change email"
+msgstr "變更電子郵件"
+
+msgid "Enter a different email address."
+msgstr "請輸入不同的電子郵件地址。"
+
+msgid "Review profile changes"
+msgstr "審核個人資料變更"
+
+msgid "pending display name"
+msgstr "待審核顯示名稱"
+
+msgid "pending avatar"
+msgstr "待審核頭像"
+
+msgid "Choose the avatar crop again."
+msgstr "請重新選擇頭像裁切範圍。"
+
+msgid "Pending profile changes withdrawn."
+msgstr "已撤回待審核的個人資料變更。"
+
+msgid "Profile changes are waiting for review."
+msgstr "個人資料變更正在等待審核。"
+
+msgid "Your current public profile remains visible until an administrator approves the changes."
+msgstr "管理員核准變更前，公開頁面仍會顯示你目前的個人資料。"
+
+msgid "Withdraw pending changes"
+msgstr "撤回待審核變更"
+
+msgid "Change avatar"
+msgstr "更換頭像"
+
+msgid "Click the avatar to crop a new image."
+msgstr "點擊頭像即可選擇並裁切新圖片。"
+
+msgid "Remove avatar"
+msgstr "移除頭像"
+
+msgid "The selected file is not a supported image."
+msgstr "所選檔案不是支援的圖片格式。"
+
+msgid "The selected image could not be opened."
+msgstr "無法開啟所選圖片。"
+
+msgid "Crop avatar"
+msgstr "裁切頭像"
+
+msgid "Drag the image to choose the visible area."
+msgstr "拖動圖片以選擇頭像中顯示的範圍。"
+
+msgid "Zoom"
+msgstr "縮放"
+
+msgid "Use this crop"
+msgstr "使用此裁切"

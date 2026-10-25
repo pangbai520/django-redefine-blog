@@ -3454,6 +3454,7 @@ body.language-switcher-open {
 .wl-cards .wl-user img {
   width: var(--avatar-size);
   height: var(--avatar-size);
+  object-fit: cover;
   border-radius: var(--waline-avatar-radius);
   box-shadow: var(--redefine-box-shadow-flat);
 }

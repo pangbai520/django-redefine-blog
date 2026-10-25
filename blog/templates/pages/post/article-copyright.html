@@ -2,7 +2,7 @@
 <div class="article-copyright-info-container">
     <ul>
         <li><strong>{% translate "Title" %}:</strong> {{ article.title }}</li>
-        <li><strong>{% translate "Author" %}:</strong> {% firstof article.writer site.site_author %}</li>
+        <li><strong>{% translate "Author" %}:</strong> {% firstof article.writer blog_author_name site.site_author %}</li>
         <li><strong>{% translate "Created at" %}:</strong> {{ article.created_at|date:"Y-m-d H:i:s" }}</li>
         {% if article.updated_at and article.updated_at != article.created_at %}
             <li>

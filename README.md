@@ -33,8 +33,8 @@ existing Hexo site.
 - Markdown rendering with Redefine's commonly used callouts, folding blocks,
   tabs, buttons and code blocks
 - drafts, scheduled posts, related posts, RSS, Sitemap and server-side search
-- a built-in comment system with accounts, replies, likes, moderation, badges,
-  emoji, GIF search and image uploads
+- a built-in comment system with accounts, editable display names and avatars,
+  replies, likes, moderation, badges, emoji, GIF search and image uploads
 - light/dark mode, Swup navigation and seven interface languages
 - SQLite for a quick local setup, with PostgreSQL and MySQL configuration for
   deployment

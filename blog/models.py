@@ -1,11 +1,14 @@
 import hashlib
 import json
 import re
+import uuid
+from pathlib import Path
 
 import autoslug
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
@@ -24,11 +27,16 @@ from mdeditor.fields import MDTextField
 from core.markdown.extensions import get_extensions
 from .utils.unicode_slugify import unicode_slugify
 from .utils.word_counter import reading_time_counter, word_counter
-from .validators import validate_theme_image
+from .validators import validate_profile_avatar, validate_theme_image
 
 
 CACHE_KEY = "actived_site_config"
 CACHE_TIMEOUT = 60 * 60 * 24
+
+
+def user_avatar_upload_to(instance, filename):
+    suffix = Path(filename).suffix.lower()
+    return f"user-avatars/{instance.user_id}/{uuid.uuid4().hex}{suffix}"
 
 
 class SiteConfiguration(models.Model):
@@ -204,6 +212,14 @@ class SiteConfiguration(models.Model):
         "Require email verification",
         default=True,
         help_text="New accounts must verify their email address before commenting.",
+    )
+    comment_profile_review_enabled = models.BooleanField(
+        _("Review profile changes"),
+        default=False,
+        help_text=(
+            "Hold new display names and avatars for administrator approval. "
+            "Staff and superusers are not held for review."
+        ),
     )
     comment_allow_likes = models.BooleanField("Allow comment likes", default=True)
     comment_allow_guest = models.BooleanField("Allow guest comments", default=True)
@@ -1366,6 +1382,154 @@ class ArticleSearchDocument(models.Model):
         return self.title
 
 
+class UserProfile(models.Model):
+    """Public-facing identity for a registered comment account."""
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="profile",
+    )
+    display_name = models.CharField(_("display name"), max_length=80, blank=True)
+    avatar = models.ImageField(
+        _("avatar"),
+        upload_to=user_avatar_upload_to,
+        blank=True,
+        validators=[validate_profile_avatar],
+    )
+    pending_display_name = models.CharField(
+        _("pending display name"), max_length=80, blank=True
+    )
+    pending_avatar = models.ImageField(
+        _("pending avatar"),
+        upload_to=user_avatar_upload_to,
+        blank=True,
+        validators=[validate_profile_avatar],
+    )
+    pending_avatar_change = models.BooleanField(default=False)
+    profile_review_pending = models.BooleanField(default=False, db_index=True)
+    profile_review_requested_at = models.DateTimeField(null=True, blank=True)
+    pending_email = models.EmailField(_("pending email"), blank=True)
+    pending_email_requested_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ("user__username",)
+
+    @property
+    def resolved_display_name(self):
+        return (
+            self.display_name.strip()
+            or self.user.get_full_name()
+            or self.user.get_username()
+        )
+
+    @property
+    def pending_resolved_display_name(self):
+        return (
+            self.pending_display_name.strip()
+            or self.user.get_full_name()
+            or self.user.get_username()
+        )
+
+    def stage_profile_changes(self, *, display_name, avatar=None, remove_avatar=False):
+        """Store a public identity draft without changing the live profile."""
+        replaced_storage = self.pending_avatar.storage if self.pending_avatar else None
+        replaced_name = self.pending_avatar.name if self.pending_avatar else ""
+        self.pending_display_name = display_name.strip()
+        if avatar is not None:
+            self.pending_avatar = avatar
+            self.pending_avatar_change = True
+        elif remove_avatar:
+            self.pending_avatar = None
+            self.pending_avatar_change = True
+        elif not self.profile_review_pending:
+            self.pending_avatar_change = False
+        self.profile_review_pending = True
+        self.profile_review_requested_at = timezone.now()
+        self.save(
+            update_fields=(
+                "pending_display_name",
+                "pending_avatar",
+                "pending_avatar_change",
+                "profile_review_pending",
+                "profile_review_requested_at",
+            )
+        )
+        if replaced_name and replaced_name != self.pending_avatar.name:
+            transaction.on_commit(
+                lambda storage=replaced_storage, name=replaced_name: storage.delete(name)
+            )
+
+    def clear_pending_profile_changes(self):
+        pending_storage = self.pending_avatar.storage if self.pending_avatar else None
+        pending_name = self.pending_avatar.name if self.pending_avatar else ""
+        self.pending_display_name = ""
+        self.pending_avatar = None
+        self.pending_avatar_change = False
+        self.profile_review_pending = False
+        self.profile_review_requested_at = None
+        self.save(
+            update_fields=(
+                "pending_display_name",
+                "pending_avatar",
+                "pending_avatar_change",
+                "profile_review_pending",
+                "profile_review_requested_at",
+            )
+        )
+        if pending_name:
+            transaction.on_commit(
+                lambda storage=pending_storage, name=pending_name: storage.delete(name)
+            )
+
+    def approve_pending_profile_changes(self):
+        """Publish the staged identity and leave unrelated account data alone."""
+        if not self.profile_review_pending:
+            return False
+
+        pending_storage = self.pending_avatar.storage if self.pending_avatar else None
+        pending_name = self.pending_avatar.name if self.pending_avatar else ""
+        self.display_name = self.pending_display_name
+        if self.pending_avatar_change:
+            if self.pending_avatar:
+                self.pending_avatar.open("rb")
+                try:
+                    copied_avatar = ContentFile(
+                        self.pending_avatar.read(),
+                        name=Path(self.pending_avatar.name).name,
+                    )
+                finally:
+                    self.pending_avatar.close()
+                self.avatar.save(copied_avatar.name, copied_avatar, save=False)
+            else:
+                self.avatar = None
+
+        self.pending_display_name = ""
+        self.pending_avatar = None
+        self.pending_avatar_change = False
+        self.profile_review_pending = False
+        self.profile_review_requested_at = None
+        self.save(
+            update_fields=(
+                "display_name",
+                "avatar",
+                "pending_display_name",
+                "pending_avatar",
+                "pending_avatar_change",
+                "profile_review_pending",
+                "profile_review_requested_at",
+            )
+        )
+        if pending_name:
+            transaction.on_commit(
+                lambda storage=pending_storage, name=pending_name: storage.delete(name)
+            )
+        return True
+
+    def __str__(self):
+        return self.resolved_display_name
+
+
 class Comment(models.Model):
     """A comment attached to an article, with optional nested replies."""
 
@@ -1413,6 +1577,9 @@ class Comment(models.Model):
     @property
     def display_name(self):
         if self.author_id:
+            profile = getattr(self.author, "profile", None)
+            if profile and profile.display_name.strip():
+                return profile.display_name.strip()
             return self.author.get_full_name() or self.author.username
         return self.nickname or "Anonymous"
 
