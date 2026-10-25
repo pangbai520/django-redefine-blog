@@ -73,6 +73,23 @@ test('article avatars use the generated non-shrinking utility from upstream', ()
   assert.match(tailwind, /\.shrink-0\{flex-shrink:0\}/);
 });
 
+test('the empty home page uses a spacious standalone state instead of an article card', () => {
+  const home = readFileSync(
+    path.join(blogRoot, 'templates/pages/home/home-content.html'),
+    'utf8',
+  );
+  const styles = readFileSync(path.join(blogRoot, 'static/css/style.css'), 'utf8');
+  assert.match(home, /<li class="home-empty-state">/);
+  assert.doesNotMatch(home, /home-article-item text-center list-none/);
+  assert.match(home, /fa-folder-open home-empty-state-icon/);
+  assert.doesNotMatch(home, /<span class="home-empty-state-icon"/);
+  assert.match(styles, /\.home-empty-state \{[\s\S]*?min-height: clamp\(240px, 34vh, 340px\);/);
+  assert.match(styles, /\.home-empty-state \{[\s\S]*?background: var\(--background-color-transparent\);[\s\S]*?backdrop-filter: blur\(10px\);/);
+  assert.match(styles, /\.home-empty-state-icon \{[^}]*color: var\(--third-text-color\);[^}]*font-size: 2rem;/);
+  assert.doesNotMatch(styles, /\.home-empty-state-icon \{[^}]*background:/);
+  assert.match(styles, /\.home-empty-state-copy \{[\s\S]*?gap: 8px;/);
+});
+
 test('profile avatars use the cropper and transparent-image background', () => {
   const profile = readFileSync(
     path.join(blogRoot, 'templates/comments/profile.html'),

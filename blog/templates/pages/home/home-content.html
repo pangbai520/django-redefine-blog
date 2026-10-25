@@ -33,11 +33,12 @@
             </div>
         </li>
         {% empty %}
-        {# keep an explicit empty state, so the article grid never collapses without feedback #}
-        <li class="home-article-item text-center list-none">
-            <i class="fa-regular fa-folder-open text-5xl text-third-text-color mb-4 block"></i>
-            <p class="text-xl text-second-text-color font-medium">{% translate "No articles yet" %}</p>
-            <p class="text-sm text-third-text-color mt-2">{% translate "This page is empty. Go to the backend and publish your first post." %}</p>
+        <li class="home-empty-state">
+            <i class="fa-regular fa-folder-open home-empty-state-icon" aria-hidden="true"></i>
+            <div class="home-empty-state-copy">
+                <h2>{% translate "No articles yet" %}</h2>
+                <p>{% translate "This page is empty. Go to the backend and publish your first post." %}</p>
+            </div>
         </li>
         {% endfor %}
     </ul>
