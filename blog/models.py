@@ -19,7 +19,7 @@ from django.utils.safestring import mark_safe
 from django.utils.text import slugify, Truncator
 from django.utils.timezone import localtime
 from django.utils.timesince import timesince
-from django.utils.translation import gettext, gettext_lazy as _
+from django.utils.translation import get_language, gettext, gettext_lazy as _
 from functools import cached_property
 from markdown import Markdown
 from mdeditor.fields import MDTextField
@@ -502,12 +502,18 @@ class SiteConfiguration(models.Model):
     @property
     def navbar_links(self):
         # return roots only; dropdown children are rendered by their parent
-        return self.links.filter(link_location='navbar', parent__isnull=True).order_by('order')
+        return self.links.filter(
+            link_location='navbar', parent__isnull=True
+        ).prefetch_related(
+            'translations', 'submenus__translations'
+        ).order_by('order')
     
     @property
     def sidebar_links(self):
         """Return links assigned to the sidebar."""
-        return self.links.filter(link_location='sidebar').order_by('order')
+        return self.links.filter(
+            link_location='sidebar'
+        ).prefetch_related('translations').order_by('order')
 
     @property
     def mobile_sidebar_links(self):
@@ -792,7 +798,14 @@ class MenuLink(models.Model):
     
     config = models.ForeignKey(SiteConfiguration, on_delete=models.CASCADE, related_name='links')
     link_location = models.CharField('部署位置', max_length=20, choices=LOCATION_CHOICES)
-    name = models.CharField('显示名称', max_length=50, help_text="例如：GitHub, Bilibili, Wechat，填fa-开头为fontawesome，填http或/开头是图片")
+    name = models.CharField(
+        '默认显示名称',
+        max_length=50,
+        help_text=(
+            "默认名称（通常填写英文）。About、Archives 等标准名称会自动翻译；"
+            "自定义名称可在保存后进入此链接配置各语言翻译。"
+        ),
+    )
     url = models.CharField('链接地址/路径', max_length=255, help_text="外部链接填 http，内部路径填 /")
     icon = models.CharField('图标类名', max_length=100, blank=True, help_text="FontAwesome 类名，例如：fa-solid fa-house 或 fa-brands fa-github")
 
@@ -830,6 +843,45 @@ class MenuLink(models.Model):
             return match.view_name.startswith(self.inferred_namespace)
 
         return False
+
+    @staticmethod
+    def _normalized_language_code(language_code):
+        code = (language_code or '').strip().lower().replace('_', '-')
+        aliases = {
+            'zh-cn': 'zh-hans',
+            'zh-sg': 'zh-hans',
+            'zh-hant': 'zh-tw',
+            'zh-mo': 'zh-hk',
+        }
+        return aliases.get(code, code)
+
+    def resolve_localized_name(self, language_code=None):
+        """Return ``(label, is_explicit_translation)`` for the active language."""
+        code = self._normalized_language_code(language_code or get_language())
+        if not code or code == 'en' or code.startswith('en-'):
+            return self.name, False
+
+        candidates = [code]
+        base_code = code.split('-', 1)[0]
+        if base_code in {'es', 'fr', 'ja'} and base_code not in candidates:
+            candidates.append(base_code)
+
+        prefetched = getattr(self, '_prefetched_objects_cache', {}).get('translations')
+        if prefetched is None:
+            translations = self.translations.filter(language_code__in=candidates)
+        else:
+            translations = prefetched
+
+        translations_by_code = {
+            item.language_code: item.name
+            for item in translations
+            if item.language_code in candidates
+        }
+        for candidate in candidates:
+            if candidate in translations_by_code:
+                return translations_by_code[candidate], True
+
+        return self.name, False
 
     
     @property
@@ -938,6 +990,43 @@ class MenuLink(models.Model):
 
     def __str__(self):
         return f"[{self.get_link_location_display()}] {self.name}"
+
+
+class MenuLinkTranslation(models.Model):
+    menu_link = models.ForeignKey(
+        MenuLink,
+        on_delete=models.CASCADE,
+        related_name='translations',
+        verbose_name='菜单链接',
+    )
+    language_code = models.CharField('语言代码', max_length=16)
+    name = models.CharField('显示名称', max_length=50)
+
+    class Meta:
+        ordering = ('language_code',)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('menu_link', 'language_code'),
+                name='unique_menu_link_language',
+            ),
+        )
+        verbose_name = '菜单链接翻译'
+        verbose_name_plural = '菜单链接翻译'
+
+    def __str__(self):
+        language_name = dict(settings.LANGUAGES).get(
+            self.language_code, self.language_code
+        )
+        return f"{self.menu_link.name} ({language_name})"
+
+    def clean(self):
+        supported_languages = {
+            code for code, _name in settings.LANGUAGES if code != 'en'
+        }
+        if self.language_code not in supported_languages:
+            raise ValidationError({
+                'language_code': '请选择网站当前支持的非英语语言。'
+            })
     
 class Font(models.Model):
     FONT_TYPE_CHOICES = [

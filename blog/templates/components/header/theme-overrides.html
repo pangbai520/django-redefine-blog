@@ -1,6 +1,10 @@
 <style id="site-theme-overrides">
     :root {
         --primary-color: {{ site.colour_primary|default:'#A31F34' }};
+        --selection-color: var(--primary-color);
+        --copyright-info-color: var(--primary-color);
+        --waline-theme-color: var(--primary-color);
+        --waline-active-color: var(--primary-color);
         /* Keep Tailwind's standard radius scale aligned with the bundled
            Redefine build; named theme radii remain separate variables. */
         --radius-xs: .125rem;
@@ -23,6 +27,10 @@
     body.light-mode,
     body.dark-mode {
         --primary-color: {{ site.colour_primary|default:'#A31F34' }};
+        --selection-color: var(--primary-color);
+        --copyright-info-color: var(--primary-color);
+        --waline-theme-color: var(--primary-color);
+        --waline-active-color: var(--primary-color);
     }
 
     :root[data-theme="light"] { --home-banner-text-color: {{ site.hb_light_text|default:'#fff' }}; }

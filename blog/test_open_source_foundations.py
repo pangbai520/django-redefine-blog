@@ -23,7 +23,13 @@ from blog.extensions import (
     register_template_hook,
     reset_extension_registry,
 )
-from blog.models import ArticleModel, SiteConfiguration
+from blog.models import (
+    ArticleModel,
+    MenuLink,
+    MenuLinkTranslation,
+    SiteConfiguration,
+)
+from blog.templatetags.navbar_utils import menu_label, theme_label
 
 
 class ExtensionRegistryTests(TestCase):
@@ -83,6 +89,44 @@ class ArticleLifecycleSignalTests(TestCase):
 
 
 class LanguageSwitchTests(TestCase):
+    def test_custom_menu_label_uses_admin_translation_and_safe_fallbacks(self):
+        site = SiteConfiguration.objects.create(config_name="Menu translations")
+        link = MenuLink.objects.create(
+            config=site,
+            link_location="navbar",
+            name="More Info",
+            url="/more-info/",
+        )
+        MenuLinkTranslation.objects.create(
+            menu_link=link,
+            language_code="zh-hans",
+            name="更多信息",
+        )
+
+        with translation.override("zh-hans"):
+            self.assertEqual(menu_label(link), "更多信息")
+        with translation.override("ja"):
+            self.assertEqual(menu_label(link), "More Info")
+        with translation.override("en"):
+            self.assertEqual(menu_label(link), "More Info")
+
+    def test_standard_redefine_menu_labels_are_translated(self):
+        expected_about = {
+            "en": "About",
+            "es": "Acerca de",
+            "fr": "À propos",
+            "ja": "このブログについて",
+            "zh-hans": "关于",
+            "zh-hk": "關於",
+            "zh-tw": "關於",
+        }
+        for language_code, expected in expected_about.items():
+            with self.subTest(language_code=language_code):
+                with translation.override(language_code):
+                    self.assertEqual(str(theme_label("About")), expected)
+
+        self.assertEqual(theme_label("A custom page"), "A custom page")
+
     def test_every_shipped_catalog_covers_the_reader_interface(self):
         locale_root = Path(settings.BASE_DIR) / "locale"
 

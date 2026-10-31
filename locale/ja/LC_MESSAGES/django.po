@@ -815,7 +815,9 @@ msgstr "審査待ちのプロフィール変更を取り消しました。"
 msgid "Profile changes are waiting for review."
 msgstr "プロフィール変更は審査待ちです。"
 
-msgid "Your current public profile remains visible until an administrator approves the changes."
+msgid ""
+"Your current public profile remains visible until an administrator approves "
+"the changes."
 msgstr "管理者が変更を承認するまでは、現在の公開プロフィールが表示されます。"
 
 msgid "Withdraw pending changes"
@@ -863,7 +865,8 @@ msgstr "メールアドレスは確認済みです"
 msgid "This account is already active. You can sign in and comment."
 msgstr "このアカウントはすでに有効です。ログインしてコメントできます。"
 
-msgid "Thanks for registering. Click the button below to activate your account."
+msgid ""
+"Thanks for registering. Click the button below to activate your account."
 msgstr "ご登録ありがとうございます。下のボタンを押してアカウントを有効にしてください。"
 
 msgid "If you did not create this account, you can safely ignore this email."
@@ -873,5 +876,73 @@ msgstr "このアカウントを作成していない場合は、このメール
 msgid "Verify your account on %(site_name)s"
 msgstr "%(site_name)s のアカウントを確認"
 
-msgid "Thanks for registering. Open the link below, then confirm activation on the website:"
+msgid ""
+"Thanks for registering. Open the link below, then confirm activation on the "
+"website:"
 msgstr "ご登録ありがとうございます。以下のリンクを開き、サイト上で有効化を確認してください："
+
+msgid "Error:"
+msgstr "エラー:"
+
+msgid "Log in"
+msgstr "ログイン"
+
+msgid "Forgotten your login credentials?"
+msgstr "ログイン情報をお忘れですか？"
+
+msgid "Someone requested a password reset for your comment account."
+msgstr "コメントアカウントのパスワード再設定がリクエストされました。"
+
+msgid "Open this link to choose a new password:"
+msgstr "新しいパスワードを設定するには、次のリンクを開いてください:"
+
+msgid "Archive"
+msgstr "アーカイブ"
+
+msgid "About"
+msgstr "このブログについて"
+
+msgid "Links"
+msgstr "リンク"
+
+msgid "Category"
+msgstr "カテゴリー"
+
+msgid "Tag"
+msgstr "タグ"
+
+msgid "Post"
+msgstr "記事"
+
+msgid "Friend"
+msgstr "友達リンク"
+
+msgid "Timeline"
+msgstr "タイムライン"
+
+msgid "Shuoshuo"
+msgstr "つぶやき"
+
+msgid "Recent Posts"
+msgstr "最新記事"
+
+msgid "Tag Cloud"
+msgstr "タグクラウド"
+
+msgid "Comment"
+msgstr "コメント"
+
+msgid "RSS Feed"
+msgstr "RSSフィード"
+
+msgid "Share"
+msgstr "共有"
+
+msgid "Theme"
+msgstr "テーマ"
+
+msgid "Changelog"
+msgstr "更新履歴"
+
+msgid "Status"
+msgstr "状態"

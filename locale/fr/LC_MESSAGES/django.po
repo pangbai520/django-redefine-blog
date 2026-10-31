@@ -265,7 +265,8 @@ msgid "You do not have permission to upload article images."
 msgstr "Vous n’avez pas l’autorisation de téléverser des images d’article."
 
 msgid "Image data does not match its filename extension."
-msgstr "Les données de l’image ne correspondent pas à l’extension du nom de fichier."
+msgstr ""
+"Les données de l’image ne correspondent pas à l’extension du nom de fichier."
 
 msgid "Upload complete."
 msgstr "Téléversement terminé."
@@ -847,8 +848,12 @@ msgstr "Les modifications de profil en attente ont été retirées."
 msgid "Profile changes are waiting for review."
 msgstr "Les modifications du profil sont en attente de validation."
 
-msgid "Your current public profile remains visible until an administrator approves the changes."
-msgstr "Votre profil public actuel reste visible jusqu’à l’approbation des modifications par un administrateur."
+msgid ""
+"Your current public profile remains visible until an administrator approves "
+"the changes."
+msgstr ""
+"Votre profil public actuel reste visible jusqu’à l’approbation des "
+"modifications par un administrateur."
 
 msgid "Withdraw pending changes"
 msgstr "Retirer les modifications en attente"
@@ -895,8 +900,11 @@ msgstr "Adresse e-mail déjà vérifiée"
 msgid "This account is already active. You can sign in and comment."
 msgstr "Ce compte est déjà actif. Vous pouvez vous connecter et commenter."
 
-msgid "Thanks for registering. Click the button below to activate your account."
-msgstr "Merci pour votre inscription. Cliquez sur le bouton pour activer votre compte."
+msgid ""
+"Thanks for registering. Click the button below to activate your account."
+msgstr ""
+"Merci pour votre inscription. Cliquez sur le bouton pour activer votre "
+"compte."
 
 msgid "If you did not create this account, you can safely ignore this email."
 msgstr "Si vous n’avez pas créé ce compte, vous pouvez ignorer cet e-mail."
@@ -905,5 +913,77 @@ msgstr "Si vous n’avez pas créé ce compte, vous pouvez ignorer cet e-mail."
 msgid "Verify your account on %(site_name)s"
 msgstr "Vérifiez votre compte sur %(site_name)s"
 
-msgid "Thanks for registering. Open the link below, then confirm activation on the website:"
-msgstr "Merci pour votre inscription. Ouvrez le lien ci-dessous, puis confirmez l’activation sur le site :"
+msgid ""
+"Thanks for registering. Open the link below, then confirm activation on the "
+"website:"
+msgstr ""
+"Merci pour votre inscription. Ouvrez le lien ci-dessous, puis confirmez "
+"l’activation sur le site :"
+
+msgid "Error:"
+msgstr "Erreur :"
+
+msgid "Log in"
+msgstr "Se connecter"
+
+msgid "Forgotten your login credentials?"
+msgstr "Identifiants oubliés ?"
+
+msgid "Someone requested a password reset for your comment account."
+msgstr ""
+"Quelqu’un a demandé la réinitialisation du mot de passe de votre compte de "
+"commentaires."
+
+msgid "Open this link to choose a new password:"
+msgstr "Ouvrez ce lien pour choisir un nouveau mot de passe :"
+
+msgid "Archive"
+msgstr "Archive"
+
+msgid "About"
+msgstr "À propos"
+
+msgid "Links"
+msgstr "Liens"
+
+msgid "Category"
+msgstr "Catégorie"
+
+msgid "Tag"
+msgstr "Tag"
+
+msgid "Post"
+msgstr "Article"
+
+msgid "Friend"
+msgstr "Ami"
+
+msgid "Timeline"
+msgstr "Chronologie"
+
+msgid "Shuoshuo"
+msgstr "Shuoshuo"
+
+msgid "Recent Posts"
+msgstr "Articles récents"
+
+msgid "Tag Cloud"
+msgstr "Nuage de tags"
+
+msgid "Comment"
+msgstr "Commentaire"
+
+msgid "RSS Feed"
+msgstr "Flux RSS"
+
+msgid "Share"
+msgstr "Partager"
+
+msgid "Theme"
+msgstr "Thème"
+
+msgid "Changelog"
+msgstr "Journal des modifications"
+
+msgid "Status"
+msgstr "Statut"

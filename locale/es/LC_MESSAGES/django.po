@@ -265,7 +265,8 @@ msgid "You do not have permission to upload article images."
 msgstr "No tienes permiso para subir imágenes de artículos."
 
 msgid "Image data does not match its filename extension."
-msgstr "Los datos de la imagen no coinciden con la extensión del nombre de archivo."
+msgstr ""
+"Los datos de la imagen no coinciden con la extensión del nombre de archivo."
 
 msgid "Upload complete."
 msgstr "Carga completada."
@@ -843,8 +844,12 @@ msgstr "Se retiraron los cambios de perfil pendientes."
 msgid "Profile changes are waiting for review."
 msgstr "Los cambios del perfil están pendientes de revisión."
 
-msgid "Your current public profile remains visible until an administrator approves the changes."
-msgstr "Tu perfil público actual seguirá visible hasta que un administrador apruebe los cambios."
+msgid ""
+"Your current public profile remains visible until an administrator approves "
+"the changes."
+msgstr ""
+"Tu perfil público actual seguirá visible hasta que un administrador apruebe "
+"los cambios."
 
 msgid "Withdraw pending changes"
 msgstr "Retirar cambios pendientes"
@@ -891,7 +896,8 @@ msgstr "Correo ya verificado"
 msgid "This account is already active. You can sign in and comment."
 msgstr "Esta cuenta ya está activa. Puedes iniciar sesión y comentar."
 
-msgid "Thanks for registering. Click the button below to activate your account."
+msgid ""
+"Thanks for registering. Click the button below to activate your account."
 msgstr "Gracias por registrarte. Pulsa el botón para activar tu cuenta."
 
 msgid "If you did not create this account, you can safely ignore this email."
@@ -901,5 +907,76 @@ msgstr "Si no creaste esta cuenta, puedes ignorar este correo."
 msgid "Verify your account on %(site_name)s"
 msgstr "Verifica tu cuenta en %(site_name)s"
 
-msgid "Thanks for registering. Open the link below, then confirm activation on the website:"
-msgstr "Gracias por registrarte. Abre el enlace y confirma la activación en el sitio web:"
+msgid ""
+"Thanks for registering. Open the link below, then confirm activation on the "
+"website:"
+msgstr ""
+"Gracias por registrarte. Abre el enlace y confirma la activación en el sitio"
+" web:"
+
+msgid "Error:"
+msgstr "Error:"
+
+msgid "Log in"
+msgstr "Iniciar sesión"
+
+msgid "Forgotten your login credentials?"
+msgstr "¿Olvidó sus credenciales de inicio de sesión?"
+
+msgid "Someone requested a password reset for your comment account."
+msgstr ""
+"Alguien solicitó restablecer la contraseña de tu cuenta de comentarios."
+
+msgid "Open this link to choose a new password:"
+msgstr "Abre este enlace para elegir una nueva contraseña:"
+
+msgid "Archive"
+msgstr "Archivo"
+
+msgid "About"
+msgstr "Acerca de"
+
+msgid "Links"
+msgstr "Enlaces"
+
+msgid "Category"
+msgstr "Categoría"
+
+msgid "Tag"
+msgstr "Etiqueta"
+
+msgid "Post"
+msgstr "Publicación"
+
+msgid "Friend"
+msgstr "Amigo"
+
+msgid "Timeline"
+msgstr "Cronología"
+
+msgid "Shuoshuo"
+msgstr "Shuoshuo"
+
+msgid "Recent Posts"
+msgstr "Publicaciones recientes"
+
+msgid "Tag Cloud"
+msgstr "Nube de etiquetas"
+
+msgid "Comment"
+msgstr "Comentario"
+
+msgid "RSS Feed"
+msgstr "RSS Feed"
+
+msgid "Share"
+msgstr "Compartir"
+
+msgid "Theme"
+msgstr "Tema"
+
+msgid "Changelog"
+msgstr "Registro de cambios"
+
+msgid "Status"
+msgstr "Estado"

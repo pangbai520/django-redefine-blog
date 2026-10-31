@@ -2,6 +2,7 @@ import json
 import re
 
 from adminsortable2.admin import SortableTabularInline, SortableAdminBase
+from django.conf import settings
 from django.contrib import messages
 from django.contrib import admin
 from django import forms
@@ -28,6 +29,7 @@ from .models import (
     FriendLink,
     MasonryImage,
     MenuLink,
+    MenuLinkTranslation,
     SiteConfiguration,
     Tag,
     TrafficModel,
@@ -327,6 +329,7 @@ class MenuLinkInline(SortableTabularInline):
     model = MenuLink
     extra = 1
     classes = ('collapse',)
+    show_change_link = True
     fields = ('link_location', 'name', 'url', 'icon', 'parent')
     ordering = ('order',)
 
@@ -338,6 +341,31 @@ class MenuLinkInline(SortableTabularInline):
             else:
                 kwargs["queryset"] = MenuLink.objects.all()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+class MenuLinkTranslationForm(forms.ModelForm):
+    class Meta:
+        model = MenuLinkTranslation
+        fields = ('language_code', 'name')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['language_code'].widget = forms.Select(
+            choices=[
+                (code, label)
+                for code, label in settings.LANGUAGES
+                if code != 'en'
+            ]
+        )
+
+
+class MenuLinkTranslationInline(admin.TabularInline):
+    model = MenuLinkTranslation
+    form = MenuLinkTranslationForm
+    extra = 0
+    fields = ('language_code', 'name')
+    verbose_name = '语言版本'
+    verbose_name_plural = '自定义名称翻译（留空的语言使用标准翻译或默认名称）'
 
 class FontInline(admin.TabularInline):
     model = Font
@@ -904,10 +932,14 @@ class AudioTrackAdmin(admin.ModelAdmin):
 class MenuLinkAdmin(admin.ModelAdmin):
     list_display = ("name", "link_location", "config", "parent", "url", "order")
     list_filter = ("link_location", "config")
-    search_fields = ("name", "url", "icon", "active_namespace", "config__config_name")
+    search_fields = (
+        "name", "translations__name", "url", "icon",
+        "active_namespace", "config__config_name",
+    )
     autocomplete_fields = ("parent",)
     list_select_related = ("config", "parent")
     ordering = ("config", "link_location", "order", "id")
+    inlines = (MenuLinkTranslationInline,)
 
 
 @admin.register(Font)

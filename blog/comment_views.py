@@ -65,6 +65,16 @@ logger = logging.getLogger(__name__)
 class RateLimitedPasswordResetView(PasswordResetView):
     """Apply the same abuse controls to password mail as other account mail."""
 
+    def form_valid(self, form):
+        self.extra_email_context = {
+            **(self.extra_email_context or {}),
+            "language_code": getattr(
+                self.request, "LANGUAGE_CODE", settings.LANGUAGE_CODE
+            ),
+            "site": _site(),
+        }
+        return super().form_valid(form)
+
     def post(self, request, *args, **kwargs):
         if _rate_limited(request, "password-reset", limit=5, period=60 * 60):
             form = self.get_form()

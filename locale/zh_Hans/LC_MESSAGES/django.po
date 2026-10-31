@@ -815,7 +815,9 @@ msgstr "已撤回待审核的个人资料更改。"
 msgid "Profile changes are waiting for review."
 msgstr "个人资料更改正在等待审核。"
 
-msgid "Your current public profile remains visible until an administrator approves the changes."
+msgid ""
+"Your current public profile remains visible until an administrator approves "
+"the changes."
 msgstr "管理员通过更改前，公开页面仍会显示你当前的个人资料。"
 
 msgid "Withdraw pending changes"
@@ -863,7 +865,8 @@ msgstr "邮箱已验证"
 msgid "This account is already active. You can sign in and comment."
 msgstr "此账号已激活。您现在可以登录并发表评论。"
 
-msgid "Thanks for registering. Click the button below to activate your account."
+msgid ""
+"Thanks for registering. Click the button below to activate your account."
 msgstr "感谢注册。点击下方按钮激活您的账号。"
 
 msgid "If you did not create this account, you can safely ignore this email."
@@ -873,5 +876,73 @@ msgstr "如果您未创建此账号，可以放心忽略此邮件。"
 msgid "Verify your account on %(site_name)s"
 msgstr "在 %(site_name)s 验证您的账号"
 
-msgid "Thanks for registering. Open the link below, then confirm activation on the website:"
+msgid ""
+"Thanks for registering. Open the link below, then confirm activation on the "
+"website:"
 msgstr "感谢注册。请打开下方链接，然后在网站上确认激活："
+
+msgid "Error:"
+msgstr "错误："
+
+msgid "Log in"
+msgstr "登录"
+
+msgid "Forgotten your login credentials?"
+msgstr "忘记登录凭据？"
+
+msgid "Someone requested a password reset for your comment account."
+msgstr "有人请求重置您的评论账号密码。"
+
+msgid "Open this link to choose a new password:"
+msgstr "打开以下链接以选择新密码："
+
+msgid "Archive"
+msgstr "归档"
+
+msgid "About"
+msgstr "关于"
+
+msgid "Links"
+msgstr "链接"
+
+msgid "Category"
+msgstr "分类"
+
+msgid "Tag"
+msgstr "标签"
+
+msgid "Post"
+msgstr "文章"
+
+msgid "Friend"
+msgstr "友情链接"
+
+msgid "Timeline"
+msgstr "时间轴"
+
+msgid "Shuoshuo"
+msgstr "说说"
+
+msgid "Recent Posts"
+msgstr "最新文章"
+
+msgid "Tag Cloud"
+msgstr "标签云"
+
+msgid "Comment"
+msgstr "评论"
+
+msgid "RSS Feed"
+msgstr "RSS 订阅"
+
+msgid "Share"
+msgstr "分享"
+
+msgid "Theme"
+msgstr "主题"
+
+msgid "Changelog"
+msgstr "更新日志"
+
+msgid "Status"
+msgstr "状态"

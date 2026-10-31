@@ -68,6 +68,13 @@ class RuntimeRegressionTests(TestCase):
         self.assertIn("body.light-mode", html)
         self.assertIn("body.dark-mode", html)
         self.assertGreaterEqual(html.count("--primary-color: #00bbfe"), 3)
+        self.assertIn("--selection-color: var(--primary-color)", html)
+        self.assertIn("--waline-theme-color: var(--primary-color)", html)
+        self.assertIn("--waline-active-color: var(--primary-color)", html)
+        self.assertGreater(
+            html.index('id="site-theme-overrides"'),
+            html.index("css/style.css"),
+        )
 
     def test_robots_txt_points_to_sitemap_and_hides_private_routes(self):
         response = self.client.get(reverse("robots_txt"), secure=True)
@@ -151,3 +158,23 @@ class RuntimeRegressionTests(TestCase):
         self.assertIn("验证您的账号", message.subject)
         self.assertIn("#00bbfe", message.alternatives[0].content)
         self.assertIn("验证您的评论账号", message.alternatives[0].content)
+
+    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    def test_password_reset_email_uses_request_language_and_site_accent(self):
+        user = self.site._meta.apps.get_model("auth", "User").objects.create_user(
+            username="reset-reader",
+            email="reset-reader@example.com",
+            password="A-strong-password-123",
+        )
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = "zh-hans"
+
+        response = self.client.post(
+            reverse("password_reset"),
+            {"email": user.email},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        message = mail.outbox[0]
+        self.assertIn("重置密码", message.subject)
+        self.assertIn("#00bbfe", message.alternatives[0].content)
+        self.assertIn("设置新密码", message.alternatives[0].content)

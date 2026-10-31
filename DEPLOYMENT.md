@@ -69,6 +69,26 @@ sudo systemctl reload nginx
 Check `https://example.com/health/` after each deployment. The endpoint verifies
 that Django can reach the database.
 
+After the first deployment, install the checked-in updater:
+
+```bash
+sudo install -o root -g root -m 750 \
+  /srv/django-my-blog/deploy/update.sh \
+  /usr/local/sbin/update-django-my-blog
+```
+
+Then update the production site with:
+
+```bash
+sudo update-django-my-blog
+```
+
+It creates a pre-deployment backup, accepts only a fast-forward from
+`origin/main`, installs production dependencies, applies migrations, collects
+static files, rebuilds the search index, restarts the service and waits for the
+public health check. It deliberately does not attempt to reverse database
+migrations after a failure.
+
 `STATIC_ROOT` and `MEDIA_ROOT` should be outside the checkout and writable by
 the service account. Nginx serves both directly; never configure it to execute
 anything below the media directory.

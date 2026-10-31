@@ -27,7 +27,7 @@
                             {% if navbar_link.user_icon %}
                                 <i class="{{ navbar_link.user_icon }} fa-fw"></i>
                             {% endif %}
-                            {{ navbar_link.name|theme_label|upper }}
+                            {{ navbar_link|menu_label|upper }}
                             {% if navbar_link.has_submenus %}
                                 <i class="fa-solid fa-chevron-down fa-fw"></i>
                             {% endif %}
@@ -38,7 +38,7 @@
                             {% for submenu in navbar_link.submenus.all %}
                             <li>
                                 <a href="{{ submenu.href }}">
-                                    {{ submenu.name|theme_label|upper }}
+                                    {{ submenu|menu_label|upper }}
                                 </a>
                             </li>
                             {% endfor %}
@@ -74,14 +74,14 @@
                 {% if navbar_link.has_submenus %}
                 <div class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary cursor-pointer text-2xl font-semibold group border-b border-border-color hover:border-primary w-full {% if navbar_link|is_active:request %}active{% endif %}" navbar-data-toggle="submenu-{{ forloop.counter }}">
                     <span>
-                        {{ navbar_link.name|theme_label|upper }}
+                        {{ navbar_link|menu_label|upper }}
                     </span>
                     <i class="fa-solid fa-chevron-right fa-sm fa-fw transition-all"></i>
                 </div>
                 {% else %}
                 <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full {% if navbar_link|is_active:request %}active{% endif %}" href="{{ navbar_link.href }}">
                     <span>
-                        {{ navbar_link.name|theme_label|upper }}
+                        {{ navbar_link|menu_label|upper }}
                     </span>
                     {% if navbar_link.user_icon %}
                         <i class="{{ navbar_link.user_icon }} fa-sm fa-fw"></i>
@@ -93,7 +93,7 @@
                         {% for submenu in navbar_link.submenus.all %}
                             <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
                                 <a class=" text-third-text-color text-xl"
-                                    href="{{ submenu.href }}">{{ submenu.name|theme_label|upper }}</a>
+                                    href="{{ submenu.href }}">{{ submenu|menu_label|upper }}</a>
                             </div>
                         {% endfor %}
                     </div>
@@ -105,7 +105,7 @@
                 {% for sidebar_link in site.mobile_sidebar_links %}
                     <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
                         <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full {% if sidebar_link|is_active:request %}active{% endif %}" href="{{ sidebar_link.href }}">
-                            <span>{{ sidebar_link.name|theme_label }}</span>
+                            <span>{{ sidebar_link|menu_label }}</span>
                             <i class="{{ sidebar_link.user_icon }} fa-sm fa-fw"></i>
                         </a>
                     </li>
