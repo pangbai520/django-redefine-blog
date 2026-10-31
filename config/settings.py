@@ -240,6 +240,7 @@ MDEDITOR_CONFIGS = {
     "default": {
         "upload_image_formats": ["jpg", "jpeg", "png", "gif", "webp"],
         "upload_image_url": "/mdeditor/uploads/",
+        "toolbar_autofixed": False,
     }
 }
 

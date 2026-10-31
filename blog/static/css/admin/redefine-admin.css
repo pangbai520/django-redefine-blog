@@ -464,6 +464,23 @@ textarea {
   min-height: 108px;
 }
 
+/* Editor.md writes width: 100% onto its wrapper. Inside Django's aligned
+   form rows that width is added to the label width, which clips the editor
+   and makes its toolbar collapse. Let flexbox use only the remaining space. */
+.aligned .field-content .flex-container > .wmd-wrapper {
+  box-sizing: border-box;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
+  width: auto !important;
+}
+
+.aligned .field-content .wmd-wrapper .editormd-toolbar,
+.aligned .field-content .wmd-wrapper .editormd-toolbar-container {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
 input:focus,
 textarea:focus,
 select:focus,

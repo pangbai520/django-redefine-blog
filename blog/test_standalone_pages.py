@@ -114,6 +114,7 @@ class StandalonePageTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, page.slug)
+        self.assertContains(response, "toolbarAutoFixed: false")
 
     def test_custom_page_supports_internal_comments(self):
         self.site.comment_enabled = True
