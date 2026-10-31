@@ -1,2 +1,2 @@
 -r requirements.txt
-django-allauth[socialaccount]==65.20.0
+django-allauth[socialaccount]==65.21.0
