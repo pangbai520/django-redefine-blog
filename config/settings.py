@@ -348,11 +348,7 @@ UNVERIFIED_ACCOUNT_RETENTION_HOURS = int(
     os.getenv("UNVERIFIED_ACCOUNT_RETENTION_HOURS", "72")
 )
 
-_default_ip2region_dir = (
-    Path("/var/lib/django-redefine-blog")
-    if _production_settings_active
-    else BASE_DIR / "var"
-)
+_default_ip2region_dir = BASE_DIR / "var"
 IP2REGION_DB_V4 = os.getenv(
     "IP2REGION_DB_V4",
     str(_default_ip2region_dir / "ip2region_v4.xdb"),

@@ -1650,12 +1650,6 @@ msgstr "Page mapping"
 msgid "Page title"
 msgstr "Page title"
 
-msgid "PangBai Blog admin"
-msgstr "PangBai Blog admin"
-
-msgid "PangBai Blog administration"
-msgstr "PangBai Blog administration"
-
 msgid "Passwords do not match."
 msgstr "Passwords do not match."
 

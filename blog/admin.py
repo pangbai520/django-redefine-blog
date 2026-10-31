@@ -48,8 +48,8 @@ from .models import (
 apply_admin_metadata(globals())
 
 
-admin.site.site_header = _("Django Redefine administration")
-admin.site.site_title = _("Django Redefine admin")
+admin.site.site_header = "Django Redefine Administration"
+admin.site.site_title = "Django Redefine Admin"
 admin.site.index_title = _("Administration")
 admin.site.site_url = "/"
 
