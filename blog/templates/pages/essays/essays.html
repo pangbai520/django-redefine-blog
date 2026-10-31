@@ -4,7 +4,7 @@
 {% block page_content %}
 <div class="page-template-container">
 <div class="mb-4">
-    <h1 class="page-title-header">{{ page_title }}</h1>
+    {% if standalone_page.show_title %}<h1 class="page-title-header">{{ page_title }}</h1>{% endif %}
     <ul class="flex flex-col mb-4 gap-6">
         {% for entry in essays %}
         <li class="w-full flex flex-row relative">
@@ -22,6 +22,6 @@
         {% endfor %}
     </ul>
 </div>
-<div class="page-template-content markdown-body"></div>
+{% include "pages/standalone/content.html" %}
 </div>
 {% endblock %}

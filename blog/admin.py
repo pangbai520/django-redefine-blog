@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib import admin
 from django import forms
+from django.forms.models import BaseInlineFormSet
 from django.core.cache import cache
 from django.db import models, transaction
 from django.utils.html import format_html
@@ -39,6 +40,8 @@ from .models import (
     MenuLink,
     MenuLinkTranslation,
     SiteConfiguration,
+    StandalonePage,
+    StandalonePageTranslation,
     Tag,
     TrafficModel,
     UserProfile,
@@ -454,19 +457,23 @@ class CommentGifSourceInline(admin.TabularInline):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ("display_name", "article", "is_approved", "is_sticky", "ip_address", "browser", "operating_system", "created_at", "admin_like_count")
+    list_display = ("display_name", "comment_target", "is_approved", "is_sticky", "ip_address", "browser", "operating_system", "created_at", "admin_like_count")
     list_filter = ("is_approved", "is_sticky", "created_at")
-    search_fields = ("content", "nickname", "email", "author__username", "article__title")
+    search_fields = ("content", "nickname", "email", "author__username", "article__title", "page__title")
     autocomplete_fields = ("author", "parent")
-    raw_id_fields = ("article",)
+    raw_id_fields = ("article", "page")
     readonly_fields = ("created_at", "updated_at")
     date_hierarchy = "created_at"
-    list_select_related = ("article", "author", "parent")
+    list_select_related = ("article", "page", "author", "parent")
     list_per_page = 50
     actions = ("approve_comments", "hold_comments", "pin_comments", "unpin_comments")
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(_admin_like_count=models.Count("likes"))
+
+    @admin.display(description=_("Page"), ordering="article__title")
+    def comment_target(self, obj):
+        return obj.article or obj.page
 
     @admin.display(description=_("Likes"), ordering="_admin_like_count")
     def admin_like_count(self, obj):
@@ -484,13 +491,18 @@ class CommentAdmin(admin.ModelAdmin):
 
     @admin.action(description=_("Pin selected comment"))
     def pin_comments(self, request, queryset):
-        selected = list(queryset.order_by("article_id", "-created_at", "-pk"))
-        by_article = {}
+        selected = list(queryset.order_by("article_id", "page_id", "-created_at", "-pk"))
+        by_target = {}
         for comment in selected:
-            by_article.setdefault(comment.article_id, comment)
+            key = ("article", comment.article_id) if comment.article_id else ("page", comment.page_id)
+            by_target.setdefault(key, comment)
         with transaction.atomic():
-            Comment.objects.filter(article_id__in=by_article).update(is_sticky=False)
-            pinned = Comment.objects.filter(pk__in=[item.pk for item in by_article.values()]).update(is_sticky=True)
+            article_ids = [pk for kind, pk in by_target if kind == "article"]
+            page_ids = [pk for kind, pk in by_target if kind == "page"]
+            Comment.objects.filter(
+                models.Q(article_id__in=article_ids) | models.Q(page_id__in=page_ids)
+            ).update(is_sticky=False)
+            pinned = Comment.objects.filter(pk__in=[item.pk for item in by_target.values()]).update(is_sticky=True)
         skipped = len(selected) - pinned
         message = ngettext(
             "Pinned %(count)d comment.",
@@ -499,8 +511,8 @@ class CommentAdmin(admin.ModelAdmin):
         ) % {"count": pinned}
         if skipped:
             message += " " + ngettext(
-                "Skipped %(count)d duplicate selection because only one comment can be pinned per article.",
-                "Skipped %(count)d duplicate selections because only one comment can be pinned per article.",
+                "Skipped %(count)d duplicate selection because only one comment can be pinned per page.",
+                "Skipped %(count)d duplicate selections because only one comment can be pinned per page.",
                 skipped,
             ) % {"count": skipped}
         self.message_user(request, message)
@@ -511,8 +523,43 @@ class CommentAdmin(admin.ModelAdmin):
         self.message_user(request, _("Selected comments were unpinned."))
 
 
+class UniqueLanguageInlineFormSet(BaseInlineFormSet):
+    duplicate_message = _("Each language can only be added once.")
+
+    def clean(self):
+        super().clean()
+        languages = set()
+        for form in self.forms:
+            cleaned = getattr(form, "cleaned_data", None) or {}
+            if cleaned.get("DELETE"):
+                continue
+            language_code = cleaned.get("language_code")
+            if not language_code:
+                continue
+            normalized = language_code.replace("_", "-").lower()
+            if normalized in languages:
+                form.add_error("language_code", self.duplicate_message)
+            languages.add(normalized)
+
+
+class CommentBadgeTranslationFormSet(UniqueLanguageInlineFormSet):
+    def save_new(self, form, commit=True):
+        language_code = form.cleaned_data.get("language_code")
+        existing = CommentBadgeTranslation.objects.filter(
+            badge=self.instance,
+            language_code=language_code,
+        ).first()
+        if existing is None:
+            return super().save_new(form, commit=commit)
+        existing.name = form.cleaned_data.get("name", existing.name)
+        if commit:
+            existing.save(update_fields=("name",))
+        return existing
+
+
 class CommentBadgeTranslationInline(admin.TabularInline):
     model = CommentBadgeTranslation
+    formset = CommentBadgeTranslationFormSet
     extra = 0
 
 
@@ -893,14 +940,6 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
                 ),
             },
         ),
-        (_("Standalone pages"), {
-            'classes': ('collapse',),
-                'fields': (
-                ('bookmarks_enabled', 'essays_enabled', 'masonry_enabled'),
-                ('friends_enabled', 'friends_page_columns'),
-                'tags_page_style',
-            )
-        }),
         (
             _("Advanced settings"),
             {
@@ -952,6 +991,63 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             )
             return
         queryset.delete()
+
+
+class StandalonePageTranslationInline(admin.StackedInline):
+    model = StandalonePageTranslation
+    formset = UniqueLanguageInlineFormSet
+    extra = 0
+
+
+@admin.register(StandalonePage)
+class StandalonePageAdmin(admin.ModelAdmin):
+    exclude = ("config",)
+    list_display = (
+        "title",
+        "page_type",
+        "slug",
+        "enabled",
+        "include_in_sitemap",
+        "updated_at",
+    )
+    list_filter = ("enabled", "page_type", "include_in_sitemap")
+    search_fields = ("title", "slug", "content")
+    prepopulated_fields = {"slug": ("title",)}
+    inlines = (StandalonePageTranslationInline,)
+
+    def get_fieldsets(self, request, obj=None):
+        display_fields = ["show_title", "include_in_sitemap"]
+        if obj is None or obj.page_type == StandalonePage.CUSTOM:
+            display_fields.insert(1, "comments_enabled")
+        if obj is not None and obj.page_type == StandalonePage.FRIENDS:
+            display_fields.append("friends_columns")
+        if obj is not None and obj.page_type == StandalonePage.TAGS:
+            display_fields.append("tags_style")
+        return (
+            (
+                None,
+                {
+                    "fields": (
+                        ("page_type", "enabled"),
+                        ("title", "slug"),
+                        "content",
+                    )
+                },
+            ),
+            (_("Display and indexing"), {"fields": (tuple(display_fields),)}),
+        )
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None:
+            return ()
+        if obj.page_type == StandalonePage.CUSTOM:
+            return ("page_type",)
+        return ("page_type", "slug")
+
+    def save_model(self, request, obj, form, change):
+        if not obj.config_id:
+            obj.config = SiteConfiguration.get_config()
+        super().save_model(request, obj, form, change)
 
 @admin.register(ArticleModel)
 class ArticleAdmin(admin.ModelAdmin):

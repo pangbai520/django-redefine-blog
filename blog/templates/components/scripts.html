@@ -21,12 +21,12 @@
 {# load tabs independently from TOC, so articles can use tab blocks without an outline #}
 <script src="{% static 'js/plugins/tabs.js' %}" type="module"></script>
 
-{% if site.masonry_enabled %}
+{% if "masonry" in enabled_standalone_pages %}
     <script src="{% static 'js/libs/minimasonry.min.js' %}"></script>
     <script src="{% static 'js/plugins/masonry.js' %}" type="module"></script>
 {% endif %}
 
-{% if site.essays_enabled %}
+{% if "essays" in enabled_standalone_pages %}
     <script src="{% static 'js/libs/moment-with-locales.min.js' %}"></script>
     <script src="{% static 'js/layouts/essays.js' %}" type="module"></script>
 {% endif %}

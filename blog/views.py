@@ -12,6 +12,7 @@ from .models import (
     FriendCategory,
     MasonryImage,
     SiteConfiguration,
+    StandalonePage,
     Tag,
     TrafficModel,
 )
@@ -26,6 +27,45 @@ from .cache_utils import versioned_cache_page
 from .middleware import record_request_traffic
 from .recommendations import related_articles
 from .search import search_articles
+
+
+def _render_page_markdown(page, site):
+    content = page.localized_content()
+    if not content:
+        return ""
+    markdown = Markdown(extensions=get_extensions(site))
+    return mark_safe(markdown.convert(content))
+
+
+def _standalone_page(site, page_type, default_title):
+    page = (
+        StandalonePage.objects.filter(config=site, page_type=page_type)
+        .prefetch_related("translations")
+        .first()
+    )
+    if page is None:
+        defaults = StandalonePage.BUILTIN_DEFAULTS[page_type]
+        legacy_field = {
+            StandalonePage.FRIENDS: "friends_enabled",
+            StandalonePage.BOOKMARKS: "bookmarks_enabled",
+            StandalonePage.ESSAYS: "essays_enabled",
+            StandalonePage.MASONRY: "masonry_enabled",
+        }.get(page_type)
+        enabled = getattr(site, legacy_field, defaults["enabled"]) if legacy_field else defaults["enabled"]
+        page = StandalonePage(
+            config=site,
+            page_type=page_type,
+            title=default_title,
+            slug=defaults["slug"],
+            enabled=enabled,
+            friends_columns=getattr(site, "friends_page_columns", 2),
+            tags_style=getattr(site, "tags_page_style", "blur"),
+        )
+    if not page.enabled:
+        raise Http404
+    page.rendered_content = _render_page_markdown(page, site)
+    page.rendered_title = page.localized_title()
+    return page
 
 
 def page_not_found(request, exception):
@@ -158,9 +198,12 @@ def archives(request):
     # otherwise split one year into several sections
     articles_qs = ArticleModel.objects.published().order_by('-created_at', 'title')
 
+    site = SiteConfiguration.get_config()
+    standalone_page = _standalone_page(site, StandalonePage.ARCHIVES, _("Archives"))
     context = {
         # render the complete archive on one page, matching Hexo's archive helper
-        "page_title": _("Archives"),
+        "page_title": standalone_page.rendered_title,
+        "standalone_page": standalone_page,
         "articles_page": articles_qs,
         "is_homepage": False,
         "has_header": True,
@@ -205,11 +248,14 @@ def categories(request):
         visible_root = build_tree(root)
         if visible_root is not None:
             category_tree.append(visible_root)
+    site = SiteConfiguration.get_config()
+    standalone_page = _standalone_page(site, StandalonePage.CATEGORIES, _("Categories"))
     context = {
         "is_homepage": False,
         "is_paginated": False,
         "has_header": True,
-        "page_title": _("Categories"),
+        "page_title": standalone_page.rendered_title,
+        "standalone_page": standalone_page,
         'categories': categories,
         'category_tree': category_tree,
     }
@@ -242,6 +288,7 @@ def categories_detail(request, slug):
 def tags(request):
     now = timezone.now()
     site = SiteConfiguration.get_config()
+    standalone_page = _standalone_page(site, StandalonePage.TAGS, _("Tags"))
     tags = list(
         Tag.objects
         .annotate(
@@ -259,7 +306,7 @@ def tags(request):
 
     # Hexo's tagcloud helper caps cloud mode at 100 entries.  The blur list
     # deliberately remains complete.
-    if site.tags_page_style == "cloud":
+    if standalone_page.tags_style == "cloud":
         tags = tags[:100]
 
     if tags:
@@ -278,7 +325,8 @@ def tags(request):
 
     context = {
         "tags": tags,
-        "page_title": _("Tags"),
+        "page_title": standalone_page.rendered_title,
+        "standalone_page": standalone_page,
         "is_paginated": False,
         "has_header": True,
     }
@@ -312,8 +360,7 @@ def tags_detail(request, slug):
 
 def bookmarks(request):
     site = SiteConfiguration.get_config()
-    if not site.bookmarks_enabled:
-        raise Http404
+    standalone_page = _standalone_page(site, StandalonePage.BOOKMARKS, _("Bookmarks"))
 
     categories = list(
         BookmarkCategory.objects.filter(config=site).prefetch_related("items")
@@ -331,7 +378,8 @@ def bookmarks(request):
         used_anchors.add(anchor)
         category.anchor_id = anchor
     return render(request, "pages/bookmarks/bookmarks.html", {
-        "page_title": _("Bookmarks"),
+        "page_title": standalone_page.rendered_title,
+        "standalone_page": standalone_page,
         "categories": categories,
         "is_homepage": False,
         "has_header": True,
@@ -340,8 +388,7 @@ def bookmarks(request):
 
 def essays(request):
     site = SiteConfiguration.get_config()
-    if not site.essays_enabled:
-        raise Http404
+    standalone_page = _standalone_page(site, StandalonePage.ESSAYS, _("Essays"))
 
     markdown = Markdown(extensions=get_extensions(site))
     entries = []
@@ -355,7 +402,8 @@ def essays(request):
         })
 
     return render(request, "pages/essays/essays.html", {
-        "page_title": _("Essays"),
+        "page_title": standalone_page.rendered_title,
+        "standalone_page": standalone_page,
         "essays": entries,
         "is_homepage": False,
         "has_header": True,
@@ -364,12 +412,12 @@ def essays(request):
 
 def masonry(request):
     site = SiteConfiguration.get_config()
-    if not site.masonry_enabled:
-        raise Http404
+    standalone_page = _standalone_page(site, StandalonePage.MASONRY, _("Masonry"))
 
     images = MasonryImage.objects.filter(config=site)
     return render(request, "pages/masonry/masonry.html", {
-        "page_title": _("Masonry"),
+        "page_title": standalone_page.rendered_title,
+        "standalone_page": standalone_page,
         "images": images,
         "is_homepage": False,
         "has_header": True,
@@ -378,12 +426,31 @@ def masonry(request):
 
 def friends(request):
     site = SiteConfiguration.get_config()
-    if not site.friends_enabled:
-        raise Http404
+    standalone_page = _standalone_page(site, StandalonePage.FRIENDS, _("Friends"))
     categories = FriendCategory.objects.prefetch_related("links")
     return render(request, "pages/friends/friends.html", {
-        "page_title": _("Friends"),
+        "page_title": standalone_page.rendered_title,
+        "standalone_page": standalone_page,
         "categories": categories,
+        "is_homepage": False,
+        "has_header": True,
+    })
+
+
+def standalone_page(request, slug):
+    site = SiteConfiguration.get_config()
+    page = get_object_or_404(
+        StandalonePage.objects.prefetch_related("translations"),
+        config=site,
+        page_type=StandalonePage.CUSTOM,
+        slug=slug,
+        enabled=True,
+    )
+    page.rendered_title = page.localized_title()
+    page.rendered_content = _render_page_markdown(page, site)
+    return render(request, "pages/standalone/page.html", {
+        "page_title": page.rendered_title,
+        "standalone_page": page,
         "is_homepage": False,
         "has_header": True,
     })

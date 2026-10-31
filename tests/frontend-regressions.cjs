@@ -30,21 +30,16 @@ test('custom TOC widths only override the desktop layout', () => {
   );
 });
 
-test('footer runtime uses one short odometer animation instead of a perpetual transition', () => {
-  const scripts = readFileSync(
-    path.join(blogRoot, 'templates/components/scripts.html'),
-    'utf8',
-  );
+test('footer runtime refreshes the displayed values without duplicate intervals', () => {
+  const main = source('main.js');
   const runtime = source('tools/runtime.js');
-  const styles = readFileSync(path.join(blogRoot, 'static/css/style.css'), 'utf8');
-  assert.match(scripts, /odometerOptions = \{ auto: false \}/);
-  assert.doesNotMatch(scripts, /static 'js\/tools\/runtime\.js'/);
-  assert.match(runtime, /duration: 200/);
+  assert.match(main, /import initFooterRuntime from "\.\/tools\/runtime\.js"/);
+  assert.match(main, /initFooterRuntime\(\)/);
+  assert.match(runtime, /new Intl\.NumberFormat\("en-US"/);
   assert.match(runtime, /let runtimeTimer = null/);
   assert.match(runtime, /export default function initFooterRuntime/);
   assert.doesNotMatch(runtime, /setInterval/);
-  assert.match(styles, /\.footer \.odometer[\s\S]*?transition: transform 200ms;/);
-  assert.doesNotMatch(styles, /\.footer \.odometer[\s\S]*?transition: transform 999ms;/);
+  assert.match(runtime, /runtimeTimer = window\.setTimeout\(footerRuntime, 1000\)/);
 });
 
 test('short pages keep a stable mobile viewport height without a scripted footer margin', () => {
@@ -73,12 +68,11 @@ test('article avatars use the generated non-shrinking utility from upstream', ()
   assert.match(tailwind, /\.shrink-0\{flex-shrink:0\}/);
 });
 
-test('bookmarks retain upstream radii, hover motion, and Chinese font fallback', () => {
+test('bookmarks retain upstream radii, utility motion, and Chinese font fallback', () => {
   const bookmarks = readFileSync(
     path.join(blogRoot, 'templates/pages/bookmarks/bookmarks.html'),
     'utf8',
   );
-  const styles = readFileSync(path.join(blogRoot, 'static/css/style.css'), 'utf8');
   const overrides = readFileSync(
     path.join(blogRoot, 'templates/components/header/theme-overrides.html'),
     'utf8',
@@ -88,8 +82,8 @@ test('bookmarks retain upstream radii, hover motion, and Chinese font fallback',
   assert.match(overrides, /--radius-lg: \.5rem;/);
   assert.match(overrides, /--radius-xl: \.75rem;/);
   assert.match(overrides, /--radius-2xl: 1rem;/);
-  assert.match(styles, /\.bookmark-card-link:hover \.bookmark-card \{[\s\S]*?transform: translateY\(-0\.25rem\);/);
-  assert.match(styles, /\.bookmark-card-link:hover \.bookmark-card-image \{[\s\S]*?transform: scale\(1\.05\);/);
+  assert.match(bookmarks, /hover:-translate-y-1[^\"]*bookmark-card/);
+  assert.match(bookmarks, /group-hover:scale-105[^\"]*bookmark-card-image/);
   assert.match(overrides, /'Geist Variable', 'Noto Sans SC', -apple-system, system-ui/);
 });
 
@@ -334,10 +328,15 @@ test('bookmark navigation selects the first section and updates immediately on c
   const secondNav = new Element();
   firstNav.attributes['data-category'] = 'first';
   secondNav.attributes['data-category'] = 'second';
+  firstNav.dataset.category = 'first';
+  secondNav.dataset.category = 'second';
 
   const window = new Element();
   window.scrollY = 0;
   window.innerHeight = 500;
+  window.location = { hash: '' };
+  window.requestAnimationFrame = (callback) => { callback(); return 1; };
+  window.cancelAnimationFrame = () => {};
   const section = (id, top) => ({
     id,
     getBoundingClientRect: () => ({ top: top - window.scrollY }),

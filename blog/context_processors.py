@@ -9,6 +9,7 @@ from .models import (
     ArticleModel,
     Category,
     SiteConfiguration,
+    StandalonePage,
     Tag,
     TrafficModel,
     UserProfile,
@@ -114,8 +115,19 @@ def site_configuration_processor(request):
         blog_author_name = owner_profile.display_name.strip() or site.site_author
         blog_author_avatar = owner_profile.avatar or None
 
+    standalone_cache_key = f"standalone-page-types:{site.pk}"
+    enabled_standalone_pages = cache.get(standalone_cache_key)
+    if enabled_standalone_pages is None:
+        enabled_standalone_pages = tuple(
+            StandalonePage.objects.filter(config=site, enabled=True).values_list(
+                "page_type", flat=True
+            )
+        )
+        cache.set(standalone_cache_key, enabled_standalone_pages, None)
+
     return {
         'site': site,
+        'enabled_standalone_pages': set(enabled_standalone_pages),
         'blog_author_name': blog_author_name,
         'blog_author_avatar': blog_author_avatar,
         'total_words': total_words,

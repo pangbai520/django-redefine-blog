@@ -1,14 +1,16 @@
 {% extends "page_base.html" %}
 
 {% block page_header %}
-<h1 class="page-title-header">
+{% if standalone_page.show_title %}<h1 class="page-title-header">
     {{ page_title }}
-</h1>
+</h1>{% endif %}
 
 <div class="category-list-content">
     <ul class="all-category-list">
         {% include "pages/category/category_tree.html" with category_nodes=category_tree %}
     </ul>
 </div>
+
+{% include "pages/standalone/content.html" %}
 
 {% endblock %}

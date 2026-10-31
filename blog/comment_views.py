@@ -27,7 +27,7 @@ from django.core.mail import EmailMultiAlternatives, send_mail
 from django.core.files.storage import default_storage
 from django.core.validators import URLValidator, validate_email
 from django.db import transaction
-from django.db.models import Count, Exists, OuterRef, Prefetch
+from django.db.models import Count, Exists, OuterRef, Prefetch, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -63,6 +63,7 @@ from .models import (
     CommentNotification,
     PendingRegistration,
     SiteConfiguration,
+    StandalonePage,
     UserProfile,
 )
 
@@ -255,12 +256,21 @@ def _site():
     return SiteConfiguration.get_config()
 
 
-def _internal_comments_available(site, article=None):
+def _internal_comments_available(site, article=None, page=None):
     return bool(
         site.comment_enabled
         and site.comment_system == "internal"
         and (article is None or article.show_comment)
+        and (page is None or (page.enabled and page.comments_enabled))
     )
+
+
+def _comment_target_filter(article=None, page=None):
+    return {"article": article} if article is not None else {"page": page}
+
+
+def _comment_target_title(article=None, page=None):
+    return article.title if article is not None else page.localized_title()
 
 
 def _emoji_pack_items(pack):
@@ -1043,14 +1053,32 @@ def profile_email_confirm(request, token):
 @require_GET
 def comments(request, slug):
     article = get_object_or_404(ArticleModel.objects.published(), slug=slug)
+    return _comments_for_target(request, article=article)
+
+
+@require_GET
+def page_comments(request, slug):
+    page = get_object_or_404(
+        StandalonePage,
+        config=_site(),
+        page_type=StandalonePage.CUSTOM,
+        slug=slug,
+        enabled=True,
+        comments_enabled=True,
+    )
+    return _comments_for_target(request, page=page)
+
+
+def _comments_for_target(request, article=None, page=None):
     site = _site()
-    if not _internal_comments_available(site, article):
-        return _json_error(_("Comments are disabled for this article."), 403)
+    if not _internal_comments_available(site, article=article, page=page):
+        return _json_error(_("Comments are disabled for this page."), 403)
     from .signals import grant_owner_badge
 
+    target_filter = _comment_target_filter(article=article, page=page)
     for owner in User.objects.filter(
         is_superuser=True,
-        blog_comments__article=article,
+        **{f"blog_comments__{key}": value for key, value in target_filter.items()},
     ).distinct():
         grant_owner_badge(owner, site)
 
@@ -1062,7 +1090,7 @@ def comments(request, slug):
         to_attr="visible_comment_badges",
     )
     qs = (
-        Comment.objects.filter(article=article, is_approved=True)
+        Comment.objects.filter(is_approved=True, **target_filter)
         .select_related("author", "author__profile")
         .prefetch_related(badge_prefetch)
         .annotate(like_total=Count("likes"))
@@ -1140,6 +1168,24 @@ def _sync_comment_images(comment, uploader, upload_ids=()):
 
 @require_POST
 def create_comment(request, slug):
+    article = get_object_or_404(ArticleModel.objects.published(), slug=slug)
+    return _create_comment(request, article=article)
+
+
+@require_POST
+def create_page_comment(request, slug):
+    page = get_object_or_404(
+        StandalonePage,
+        config=_site(),
+        page_type=StandalonePage.CUSTOM,
+        slug=slug,
+        enabled=True,
+        comments_enabled=True,
+    )
+    return _create_comment(request, page=page)
+
+
+def _create_comment(request, article=None, page=None):
     site = _site()
     if site.comment_require_login and not request.user.is_authenticated:
         return _json_error(_("Please sign in to comment."), 401)
@@ -1151,13 +1197,13 @@ def create_comment(request, slug):
     if _rate_limited(request, "create"):
         return _json_error(_("Too many comments. Please try again later."), 429)
 
-    article = get_object_or_404(ArticleModel.objects.published(), slug=slug)
-    if not _internal_comments_available(site, article):
-        return _json_error(_("Comments are disabled for this article."), 403)
+    if not _internal_comments_available(site, article=article, page=page):
+        return _json_error(_("Comments are disabled for this page."), 403)
+    target_filter = _comment_target_filter(article=article, page=page)
     parent = None
     parent_id = request.POST.get("parent_id")
     if parent_id:
-        parent = get_object_or_404(Comment, pk=parent_id, article=article, is_approved=True)
+        parent = get_object_or_404(Comment, pk=parent_id, is_approved=True, **target_filter)
 
     nickname = (request.POST.get("nickname") or "").strip()[:80]
     email = (request.POST.get("email") or "").strip()[:254]
@@ -1180,6 +1226,7 @@ def create_comment(request, slug):
     ip_address, browser, operating_system = _client_details(request)
     comment = Comment(
         article=article,
+        page=page,
         parent=parent,
         author=request.user if request.user.is_authenticated else None,
         nickname=nickname,
@@ -1211,7 +1258,7 @@ def create_comment(request, slug):
             comment,
             CommentNotification.REPLY,
             "Someone replied to your comment",
-            f"{comment.display_name} replied to your comment on {article.title}.",
+            f"{comment.display_name} replied to your comment on {_comment_target_title(article, page)}.",
         )
     if not comment.is_approved:
         return JsonResponse({"ok": True, "pending": True})
@@ -1228,11 +1275,12 @@ def toggle_like(request, comment_id):
     if _rate_limited(request, "like", limit=60):
         return _json_error(_("Too many requests."), 429)
     comment = get_object_or_404(
-        Comment,
+        Comment.objects.filter(
+            Q(article__is_published=True, article__created_at__lte=timezone.now())
+            | Q(page__enabled=True, page__comments_enabled=True)
+        ),
         pk=comment_id,
         is_approved=True,
-        article__is_published=True,
-        article__created_at__lte=timezone.now(),
     )
     like, created = CommentLike.objects.get_or_create(comment=comment, user=request.user)
     if not created:
@@ -1244,7 +1292,7 @@ def toggle_like(request, comment_id):
             comment,
             CommentNotification.LIKE,
             "Someone liked your comment",
-            f"{request.user.get_username()} liked your comment on {comment.article.title}.",
+            f"{request.user.get_username()} liked your comment on {_comment_target_title(comment.article, comment.page)}.",
         )
     return JsonResponse({"ok": True, "liked": created, "like_count": comment.like_count})
 
@@ -1285,8 +1333,9 @@ def toggle_sticky(request, comment_id):
         return _json_error(_("Only administrators can pin comments."), 403)
     with transaction.atomic():
         comment = get_object_or_404(Comment.objects.select_for_update(), pk=comment_id)
+        target_filter = _comment_target_filter(comment.article, comment.page)
         if not comment.is_sticky and Comment.objects.filter(
-            article_id=comment.article_id, is_sticky=True
+            is_sticky=True, **target_filter
         ).exclude(pk=comment.pk).exists():
             return _json_error(_("Only one comment can be pinned at a time."), 409)
         comment.is_sticky = not comment.is_sticky

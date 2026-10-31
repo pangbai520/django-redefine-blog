@@ -2137,3 +2137,93 @@ msgstr "您的评论已匿名保留。"
 
 msgid "Return to site"
 msgstr "返回站点"
+
+msgid "Each language can only be added once."
+msgstr "每种语言只能添加一次。"
+
+msgid "Custom page"
+msgstr "自定义页面"
+
+msgid "page type"
+msgstr "页面类型"
+
+msgid "URL slug"
+msgstr "URL 别名"
+
+msgid "The page is available at /this-slug/."
+msgstr "此页面将通过 /此别名/ 访问。"
+
+msgid "page content"
+msgstr "页面内容"
+
+msgid "Markdown shown after the built-in page content."
+msgstr "使用 Markdown 编写；内置页面中将显示在原有内容之后。"
+
+msgid "show this page"
+msgstr "显示此页面"
+
+msgid "show page title"
+msgstr "显示页面标题"
+
+msgid "enable comments"
+msgstr "启用评论"
+
+msgid "Show the configured comment system on this custom page."
+msgstr "在此自定义页面显示当前配置的评论系统。"
+
+msgid "include in sitemap"
+msgstr "加入站点地图"
+
+msgid "friend-link columns"
+msgstr "友链列数"
+
+msgid "tags style"
+msgstr "标签页样式"
+
+msgid "Cloud"
+msgstr "标签云"
+
+msgid "page"
+msgstr "页面"
+
+msgid "pages"
+msgstr "页面"
+
+msgid "Built-in pages use the fixed URL slug '%(slug)s'."
+msgstr "内置页面使用固定的 URL 别名“%(slug)s”。"
+
+msgid "This URL is reserved for a built-in page."
+msgstr "此 URL 已保留给内置页面。"
+
+msgid "translated page title"
+msgstr "翻译后的页面标题"
+
+msgid "translated page content"
+msgstr "翻译后的页面内容"
+
+msgid "page translation"
+msgstr "页面翻译"
+
+msgid "page translations"
+msgstr "页面翻译"
+
+msgid "Display and indexing"
+msgstr "显示与索引"
+
+msgid "A comment must belong to exactly one article or page."
+msgstr "评论必须且只能属于一篇文章或一个页面。"
+
+msgid "A reply must belong to the same page."
+msgstr "回复必须与原评论属于同一页面。"
+
+msgid "Comments are disabled for this page."
+msgstr "此页面已关闭评论。"
+
+msgid "Page"
+msgstr "页面"
+
+msgid "Skipped %(count)d duplicate selection because only one comment can be pinned per page."
+msgstr "已跳过 %(count)d 个重复选择，因为每个页面只能置顶一条评论。"
+
+msgid "Skipped %(count)d duplicate selections because only one comment can be pinned per page."
+msgstr "已跳过 %(count)d 个重复选择，因为每个页面只能置顶一条评论。"

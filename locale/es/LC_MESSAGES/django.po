@@ -2177,3 +2177,93 @@ msgstr "Tus comentarios se han conservado de forma anónima."
 
 msgid "Return to site"
 msgstr "Volver al sitio"
+
+msgid "Each language can only be added once."
+msgstr "Cada idioma solo puede añadirse una vez."
+
+msgid "Custom page"
+msgstr "Página personalizada"
+
+msgid "page type"
+msgstr "tipo de página"
+
+msgid "URL slug"
+msgstr "identificador de URL"
+
+msgid "The page is available at /this-slug/."
+msgstr "La página estará disponible en /este-identificador/."
+
+msgid "page content"
+msgstr "contenido de la página"
+
+msgid "Markdown shown after the built-in page content."
+msgstr "Markdown mostrado después del contenido de la página integrada."
+
+msgid "show this page"
+msgstr "mostrar esta página"
+
+msgid "show page title"
+msgstr "mostrar el título"
+
+msgid "enable comments"
+msgstr "activar comentarios"
+
+msgid "Show the configured comment system on this custom page."
+msgstr "Muestra el sistema de comentarios configurado en esta página."
+
+msgid "include in sitemap"
+msgstr "incluir en el mapa del sitio"
+
+msgid "friend-link columns"
+msgstr "columnas de enlaces amigos"
+
+msgid "tags style"
+msgstr "estilo de etiquetas"
+
+msgid "Cloud"
+msgstr "Nube"
+
+msgid "page"
+msgstr "página"
+
+msgid "pages"
+msgstr "páginas"
+
+msgid "Built-in pages use the fixed URL slug '%(slug)s'."
+msgstr "Las páginas integradas usan el identificador fijo «%(slug)s»."
+
+msgid "This URL is reserved for a built-in page."
+msgstr "Esta URL está reservada para una página integrada."
+
+msgid "translated page title"
+msgstr "título traducido"
+
+msgid "translated page content"
+msgstr "contenido traducido"
+
+msgid "page translation"
+msgstr "traducción de página"
+
+msgid "page translations"
+msgstr "traducciones de página"
+
+msgid "Display and indexing"
+msgstr "Visualización e indexación"
+
+msgid "A comment must belong to exactly one article or page."
+msgstr "Un comentario debe pertenecer a un único artículo o página."
+
+msgid "A reply must belong to the same page."
+msgstr "Una respuesta debe pertenecer a la misma página."
+
+msgid "Comments are disabled for this page."
+msgstr "Los comentarios están desactivados en esta página."
+
+msgid "Page"
+msgstr "Página"
+
+msgid "Skipped %(count)d duplicate selection because only one comment can be pinned per page."
+msgstr "Se omitió %(count)d selección duplicada porque solo puede fijarse un comentario por página."
+
+msgid "Skipped %(count)d duplicate selections because only one comment can be pinned per page."
+msgstr "Se omitieron %(count)d selecciones duplicadas porque solo puede fijarse un comentario por página."

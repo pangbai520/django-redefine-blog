@@ -16,6 +16,8 @@ from .models import (
     MenuLink,
     MenuLinkTranslation,
     SiteConfiguration,
+    StandalonePage,
+    StandalonePageTranslation,
     Tag,
     TrafficModel,
     UserProfile,
@@ -24,12 +26,12 @@ from .models import (
 
 OWNER_BADGE_TRANSLATIONS = {
     "en": "Blogger",
-    "es": "Autor",
-    "fr": "Auteur",
-    "ja": "ブログ管理者",
+    "es": "Bloguero",
+    "fr": "Blogueur",
+    "ja": "ブロガー",
     "zh-hans": "博主",
-    "zh-hk": "博主",
-    "zh-tw": "站長",
+    "zh-hk": "部落客",
+    "zh-tw": "部落客",
 }
 
 
@@ -113,6 +115,34 @@ def invalidate_taxonomy_content(sender, instance, **kwargs):
 def invalidate_site_content(sender, instance, **kwargs):
     from .cache_utils import invalidate_content_caches
 
+    invalidate_content_caches()
+
+
+@receiver(post_save, sender=SiteConfiguration)
+def create_default_standalone_pages(sender, instance, created, **kwargs):
+    if not created or kwargs.get("raw"):
+        return
+    try:
+        StandalonePage.objects.bulk_create(
+            [
+                StandalonePage(config=instance, page_type=page_type, **defaults)
+                for page_type, defaults in StandalonePage.BUILTIN_DEFAULTS.items()
+            ],
+            ignore_conflicts=True,
+        )
+    except (OperationalError, ProgrammingError):
+        # SiteConfiguration is created while migrations and test databases are
+        # still bringing the page table online.
+        pass
+
+
+@receiver([post_save, post_delete], sender=StandalonePage)
+@receiver([post_save, post_delete], sender=StandalonePageTranslation)
+def invalidate_standalone_page_content(sender, instance, **kwargs):
+    from .cache_utils import invalidate_content_caches
+
+    config_id = instance.config_id if isinstance(instance, StandalonePage) else instance.page.config_id
+    cache.delete(f"standalone-page-types:{config_id}")
     invalidate_content_caches()
 
 

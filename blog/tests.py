@@ -24,6 +24,7 @@ from .models import (
     FriendCategory,
     FriendLink,
     SiteConfiguration,
+    StandalonePage,
     Tag,
     Comment,
     CommentBadge,
@@ -1302,8 +1303,11 @@ class RedefineParityTests(TestCase):
         self.assertNotContains(response, 'href="?page=2">2</a>')
 
     def test_cloud_tag_page_matches_upstream_hundred_tag_limit(self):
-        self.site.tags_page_style = "cloud"
-        self.site.save(update_fields=["tags_page_style"])
+        page = StandalonePage.objects.get(
+            config=self.site, page_type=StandalonePage.TAGS
+        )
+        page.tags_style = "cloud"
+        page.save(update_fields=["tags_style", "updated_at"])
         article = ArticleModel.objects.create(
             title="Many tags",
             content="Body",
@@ -1351,8 +1355,9 @@ class RedefineParityTests(TestCase):
         self.assertEqual(site.preloader_message, "")
 
     def test_bookmark_page_exposes_controller_scope(self):
-        self.site.bookmarks_enabled = True
-        self.site.save(update_fields=["bookmarks_enabled"])
+        StandalonePage.objects.filter(
+            config=self.site, page_type=StandalonePage.BOOKMARKS
+        ).update(enabled=True)
         cache.clear()
 
         response = self.client.get(reverse("bookmarks"))
@@ -1827,7 +1832,16 @@ class AdminExperienceTests(TestCase):
         }
         self.assertEqual(
             editable - visible,
-            {"comment_config", "navbar_search_preload"},
+            {
+                "comment_config",
+                "navbar_search_preload",
+                "bookmarks_enabled",
+                "essays_enabled",
+                "masonry_enabled",
+                "friends_enabled",
+                "friends_page_columns",
+                "tags_page_style",
+            },
         )
 
     def test_admin_filters_only_cover_useful_list_workflows(self):

@@ -112,6 +112,8 @@ urlpatterns = [
     path('api/comments/preview/', comment_views.comment_preview, name='comment_preview'),
     path('api/comments/<str:slug>/', comment_views.comments, name='comment_list'),
     path('api/comments/<str:slug>/create/', comment_views.create_comment, name='comment_create'),
+    path('api/page-comments/<str:slug>/', comment_views.page_comments, name='page_comment_list'),
+    path('api/page-comments/<str:slug>/create/', comment_views.create_page_comment, name='page_comment_create'),
     path('api/comments/<int:comment_id>/like/', comment_views.toggle_like, name='comment_like'),
     path('api/comments/<int:comment_id>/edit/', comment_views.edit_comment, name='comment_edit'),
     path('api/comments/<int:comment_id>/delete/', comment_views.delete_comment, name='comment_delete'),
@@ -120,6 +122,8 @@ urlpatterns = [
     path('api/comment-notifications/read/', comment_views.mark_notifications_read, name='comment_notifications_read'),
     path('api/comment-assets/', comment_views.comment_assets, name='comment_assets'),
     path('api/comment-gif-proxy/', comment_views.comment_gif_proxy, name='comment_gif_proxy'),
+    # Keep this last: fixed application routes take precedence over custom pages.
+    path('<str:slug>/', views.standalone_page, name='standalone_page'),
 ]
 
 if settings.DEBUG:

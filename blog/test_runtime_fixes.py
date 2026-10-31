@@ -19,6 +19,7 @@ from .models import (
     CommentImage,
     PendingRegistration,
     SiteConfiguration,
+    StandalonePage,
     TrafficModel,
     UserProfile,
 )
@@ -236,17 +237,16 @@ class RuntimeRegressionTests(TestCase):
         self.assertFalse(TrafficModel.objects.exists())
 
     def test_sitemap_includes_only_enabled_optional_pages(self):
-        self.site.bookmarks_enabled = True
-        self.site.essays_enabled = False
-        self.site.masonry_enabled = False
-        self.site.friends_enabled = False
-        self.site.save(
-            update_fields=(
-                "bookmarks_enabled",
-                "essays_enabled",
-                "masonry_enabled",
-                "friends_enabled",
-            )
+        StandalonePage.objects.filter(config=self.site).update(enabled=False)
+        StandalonePage.objects.filter(
+            config=self.site, page_type=StandalonePage.BOOKMARKS
+        ).update(enabled=True)
+        StandalonePage.objects.create(
+            config=self.site,
+            page_type=StandalonePage.CUSTOM,
+            title="About",
+            slug="about",
+            enabled=True,
         )
         cache.clear()
 
@@ -256,6 +256,7 @@ class RuntimeRegressionTests(TestCase):
         self.assertNotIn("https://testserver/essays/", body)
         self.assertNotIn("https://testserver/masonry/", body)
         self.assertNotIn("https://testserver/friends/", body)
+        self.assertIn("https://testserver/about/", body)
         self.assertEqual(self.client.get(reverse("friends")).status_code, 404)
 
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")

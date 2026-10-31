@@ -66,6 +66,7 @@
       return root.dataset["msg" + name] || fallback;
     }
     var slug = root.dataset.commentsSlug;
+    var commentsApiBase = root.dataset.commentsApiBase || "/api/comments/";
     var editor = root.querySelector(".wl-editor");
     var form = root.querySelector(".wl-panel");
     var composer = root.querySelector(":scope > .wl-comment");
@@ -462,7 +463,7 @@
       mountComposer(list);
     }
     function load() {
-      fetch("/api/comments/" + encodeURIComponent(slug) + "/", { headers: { Accept: "application/json" } })
+      fetch(commentsApiBase + encodeURIComponent(slug) + "/", { headers: { Accept: "application/json" } })
         .then(function (response) { return response.json(); })
         .then(function (data) { comments = data.comments || []; draw(); })
         .catch(function () { root.querySelector("[data-comments-items]").innerHTML = '<div class="wl-empty">' + escapeHtml(message("UnableLoadComments", "Unable to load comments.")) + '</div>'; });
@@ -660,7 +661,7 @@
       String(node.dataset.uploadIds || "").split(",").filter(Boolean).forEach(function (id) { data.append("image_ids", id); });
       submit.disabled = true;
       var editId = node.dataset.editId;
-      var endpoint = editId ? "/api/comments/" + editId + "/edit/" : "/api/comments/" + encodeURIComponent(slug) + "/create/";
+      var endpoint = editId ? "/api/comments/" + editId + "/edit/" : commentsApiBase + encodeURIComponent(slug) + "/create/";
       fetch(endpoint, { method: "POST", body: data, headers: { "X-CSRFToken": csrf(), Accept: "application/json" }, credentials: "same-origin" })
         .then(function (response) { return parseJsonResponse(response, message("UnableSubmit", "Unable to submit comment")); })
         .then(function () {

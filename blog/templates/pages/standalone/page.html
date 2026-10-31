@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="page-template-container">
+    <div class="page-template-content markdown-body">
+        {% if standalone_page.show_title %}
+        <h1>{{ standalone_page.rendered_title }}</h1>
+        {% endif %}
+        {{ standalone_page.rendered_content|safe }}
+    </div>
+
+    {% if standalone_page.comments_enabled %}
+    <div class="page-template-comments">
+        {% include "components/comments/comment.html" %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,6 +1,8 @@
 {% load static i18n %}
+{% firstof article.slug standalone_page.slug as comments_slug %}
 <link rel="stylesheet" href="{% static 'css/internal-comments.css' %}">
-<div id="comments" class="internal-comments" data-comments-slug="{{ article.slug }}"
+<div id="comments" class="internal-comments" data-comments-slug="{{ comments_slug }}"
+    data-comments-api-base="{% if standalone_page %}/api/page-comments/{% else %}/api/comments/{% endif %}"
     data-authenticated="{{ request.user.is_authenticated|yesno:'true,false' }}"
     data-comment-require-login="{{ site.comment_require_login|yesno:'true,false' }}"
     data-msg-unable-register="{% translate 'Unable to register.' %}"

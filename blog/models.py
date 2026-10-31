@@ -555,6 +555,7 @@ class SiteConfiguration(models.Model):
     def __str__(self):
         return self.config_name
 
+
     def clean(self):
         """Prevent saving a configuration when it would remove the active site."""
         errors = {}
@@ -644,6 +645,178 @@ class SiteConfiguration(models.Model):
 
             super().save(*args, **kwargs)
         cache.delete('actived_site_config')
+class StandalonePage(models.Model):
+    CUSTOM = "custom"
+    ARCHIVES = "archives"
+    CATEGORIES = "categories"
+    TAGS = "tags"
+    FRIENDS = "friends"
+    BOOKMARKS = "bookmarks"
+    ESSAYS = "essays"
+    MASONRY = "masonry"
+
+    PAGE_TYPES = (
+        (CUSTOM, _("Custom page")),
+        (ARCHIVES, _("Archives")),
+        (CATEGORIES, _("Categories")),
+        (TAGS, _("Tags")),
+        (FRIENDS, _("Friends")),
+        (BOOKMARKS, _("Bookmarks")),
+        (ESSAYS, _("Essays")),
+        (MASONRY, _("Masonry")),
+    )
+    BUILTIN_DEFAULTS = {
+        ARCHIVES: {"title": "Archives", "slug": "archives", "enabled": True},
+        CATEGORIES: {"title": "Categories", "slug": "categories", "enabled": True},
+        TAGS: {"title": "Tags", "slug": "tags", "enabled": True},
+        FRIENDS: {"title": "Friends", "slug": "friends", "enabled": True},
+        BOOKMARKS: {"title": "Bookmarks", "slug": "bookmarks", "enabled": False},
+        ESSAYS: {"title": "Essays", "slug": "essays", "enabled": False},
+        MASONRY: {"title": "Masonry", "slug": "masonry", "enabled": False},
+    }
+    RESERVED_SLUGS = {
+        "admin",
+        "api",
+        "article",
+        "comments",
+        "feed",
+        "health",
+        "i18n",
+        "robots",
+        "rss",
+        "search",
+        "sitemap",
+    }
+
+    config = models.ForeignKey(
+        SiteConfiguration,
+        on_delete=models.CASCADE,
+        related_name="standalone_pages",
+    )
+    page_type = models.CharField(
+        _("page type"), max_length=20, choices=PAGE_TYPES, default=CUSTOM
+    )
+    title = models.CharField(_("title"), max_length=200)
+    slug = models.SlugField(
+        _("URL slug"),
+        max_length=200,
+        allow_unicode=True,
+        help_text=_("The page is available at /this-slug/."),
+    )
+    content = MDTextField(
+        _("page content"),
+        blank=True,
+        help_text=_("Markdown shown after the built-in page content."),
+    )
+    enabled = models.BooleanField(_("show this page"), default=True)
+    show_title = models.BooleanField(_("show page title"), default=True)
+    comments_enabled = models.BooleanField(
+        _("enable comments"),
+        default=False,
+        help_text=_("Show the configured comment system on this custom page."),
+    )
+    include_in_sitemap = models.BooleanField(_("include in sitemap"), default=True)
+    friends_columns = models.PositiveSmallIntegerField(
+        _("friend-link columns"), choices=((2, "2"), (3, "3")), default=2
+    )
+    tags_style = models.CharField(
+        _("tags style"),
+        max_length=20,
+        choices=(("blur", _("Blur")), ("cloud", _("Cloud"))),
+        default="blur",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("page_type", "title", "id")
+        verbose_name = _("page")
+        verbose_name_plural = _("pages")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("config", "slug"), name="unique_standalone_page_slug"
+            ),
+            models.UniqueConstraint(
+                fields=("config", "page_type"),
+                condition=~Q(page_type="custom"),
+                name="unique_builtin_page_type",
+            ),
+        ]
+
+    def clean(self):
+        super().clean()
+        if self.page_type != self.CUSTOM:
+            expected_slug = self.BUILTIN_DEFAULTS[self.page_type]["slug"]
+            if self.slug and self.slug != expected_slug:
+                raise ValidationError(
+                    {"slug": _("Built-in pages use the fixed URL slug '%(slug)s'.") % {"slug": expected_slug}}
+                )
+        elif self.slug in (
+            {item["slug"] for item in self.BUILTIN_DEFAULTS.values()}
+            | self.RESERVED_SLUGS
+        ):
+            raise ValidationError({"slug": _("This URL is reserved for a built-in page.")})
+
+    def save(self, *args, **kwargs):
+        if self.page_type != self.CUSTOM:
+            self.slug = self.BUILTIN_DEFAULTS[self.page_type]["slug"]
+        elif not self.slug:
+            self.slug = unicode_slugify(self.title)
+        super().save(*args, **kwargs)
+
+    def _localized_value(self, field, language_code=None):
+        if not self.pk:
+            return getattr(self, field)
+        language_code = (language_code or get_language() or "").replace("_", "-").lower()
+        translations = list(self.translations.all())
+        for candidate in (language_code, language_code.split("-", 1)[0]):
+            for translation in translations:
+                if translation.language_code.replace("_", "-").lower() == candidate:
+                    value = getattr(translation, field, "")
+                    if value:
+                        return value
+        return getattr(self, field)
+
+    def localized_title(self, language_code=None):
+        return self._localized_value("title", language_code)
+
+    def localized_content(self, language_code=None):
+        return self._localized_value("content", language_code)
+
+    def get_absolute_url(self):
+        if self.page_type == self.CUSTOM:
+            return reverse("standalone_page", kwargs={"slug": self.slug})
+        return reverse(self.page_type)
+
+    def __str__(self):
+        return self.title
+
+
+class StandalonePageTranslation(models.Model):
+    page = models.ForeignKey(
+        StandalonePage, on_delete=models.CASCADE, related_name="translations"
+    )
+    language_code = models.CharField(
+        _("language code"), max_length=20, choices=settings.LANGUAGES
+    )
+    title = models.CharField(_("translated page title"), max_length=200)
+    content = MDTextField(_("translated page content"), blank=True)
+
+    class Meta:
+        ordering = ("language_code", "id")
+        verbose_name = _("page translation")
+        verbose_name_plural = _("page translations")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("page", "language_code"),
+                name="unique_standalone_page_translation_language",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.page.title} ({self.language_code})"
+
+
 class AudioTrack(models.Model):
     name = models.CharField(max_length=150)
     artist = models.CharField(max_length=150, blank=True)
@@ -1669,12 +1842,21 @@ class UserProfile(models.Model):
 
 
 class Comment(models.Model):
-    """A comment attached to an article, with optional nested replies."""
+    """A comment attached to an article or standalone page."""
 
     article = models.ForeignKey(
         ArticleModel,
         on_delete=models.CASCADE,
         related_name="comments",
+        null=True,
+        blank=True,
+    )
+    page = models.ForeignKey(
+        StandalonePage,
+        on_delete=models.CASCADE,
+        related_name="comments",
+        null=True,
+        blank=True,
     )
     author = models.ForeignKey(
         "auth.User",
@@ -1706,10 +1888,19 @@ class Comment(models.Model):
     class Meta:
         ordering = ("created_at",)
         constraints = [
+            models.CheckConstraint(
+                condition=(Q(article__isnull=False, page__isnull=True) | Q(article__isnull=True, page__isnull=False)),
+                name="comment_has_exactly_one_target",
+            ),
             models.UniqueConstraint(
                 fields=("article",),
-                condition=Q(is_sticky=True),
+                condition=Q(is_sticky=True, article__isnull=False),
                 name="unique_sticky_comment_per_article",
+            ),
+            models.UniqueConstraint(
+                fields=("page",),
+                condition=Q(is_sticky=True, page__isnull=False),
+                name="unique_sticky_comment_per_page",
             ),
         ]
 
@@ -1737,11 +1928,15 @@ class Comment(models.Model):
         return self.likes.count()
 
     def clean(self):
+        if bool(self.article_id) == bool(self.page_id):
+            raise ValidationError(_("A comment must belong to exactly one article or page."))
         if self.parent_id:
             if self.parent_id == self.pk:
                 raise ValidationError("A comment cannot reply to itself.")
             if self.parent.article_id != self.article_id:
-                raise ValidationError("A reply must belong to the same article.")
+                raise ValidationError(_("A reply must belong to the same page."))
+            if self.parent.page_id != self.page_id:
+                raise ValidationError(_("A reply must belong to the same page."))
             ancestor = self.parent
             visited = set()
             while ancestor is not None:
@@ -1756,7 +1951,7 @@ class Comment(models.Model):
             raise ValidationError({"nickname": "Guest comments require a nickname."})
 
     def save(self, *args, **kwargs):
-        if not self.is_sticky or not self.article_id:
+        if not self.is_sticky:
             return super().save(*args, **kwargs)
 
         # MySQL does not create conditional unique constraints. Lock the
@@ -1764,11 +1959,13 @@ class Comment(models.Model):
         # comment, while PostgreSQL and SQLite retain the database constraint
         # as an additional safeguard.
         with transaction.atomic():
-            ArticleModel.objects.select_for_update().filter(pk=self.article_id).exists()
-            type(self).objects.filter(
-                article_id=self.article_id,
-                is_sticky=True,
-            ).exclude(pk=self.pk).update(is_sticky=False)
+            if self.article_id:
+                ArticleModel.objects.select_for_update().filter(pk=self.article_id).exists()
+                target = {"article_id": self.article_id}
+            else:
+                StandalonePage.objects.select_for_update().filter(pk=self.page_id).exists()
+                target = {"page_id": self.page_id}
+            type(self).objects.filter(is_sticky=True, **target).exclude(pk=self.pk).update(is_sticky=False)
             return super().save(*args, **kwargs)
 
     def __str__(self):

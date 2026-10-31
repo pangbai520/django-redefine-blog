@@ -2139,3 +2139,93 @@ msgstr "コメントは匿名で保持されています。"
 
 msgid "Return to site"
 msgstr "サイトに戻る"
+
+msgid "Each language can only be added once."
+msgstr "同じ言語は一度だけ追加できます。"
+
+msgid "Custom page"
+msgstr "カスタムページ"
+
+msgid "page type"
+msgstr "ページの種類"
+
+msgid "URL slug"
+msgstr "URL スラッグ"
+
+msgid "The page is available at /this-slug/."
+msgstr "ページは /このスラッグ/ で公開されます。"
+
+msgid "page content"
+msgstr "ページ本文"
+
+msgid "Markdown shown after the built-in page content."
+msgstr "Markdown で記述し、組み込みページでは既存内容の後に表示します。"
+
+msgid "show this page"
+msgstr "このページを表示"
+
+msgid "show page title"
+msgstr "ページタイトルを表示"
+
+msgid "enable comments"
+msgstr "コメントを有効化"
+
+msgid "Show the configured comment system on this custom page."
+msgstr "このカスタムページに設定済みのコメントシステムを表示します。"
+
+msgid "include in sitemap"
+msgstr "サイトマップに含める"
+
+msgid "friend-link columns"
+msgstr "リンク集の列数"
+
+msgid "tags style"
+msgstr "タグページの表示"
+
+msgid "Cloud"
+msgstr "クラウド"
+
+msgid "page"
+msgstr "ページ"
+
+msgid "pages"
+msgstr "ページ"
+
+msgid "Built-in pages use the fixed URL slug '%(slug)s'."
+msgstr "組み込みページの URL スラッグは「%(slug)s」に固定されています。"
+
+msgid "This URL is reserved for a built-in page."
+msgstr "この URL は組み込みページ用に予約されています。"
+
+msgid "translated page title"
+msgstr "翻訳したページタイトル"
+
+msgid "translated page content"
+msgstr "翻訳したページ本文"
+
+msgid "page translation"
+msgstr "ページ翻訳"
+
+msgid "page translations"
+msgstr "ページ翻訳"
+
+msgid "Display and indexing"
+msgstr "表示とインデックス"
+
+msgid "A comment must belong to exactly one article or page."
+msgstr "コメントは一つの記事またはページだけに属する必要があります。"
+
+msgid "A reply must belong to the same page."
+msgstr "返信は元のコメントと同じページに属する必要があります。"
+
+msgid "Comments are disabled for this page."
+msgstr "このページではコメントが無効です。"
+
+msgid "Page"
+msgstr "ページ"
+
+msgid "Skipped %(count)d duplicate selection because only one comment can be pinned per page."
+msgstr "各ページで固定できるコメントは一件だけのため、重複した %(count)d 件を除外しました。"
+
+msgid "Skipped %(count)d duplicate selections because only one comment can be pinned per page."
+msgstr "各ページで固定できるコメントは一件だけのため、重複した %(count)d 件を除外しました。"

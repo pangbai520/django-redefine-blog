@@ -2139,3 +2139,93 @@ msgstr "您的留言已匿名保留。"
 
 msgid "Return to site"
 msgstr "返回網站"
+
+msgid "Each language can only be added once."
+msgstr "每種語言只能新增一次。"
+
+msgid "Custom page"
+msgstr "自訂頁面"
+
+msgid "page type"
+msgstr "頁面類型"
+
+msgid "URL slug"
+msgstr "網址代稱"
+
+msgid "The page is available at /this-slug/."
+msgstr "此頁面將透過 /此代稱/ 存取。"
+
+msgid "page content"
+msgstr "頁面內容"
+
+msgid "Markdown shown after the built-in page content."
+msgstr "使用 Markdown 編寫；內建頁面中將顯示於原有內容之後。"
+
+msgid "show this page"
+msgstr "顯示此頁面"
+
+msgid "show page title"
+msgstr "顯示頁面標題"
+
+msgid "enable comments"
+msgstr "啟用留言"
+
+msgid "Show the configured comment system on this custom page."
+msgstr "在此自訂頁面顯示目前設定的留言系統。"
+
+msgid "include in sitemap"
+msgstr "加入網站地圖"
+
+msgid "friend-link columns"
+msgstr "友站連結欄數"
+
+msgid "tags style"
+msgstr "標籤頁樣式"
+
+msgid "Cloud"
+msgstr "標籤雲"
+
+msgid "page"
+msgstr "頁面"
+
+msgid "pages"
+msgstr "頁面"
+
+msgid "Built-in pages use the fixed URL slug '%(slug)s'."
+msgstr "內建頁面使用固定的網址代稱「%(slug)s」。"
+
+msgid "This URL is reserved for a built-in page."
+msgstr "此網址已保留給內建頁面。"
+
+msgid "translated page title"
+msgstr "翻譯後的頁面標題"
+
+msgid "translated page content"
+msgstr "翻譯後的頁面內容"
+
+msgid "page translation"
+msgstr "頁面翻譯"
+
+msgid "page translations"
+msgstr "頁面翻譯"
+
+msgid "Display and indexing"
+msgstr "顯示與索引"
+
+msgid "A comment must belong to exactly one article or page."
+msgstr "留言必須且只能屬於一篇文章或一個頁面。"
+
+msgid "A reply must belong to the same page."
+msgstr "回覆必須與原留言屬於同一頁面。"
+
+msgid "Comments are disabled for this page."
+msgstr "此頁面已關閉留言。"
+
+msgid "Page"
+msgstr "頁面"
+
+msgid "Skipped %(count)d duplicate selection because only one comment can be pinned per page."
+msgstr "已略過 %(count)d 個重複選取，因為每個頁面只能置頂一則留言。"
+
+msgid "Skipped %(count)d duplicate selections because only one comment can be pinned per page."
+msgstr "已略過 %(count)d 個重複選取，因為每個頁面只能置頂一則留言。"
