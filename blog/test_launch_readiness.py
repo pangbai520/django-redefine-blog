@@ -188,4 +188,3 @@ class PortableRestoreTests(TransactionTestCase):
 
             site.refresh_from_db()
             self.assertEqual(site.site_name, "Must survive failed swap")
-
