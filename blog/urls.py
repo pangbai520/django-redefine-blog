@@ -47,6 +47,16 @@ urlpatterns = [
     path('comments/login/', comment_views.login_view, name='comment_login'),
     path('comments/profile/', comment_views.profile, name='comment_profile'),
     path(
+        'comments/settings/delete-account/',
+        comment_views.delete_account,
+        name='comment_delete_account',
+    ),
+    path(
+        'comments/account-deleted/',
+        comment_views.account_deleted,
+        name='comment_account_deleted',
+    ),
+    path(
         'comments/profile/email/<str:token>/',
         comment_views.profile_email_confirm,
         name='comment_profile_email_confirm',

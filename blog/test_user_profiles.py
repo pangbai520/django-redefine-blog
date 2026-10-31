@@ -570,6 +570,16 @@ class UserProfileTests(TestCase):
         self.assertContains(response, "Username cannot be changed.")
         self.assertContains(response, "Settings")
         self.assertContains(response, "Delete account")
+        self.assertNotContains(response, 'name="username_confirmation"')
+
+    def test_profile_stylesheet_is_loaded_in_the_document_head(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("comment_profile"))
+        html = response.content.decode()
+
+        self.assertLess(html.index("css/profile.css"), html.index("</head>"))
+        self.assertNotIn('<link rel="stylesheet" href="/static/css/profile.css">\n<div', html)
 
     def test_profile_website_uses_the_same_styled_input_as_other_fields(self):
         stylesheet = (Path(__file__).parent / "static" / "css" / "profile.css").read_text(
@@ -586,6 +596,7 @@ class UserProfileTests(TestCase):
         ).read_text(encoding="utf-8")
         self.assertIn("internal-password-error", template)
         self.assertIn(".internal-password-error", stylesheet)
+        self.assertIn('li::marker { content: ""; }', stylesheet)
 
     def test_password_change_stays_in_profile_and_preserves_the_session(self):
         self.client.force_login(self.user)
@@ -665,7 +676,8 @@ class UserProfileTests(TestCase):
         )
 
         self.assertContains(response, f'href="{return_to}"')
-        self.assertContains(response, 'name="next" value="/article/source-article/#comments"', count=5)
+        self.assertContains(response, 'name="next" value="/article/source-article/#comments"', count=4)
+        self.assertContains(response, reverse("comment_delete_account"))
 
     def test_profile_rejects_an_external_return_url(self):
         self.client.force_login(self.user)
@@ -729,16 +741,18 @@ class UserProfileTests(TestCase):
         )
         self.client.force_login(self.user)
 
+        confirmation = self.client.get(reverse("comment_delete_account"))
         response = self.client.post(
-            reverse("comment_profile"),
+            reverse("comment_delete_account"),
             {
-                "action": "delete-account",
                 "current_password": self.password,
                 "username_confirmation": self.user.username,
             },
         )
 
-        self.assertRedirects(response, reverse("index"))
+        self.assertContains(confirmation, "This permanently removes your account")
+        self.assertContains(confirmation, "data-skip-preloader")
+        self.assertRedirects(response, reverse("comment_account_deleted"))
         self.assertFalse(User.objects.filter(pk=self.user.pk).exists())
         comment.refresh_from_db()
         image.refresh_from_db()
@@ -753,15 +767,20 @@ class UserProfileTests(TestCase):
         self.user.save(update_fields=("password",))
         self.client.force_login(self.user)
 
-        page = self.client.get(reverse("comment_profile"))
+        page = self.client.get(reverse("comment_delete_account"))
         response = self.client.post(
-            reverse("comment_profile"),
+            reverse("comment_delete_account"),
             {
-                "action": "delete-account",
                 "username_confirmation": self.user.username,
             },
         )
 
         self.assertNotContains(page, 'name="current_password"', html=False)
-        self.assertRedirects(response, reverse("index"))
+        self.assertRedirects(response, reverse("comment_account_deleted"))
         self.assertFalse(User.objects.filter(pk=self.user.pk).exists())
+
+    def test_deleted_account_success_page_is_public_and_skips_preloader(self):
+        response = self.client.get(reverse("comment_account_deleted"))
+
+        self.assertContains(response, "Your account has been deleted")
+        self.assertContains(response, "data-skip-preloader")

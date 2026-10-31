@@ -7,18 +7,9 @@ const runtimeElements = () => [
   document.getElementById("runtime_seconds"),
 ];
 
-const initializeOdometers = (elements) => {
-  if (typeof window.Odometer !== "function") return;
-
-  elements.filter(Boolean).forEach((element) => {
-    if (element.odometer) return;
-    new window.Odometer({
-      el: element,
-      format: "(,ddd)",
-      duration: 200,
-    });
-  });
-};
+const runtimeNumberFormatter = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 0,
+});
 
 const renderFooterRuntime = () => {
   const startTime = window.theme?.footerStart;
@@ -38,10 +29,9 @@ const renderFooterRuntime = () => {
   const C = Math.floor((b - B) * 60);
   const D = Math.floor((c - C) * 60);
 
-  initializeOdometers(elements);
   const values = [A, B, C, D];
   elements.forEach((element, index) => {
-    if (element) element.innerHTML = values[index];
+    if (element) element.textContent = runtimeNumberFormatter.format(values[index]);
   });
   return true;
 };

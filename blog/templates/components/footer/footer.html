@@ -57,10 +57,10 @@
         {% if site.footer_runtime_enabled %}
             <div>
                 {% translate "Blog up for" %}
-                <span class="odometer" id="runtime_days"></span> {% translate "days" %}
-                <span class="odometer" id="runtime_hours"></span> {% translate "hrs" %}
-                <span class="odometer" id="runtime_minutes"></span> {% translate "Min" %}
-                <span class="odometer" id="runtime_seconds"></span> {% translate "Sec" %}
+                <span class="runtime-value" id="runtime_days"></span> {% translate "days" %}
+                <span class="runtime-value" id="runtime_hours"></span> {% translate "hrs" %}
+                <span class="runtime-value" id="runtime_minutes"></span> {% translate "Min" %}
+                <span class="runtime-value" id="runtime_seconds"></span> {% translate "Sec" %}
             </div>
         {% endif %}
         {% if site.inject_enabled and site.inject_footer %}

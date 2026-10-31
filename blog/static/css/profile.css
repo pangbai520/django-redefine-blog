@@ -35,7 +35,9 @@
 .profile-forgot-password:hover { text-decoration: underline; }
 .profile-field .errorlist { margin: 0; padding: 0; color: #c53030; list-style: none; font-size: .88rem; }
 .profile-field-errors { padding: 9px 11px; border: 1px solid #ef9a9a; border-radius: 9px; color: #a61b1b; background: #fff0f0; font-size: .88rem; }
-.profile-field-errors .errorlist { margin: 0; padding: 0; list-style: none; }
+.profile-field-errors .errorlist { margin: 0; padding: 0; border: 0; background: transparent; list-style: none !important; }
+.profile-field-errors .errorlist li { margin: 0; padding: 0; }
+.profile-field-errors .errorlist li::marker { content: ""; }
 html.dark .profile-field-errors { border-color: rgb(248 113 113 / 45%); color: #fca5a5; background: rgb(127 29 29 / 28%); }
 .profile-checkbox { display: flex; align-items: center; gap: 8px; color: var(--third-text-color); font-size: .9rem; }
 .profile-checkbox input { width: auto; min-height: auto; }
@@ -58,10 +60,16 @@ html.dark .profile-pending-email { color: #f9d776; background: rgb(120 83 0 / 28
 .profile-cancel-email-form { margin-top: 18px; text-align: right; }
 .profile-cancel-email-form button { color: #b42318; background: transparent; }
 .profile-account-section { display: grid; gap: 16px; }
-.profile-danger-zone { display: grid; gap: 12px; padding: 18px; border: 1px solid rgb(220 38 38 / 32%); border-radius: 12px; background: rgb(220 38 38 / 5%); }
-.profile-danger-zone h3, .profile-danger-zone p { margin: 0; }
-.profile-danger-zone p { color: var(--third-text-color); }
-.profile-delete-button { width: fit-content; min-height: 42px; padding: 9px 16px; border: 1px solid #b42318; border-radius: 10px; color: #fff; background: #b42318; cursor: pointer; }
+.profile-delete-link, .profile-delete-button { display: inline-flex; width: fit-content; min-height: 42px; box-sizing: border-box; align-items: center; justify-content: center; gap: 8px; padding: 9px 16px; border: 1px solid #b42318; border-radius: 10px; color: #fff; background: #b42318; cursor: pointer; text-decoration: none; }
+.profile-delete-link:hover, .profile-delete-button:hover { color: #fff; background: #921b14; }
+.profile-account-confirmation { max-width: 760px; }
+.profile-delete-warning { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 22px; padding: 14px 16px; border: 1px solid rgb(220 38 38 / 32%); border-radius: 12px; color: #991b1b; background: rgb(220 38 38 / 6%); }
+.profile-delete-warning p { margin: 0; color: inherit; }
+.profile-account-deleted { max-width: 760px; text-align: center; }
+.profile-account-deleted > i { color: #16a34a; font-size: 3rem; }
+.profile-account-deleted .page-title-header { margin: 20px 0 14px !important; }
+.profile-account-deleted p { margin: 0 0 24px; color: var(--third-text-color); }
+html.dark .profile-delete-warning { border-color: rgb(248 113 113 / 40%); color: #fca5a5; background: rgb(127 29 29 / 24%); }
 body.profile-crop-open { overflow: hidden; }
 .profile-crop-modal { position: fixed !important; inset: 0 !important; z-index: 10020; display: grid; place-items: center; padding: 20px; }
 .profile-crop-modal[hidden] { display: none; }

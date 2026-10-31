@@ -94,6 +94,16 @@
             }
         }, true);
 
+        document.addEventListener('click', function (event) {
+            var link = event.target.closest('a[data-skip-preloader]');
+            if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            try {
+                sessionStorage.setItem('django-blog-skip-next-preloader', '1');
+            } catch (error) {
+                // Ignore storage failures and fall back to the normal preloader.
+            }
+        }, true);
+
         var textWrapper = document.querySelector('.ml13');
         if (document.documentElement.classList.contains('skip-site-preloader')) {
             if (textWrapper) textWrapper.closest('.preloader').style.display = 'none';

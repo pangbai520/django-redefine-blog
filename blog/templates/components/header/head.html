@@ -304,5 +304,11 @@
     {% if site.fontawesome_sharp_solid %}
     <link rel="stylesheet" href="{% static 'fontawesome/sharp-solid.min.css' %}">
     {% endif %}
+    {% if request.resolver_match.url_name == 'comment_profile' or request.resolver_match.url_name == 'comment_delete_account' or request.resolver_match.url_name == 'comment_account_deleted' %}
+        <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    {% endif %}
+    {% if request.resolver_match.url_name == 'password_reset_confirm' %}
+        <link rel="stylesheet" href="{% static 'css/internal-comments.css' %}">
+    {% endif %}
     {% render_blog_hook "head" %}
 </head>

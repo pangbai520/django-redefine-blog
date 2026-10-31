@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block page_content %}
+<div class="page-template-container profile-page">
+    <div class="page-template-content profile-account-confirmation">
+        <header class="profile-heading">
+            <h1 class="page-title-header profile-heading-title">{% translate "Delete account" %}</h1>
+            <a class="profile-back-button" href="{% url 'comment_profile' %}?next={{ return_to|urlencode }}" data-skip-preloader><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>{% translate "Back" %}</span></a>
+        </header>
+        <div class="profile-delete-warning" role="alert">
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            <p>{% translate "This permanently removes your account. Existing comments remain but are anonymized." %}</p>
+        </div>
+        <form method="post" class="profile-form" data-skip-preloader>
+            {% csrf_token %}<input type="hidden" name="next" value="{{ return_to }}">
+            {% for field in deletion_form %}
+            <div class="profile-field">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<div class="profile-field-errors" role="alert">{{ field.errors }}</div>{% endif %}
+            </div>
+            {% endfor %}
+            {% if deletion_form.non_field_errors %}<div class="profile-field-errors" role="alert">{{ deletion_form.non_field_errors }}</div>{% endif %}
+            <button class="profile-delete-button" type="submit"><i class="fa-solid fa-trash-can" aria-hidden="true"></i>{% translate "Delete my account" %}</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -5,12 +5,6 @@
 <script src="{% static 'js/layouts/navbarShrink.js' %}" type="module"></script>
 <script src="{% static 'js/layouts/categoryList.js' %}" type="module"></script>
 
-{% if site.footer_runtime_enabled %}
-    <script>window.odometerOptions = { auto: false };</script>
-    <script src="{% static 'js/libs/odometer.min.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'assets/odometer-theme-minimal.css' %}">
-{% endif %}
-
 {% if site.subtitle_enabled %}
     <script src="{% static 'js/libs/Typed.min.js' %}"></script>
 {% endif %}

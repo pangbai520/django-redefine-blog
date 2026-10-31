@@ -2174,3 +2174,12 @@ msgstr "traducción de insignia de comentario"
 
 msgid "comment badge translations"
 msgstr "traducciones de insignias de comentarios"
+
+msgid "Your account has been deleted"
+msgstr "Tu cuenta ha sido eliminada"
+
+msgid "Your comments have been kept anonymously."
+msgstr "Tus comentarios se han conservado de forma anónima."
+
+msgid "Return to site"
+msgstr "Volver al sitio"

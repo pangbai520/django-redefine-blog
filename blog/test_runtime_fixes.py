@@ -12,9 +12,11 @@ from django.utils import timezone, translation
 from django.template.loader import render_to_string
 
 from .account_cleanup import CLEANUP_CACHE_KEY
+from .image_cleanup import ORPHAN_IMAGE_CLEANUP_CACHE_KEY
 from .ip_location import format_ip2region_result
 from .models import (
     ArticleModel,
+    CommentImage,
     PendingRegistration,
     SiteConfiguration,
     TrafficModel,
@@ -172,7 +174,43 @@ class RuntimeRegressionTests(TestCase):
             Path(__file__).parent / "static" / "js" / "tools" / "runtime.js"
         ).read_text(encoding="utf-8")
 
-        self.assertIn('format: "(,ddd)"', source)
+        self.assertIn('new Intl.NumberFormat("en-US"', source)
+        self.assertIn("runtimeNumberFormatter.format", source)
+        footer = (
+            Path(__file__).parent / "templates" / "components" / "footer" / "footer.html"
+        ).read_text(encoding="utf-8")
+        self.assertNotIn('class="odometer" id="runtime_days"', footer)
+        scripts = (
+            Path(__file__).parent / "templates" / "components" / "scripts.html"
+        ).read_text(encoding="utf-8")
+        self.assertNotIn("odometer.min.js", scripts)
+
+    def test_bookmark_interactions_match_the_bundled_redefine_source(self):
+        template = (
+            Path(__file__).parent / "templates" / "pages" / "bookmarks" / "bookmarks.html"
+        ).read_text(encoding="utf-8")
+        css = (Path(__file__).parent / "static" / "css" / "style.css").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("hover:scale-102 transition-all duration-200", template)
+        self.assertIn("transition: all 200ms ease", css)
+        self.assertIn("transform: scale(1.02)", css)
+        self.assertIn("transition: all 300ms ease", css)
+        self.assertIn("transform: translateY(-0.25rem)", css)
+        self.assertIn("transform: scale(1.05)", css)
+
+    def test_normal_page_traffic_cleans_old_orphan_images_once_daily(self):
+        orphan = CommentImage.objects.create(image="comment-images/orphan-auto.png")
+        CommentImage.objects.filter(pk=orphan.pk).update(
+            created_at=timezone.now() - timedelta(hours=25)
+        )
+        cache.delete(ORPHAN_IMAGE_CLEANUP_CACHE_KEY)
+
+        self.client.get(reverse("index"))
+
+        self.assertFalse(CommentImage.objects.filter(pk=orphan.pk).exists())
+        self.assertTrue(cache.get(ORPHAN_IMAGE_CLEANUP_CACHE_KEY))
 
     def test_robots_txt_points_to_sitemap_and_hides_private_routes(self):
         response = self.client.get(reverse("robots_txt"), secure=True)

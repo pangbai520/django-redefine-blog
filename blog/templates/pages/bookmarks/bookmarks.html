@@ -10,7 +10,7 @@
             <nav class="flex md:block overflow-x-auto scrollbar-hide pb-4 md:pb-0 gap-2">
                 {% for category in categories %}
                 <a href="#{{ category.anchor_id }}"
-                   class="whitespace-nowrap md:whitespace-normal block px-3 py-2 rounded-lg hover:bg-second-background-color hover:text-primary border border-transparent hover:border-second-background-color shrink-0 font-medium bookmark-nav-item"
+                   class="whitespace-nowrap md:whitespace-normal block px-3 py-2 rounded-lg hover:bg-second-background-color hover:text-primary hover:scale-102 transition-all duration-200 border border-transparent hover:border-second-background-color shrink-0 font-medium bookmark-nav-item"
                    data-category="{{ category.anchor_id }}">
                     <i class="fa-regular {{ category.icon }} mr-2 w-6 h-6"></i>
                     {{ category.name }}

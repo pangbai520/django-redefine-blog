@@ -154,7 +154,9 @@ class TrafficModelMiddleware:
             and content_type.startswith("text/html")):
             record_request_traffic(request)
             from .account_cleanup import maybe_cleanup_expired_unverified_accounts
+            from .image_cleanup import maybe_cleanup_orphan_comment_images
 
             maybe_cleanup_expired_unverified_accounts()
+            maybe_cleanup_orphan_comment_images()
 
         return response

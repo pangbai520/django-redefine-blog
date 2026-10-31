@@ -7,7 +7,6 @@ import initScrollTopBottom from "./tools/scrollTopBottom.js";
 import initLanguageSwitcher from "./tools/languageSwitcher.js";
 import initLocalSearch from "./tools/localSearch.js";
 import initCopyCode from "./tools/codeBlock.js";
-import initBookmarkNav from "./layouts/bookmarkNav.js";
 import updateArticleExpiration from "./layouts/articleExpiration.js";
 import initHomeBanner from "./layouts/homeBanner.js";
 import initFooterRuntime from "./tools/runtime.js";
@@ -33,7 +32,6 @@ const main = {
         initModeToggle();
         initScrollTopBottom();
         initLanguageSwitcher();
-        initBookmarkNav();
         initHomeBanner();
         if (document.getElementById("runtime_seconds")) {
             initFooterRuntime();

@@ -2136,3 +2136,12 @@ msgstr "留言徽章翻譯"
 
 msgid "comment badge translations"
 msgstr "留言徽章翻譯"
+
+msgid "Your account has been deleted"
+msgstr "您的帳號已成功刪除"
+
+msgid "Your comments have been kept anonymously."
+msgstr "您的留言已匿名保留。"
+
+msgid "Return to site"
+msgstr "返回網站"

@@ -2134,3 +2134,12 @@ msgstr "评论徽章翻译"
 
 msgid "comment badge translations"
 msgstr "评论徽章翻译"
+
+msgid "Your account has been deleted"
+msgstr "您的账号已成功注销"
+
+msgid "Your comments have been kept anonymously."
+msgstr "您的评论已匿名保留。"
+
+msgid "Return to site"
+msgstr "返回站点"

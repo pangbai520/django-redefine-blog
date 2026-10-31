@@ -2181,3 +2181,12 @@ msgstr "traduction de badge de commentaire"
 
 msgid "comment badge translations"
 msgstr "traductions de badges de commentaire"
+
+msgid "Your account has been deleted"
+msgstr "Votre compte a été supprimé"
+
+msgid "Your comments have been kept anonymously."
+msgstr "Vos commentaires ont été conservés de manière anonyme."
+
+msgid "Return to site"
+msgstr "Retour au site"

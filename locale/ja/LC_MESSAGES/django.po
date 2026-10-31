@@ -2136,3 +2136,12 @@ msgstr "コメントバッジ翻訳"
 
 msgid "comment badge translations"
 msgstr "コメントバッジ翻訳"
+
+msgid "Your account has been deleted"
+msgstr "アカウントを削除しました"
+
+msgid "Your comments have been kept anonymously."
+msgstr "コメントは匿名で保持されています。"
+
+msgid "Return to site"
+msgstr "サイトに戻る"

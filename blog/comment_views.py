@@ -367,6 +367,22 @@ def _profile_redirect(return_to, **status):
     return redirect(f"{reverse('comment_profile')}?{urlencode(query)}")
 
 
+def _delete_comment_account(request):
+    """Delete the login while preserving its published comments anonymously."""
+    user = request.user
+    with transaction.atomic():
+        CommentImage.objects.filter(uploader=user, comment__isnull=True).delete()
+        user.blog_comments.update(
+            author=None,
+            author_deleted=True,
+            nickname="",
+            email="",
+            website="",
+        )
+        logout(request)
+        user.delete()
+
+
 def _json_error(message, status=400):
     return JsonResponse({"ok": False, "error": message}, status=status)
 
@@ -809,7 +825,6 @@ def profile(request):
     password_is_set = request.user.has_usable_password()
     password_form_class = PasswordChangeForm if password_is_set else SetPasswordForm
     password_form = password_form_class(request.user)
-    deletion_form = AccountDeletionForm(user=request.user)
 
     if request.method == "POST" and request.POST.get("action", "profile") == "profile":
         profile_form = UserProfileForm(
@@ -913,24 +928,6 @@ def profile(request):
             update_session_auth_hash(request, user)
             return _profile_redirect(return_to, password="updated")
 
-    if request.method == "POST" and request.POST.get("action") == "delete-account":
-        deletion_form = AccountDeletionForm(request.POST, user=request.user)
-        if deletion_form.is_valid():
-            user = request.user
-            with transaction.atomic():
-                CommentImage.objects.filter(uploader=user, comment__isnull=True).delete()
-                user.blog_comments.update(
-                    author=None,
-                    author_deleted=True,
-                    nickname="",
-                    email="",
-                    website="",
-                )
-                logout(request)
-                user.delete()
-            return redirect(reverse("index"))
-        response_status = 400
-
     preview_display_name = (
         profile_record.pending_resolved_display_name
         if profile_record.profile_review_pending
@@ -948,7 +945,6 @@ def profile(request):
             "profile_form": profile_form,
             "email_form": email_form,
             "password_form": password_form,
-            "deletion_form": deletion_form,
             "profile": profile_record,
             "profile_preview_display_name": preview_display_name,
             "profile_preview_avatar": preview_avatar,
@@ -961,6 +957,33 @@ def profile(request):
         },
         status=response_status,
     )
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def delete_account(request):
+    return_to = _safe_next(
+        request,
+        request.POST.get("next") or request.GET.get("next"),
+    )
+    form = AccountDeletionForm(
+        request.POST or None,
+        user=request.user,
+    )
+    if request.method == "POST" and form.is_valid():
+        _delete_comment_account(request)
+        return redirect(reverse("comment_account_deleted"))
+    return render(
+        request,
+        "comments/delete_account_confirm.html",
+        {"deletion_form": form, "return_to": return_to},
+        status=400 if request.method == "POST" else 200,
+    )
+
+
+@require_GET
+def account_deleted(request):
+    return render(request, "comments/account_deleted.html")
 
 
 @login_required
