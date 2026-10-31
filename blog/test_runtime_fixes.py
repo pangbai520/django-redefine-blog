@@ -192,13 +192,16 @@ class RuntimeRegressionTests(TestCase):
         css = (Path(__file__).parent / "static" / "css" / "style.css").read_text(
             encoding="utf-8"
         )
+        controller = (
+            Path(__file__).parent / "static" / "js" / "layouts" / "bookmarkNav.js"
+        ).read_text(encoding="utf-8")
 
         self.assertIn("hover:scale-102 transition-all duration-200", template)
-        self.assertIn("transition: all 200ms ease", css)
+        self.assertIn(".bookmark-nav-item.active", css)
+        self.assertIn("background-color: var(--second-background-color)", css)
         self.assertIn("transform: scale(1.02)", css)
-        self.assertIn("transition: all 300ms ease", css)
-        self.assertIn("transform: translateY(-0.25rem)", css)
-        self.assertIn("transform: scale(1.05)", css)
+        self.assertNotIn(".bookmarks-page .bookmark-card-link:hover", css)
+        self.assertIn('item.classList.toggle(\n                "active"', controller)
 
     def test_normal_page_traffic_cleans_old_orphan_images_once_daily(self):
         orphan = CommentImage.objects.create(image="comment-images/orphan-auto.png")

@@ -1359,6 +1359,43 @@ class RedefineParityTests(TestCase):
 
         self.assertContains(response, 'class="bookmarks-page py-8 sm:py-0"')
 
+    def test_bookmark_controller_selects_the_current_category(self):
+        script = (
+            Path(__file__).parent / "static" / "js" / "layouts" / "bookmarkNav.js"
+        ).read_text(encoding="utf-8")
+        main_script = (
+            Path(__file__).parent / "static" / "js" / "main.js"
+        ).read_text(encoding="utf-8")
+        stylesheet = (
+            Path(__file__).parent / "static" / "css" / "style.css"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn('item.classList.toggle(\n                "active"', script)
+        self.assertIn('import initBookmarkNav from "./layouts/bookmarkNav.js";', main_script)
+        self.assertIn("initBookmarkNav();", main_script)
+        self.assertIn(".bookmark-nav-item.active {", stylesheet)
+        self.assertIn("background-color: var(--second-background-color);", stylesheet)
+        self.assertNotIn(".bookmarks-page .bookmark-card-link:hover", stylesheet)
+
+    def test_profile_keeps_password_rules_bulleted_but_not_red_errors(self):
+        stylesheet = (
+            Path(__file__).parent / "static" / "css" / "profile.css"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn(".profile-help ul { margin: 4px 0 0; padding-left: 1.25rem; }", stylesheet)
+        self.assertIn(".profile-field-errors .errorlist", stylesheet)
+        self.assertIn("list-style: none !important", stylesheet)
+
+    def test_delete_account_link_has_no_hover_animation(self):
+        stylesheet = (
+            Path(__file__).parent / "static" / "css" / "profile.css"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn(
+            ".profile-delete-link:hover { border-color: #b42318; color: #fff; background: #b42318; }",
+            stylesheet,
+        )
+
     def test_info_first_sidebar_keeps_upstream_card_spacing(self):
         self.site.sidebar_firstitem = "info"
         self.site.sidebar_announcement = "<strong>Notice</strong>"

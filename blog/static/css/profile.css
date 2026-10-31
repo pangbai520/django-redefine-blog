@@ -61,7 +61,8 @@ html.dark .profile-pending-email { color: #f9d776; background: rgb(120 83 0 / 28
 .profile-cancel-email-form button { color: #b42318; background: transparent; }
 .profile-account-section { display: grid; gap: 16px; }
 .profile-delete-link, .profile-delete-button { display: inline-flex; width: fit-content; min-height: 42px; box-sizing: border-box; align-items: center; justify-content: center; gap: 8px; padding: 9px 16px; border: 1px solid #b42318; border-radius: 10px; color: #fff; background: #b42318; cursor: pointer; text-decoration: none; }
-.profile-delete-link:hover, .profile-delete-button:hover { color: #fff; background: #921b14; }
+.profile-delete-link:hover { border-color: #b42318; color: #fff; background: #b42318; }
+.profile-delete-button:hover { color: #fff; background: #921b14; }
 .profile-account-confirmation { max-width: 760px; }
 .profile-delete-warning { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 22px; padding: 14px 16px; border: 1px solid rgb(220 38 38 / 32%); border-radius: 12px; color: #991b1b; background: rgb(220 38 38 / 6%); }
 .profile-delete-warning p { margin: 0; color: inherit; }

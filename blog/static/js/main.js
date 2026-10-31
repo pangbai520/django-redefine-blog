@@ -9,6 +9,7 @@ import initLocalSearch from "./tools/localSearch.js";
 import initCopyCode from "./tools/codeBlock.js";
 import updateArticleExpiration from "./layouts/articleExpiration.js";
 import initHomeBanner from "./layouts/homeBanner.js";
+import initBookmarkNav from "./layouts/bookmarkNav.js";
 import initFooterRuntime from "./tools/runtime.js";
 import {
     getStyleStatus,
@@ -33,6 +34,7 @@ const main = {
         initScrollTopBottom();
         initLanguageSwitcher();
         initHomeBanner();
+        initBookmarkNav();
         if (document.getElementById("runtime_seconds")) {
             initFooterRuntime();
         }
