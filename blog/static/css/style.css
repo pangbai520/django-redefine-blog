@@ -2068,8 +2068,11 @@ pre .deletion {
   overflow: hidden;
 }
 [data-target] {
-  display: block;
+  display: none;
   overflow: hidden;
+}
+[data-target]:not(.hidden) {
+  display: flex;
 }
 [data-target] .submenu-item {
   opacity: 0;

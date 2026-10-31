@@ -1,5 +1,6 @@
 import re
 from datetime import timedelta
+from pathlib import Path
 from unittest.mock import patch
 
 from django.conf import settings
@@ -156,6 +157,21 @@ class RuntimeRegressionTests(TestCase):
             html.index('id="site-theme-overrides"'),
             html.index("css/style.css"),
         )
+
+    def test_mobile_submenu_is_collapsed_until_its_toggle_is_used(self):
+        css = (Path(__file__).parent / "static" / "css" / "style.css").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("[data-target] {\n  display: none;", css)
+        self.assertIn("[data-target]:not(.hidden) {\n  display: flex;", css)
+
+    def test_footer_runtime_uses_thousands_separators(self):
+        source = (
+            Path(__file__).parent / "static" / "js" / "tools" / "runtime.js"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn('format: "(,ddd)"', source)
 
     def test_robots_txt_points_to_sitemap_and_hides_private_routes(self):
         response = self.client.get(reverse("robots_txt"), secure=True)

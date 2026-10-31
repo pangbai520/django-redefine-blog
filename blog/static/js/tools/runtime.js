@@ -14,7 +14,7 @@ const initializeOdometers = (elements) => {
     if (element.odometer) return;
     new window.Odometer({
       el: element,
-      format: "( ddd).dd",
+      format: "(,ddd)",
       duration: 200,
     });
   });
