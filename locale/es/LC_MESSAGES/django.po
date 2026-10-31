@@ -2075,7 +2075,7 @@ msgid "Visit records"
 msgstr "Visit records"
 
 msgid "Visit the site"
-msgstr "Visit the site"
+msgstr "Visitar el sitio"
 
 msgid "Visits today"
 msgstr "Visits today"
@@ -2084,7 +2084,7 @@ msgid "We could not send a new verification email. Please try again later."
 msgstr "We could not send a new verification email. Please try again later."
 
 msgid "Welcome — your account is ready"
-msgstr "Welcome — your account is ready"
+msgstr "Te damos la bienvenida: tu cuenta está lista"
 
 msgid "Your display name links to this address when it is set."
 msgstr "Your display name links to this address when it is set."
@@ -2109,3 +2109,68 @@ msgstr "personal website"
 
 msgid "reCAPTCHA v3 site key"
 msgstr "reCAPTCHA v3 site key"
+
+msgid "Settings"
+msgstr "Ajustes"
+
+msgid "Account"
+msgstr "Cuenta"
+
+msgid "Delete account"
+msgstr "Eliminar cuenta"
+
+msgid ""
+"This permanently removes your account. Existing comments remain but are "
+"anonymized."
+msgstr ""
+"Esta acción elimina permanentemente tu cuenta. Los comentarios existentes se"
+" conservarán de forma anónima."
+
+msgid "Type your username to confirm"
+msgstr "Escribe tu nombre de usuario para confirmar"
+
+msgid "Your current password is incorrect."
+msgstr "Tu contraseña actual es incorrecta."
+
+msgid "Enter your username exactly as shown."
+msgstr "Escribe el nombre de usuario exactamente como aparece."
+
+msgid "Create another active superuser before deleting this account."
+msgstr "Crea otro superusuario activo antes de eliminar esta cuenta."
+
+msgid "Deleted user"
+msgstr "Usuario eliminado"
+
+msgid "owner badge"
+msgstr "insignia del propietario"
+
+msgid "Automatically grant this badge to active superusers."
+msgstr "Conceder automáticamente esta insignia a los superusuarios activos."
+
+msgid "language code"
+msgstr "código de idioma"
+
+msgid "translated badge name"
+msgstr "nombre traducido de la insignia"
+
+msgid "Return to settings"
+msgstr "Volver a los ajustes"
+
+msgid "Delete my account"
+msgstr "Eliminar mi cuenta"
+
+msgid ""
+"Thanks for joining %(site_name)s. Your email has been verified and your "
+"account is ready to use."
+msgstr ""
+"Gracias por unirte a %(site_name)s. Tu correo está verificado y la cuenta ya"
+" está lista."
+
+msgid "Welcome to %(site_name)s"
+msgstr "Te damos la bienvenida a %(site_name)s"
+
+msgid "comment badge translation"
+msgstr "traducción de insignia de comentario"
+
+msgid "comment badge translations"
+msgstr "traducciones de insignias de comentarios"

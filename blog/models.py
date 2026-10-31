@@ -1693,6 +1693,7 @@ class Comment(models.Model):
     nickname = models.CharField(max_length=80, blank=True)
     email = models.EmailField(blank=True)
     website = models.URLField(blank=True)
+    author_deleted = models.BooleanField(default=False)
     content = models.TextField(max_length=5000)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     browser = models.CharField(max_length=120, blank=True)
@@ -1714,6 +1715,8 @@ class Comment(models.Model):
 
     @property
     def display_name(self):
+        if self.author_deleted:
+            return _("Deleted user")
         if self.author_id:
             profile = getattr(self.author, "profile", None)
             if profile and profile.display_name.strip():
@@ -1749,7 +1752,7 @@ class Comment(models.Model):
         if self.author_id:
             self.nickname = ""
             self.email = ""
-        elif not self.nickname:
+        elif not self.nickname and not self.author_deleted:
             raise ValidationError({"nickname": "Guest comments require a nickname."})
 
     def save(self, *args, **kwargs):
@@ -1778,7 +1781,9 @@ class CommentImage(models.Model):
 
     uploader = models.ForeignKey(
         "auth.User",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name="comment_images",
     )
     comment = models.ForeignKey(
@@ -1789,6 +1794,7 @@ class CommentImage(models.Model):
         related_name="images",
     )
     image = models.ImageField(upload_to="comment-images/")
+    content_hash = models.CharField(max_length=64, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
@@ -1836,6 +1842,11 @@ class CommentBadge(models.Model):
         SiteConfiguration, on_delete=models.CASCADE, related_name="comment_badges"
     )
     name = models.CharField(max_length=40)
+    is_owner_badge = models.BooleanField(
+        _("owner badge"),
+        default=False,
+        help_text=_("Automatically grant this badge to active superusers."),
+    )
     # an empty value inherits the active theme colour
     color = models.CharField(max_length=32, default="", blank=True)
     admin_only = models.BooleanField(default=True)
@@ -1846,10 +1857,50 @@ class CommentBadge(models.Model):
         ordering = ("order", "id")
         constraints = [
             models.UniqueConstraint(fields=("config", "name"), name="unique_comment_badge_name"),
+            models.UniqueConstraint(
+                fields=("config",),
+                condition=Q(is_owner_badge=True),
+                name="unique_owner_badge_per_config",
+            ),
         ]
+
+    def localized_name(self, language_code=None):
+        from django.utils.translation import get_language
+
+        language_code = (language_code or get_language() or "").replace("_", "-").lower()
+        translations = list(self.translations.all())
+        for candidate in (language_code, language_code.split("-", 1)[0]):
+            for translation in translations:
+                if translation.language_code.replace("_", "-").lower() == candidate:
+                    return translation.name
+        return self.name
 
     def __str__(self):
         return self.name
+
+
+class CommentBadgeTranslation(models.Model):
+    badge = models.ForeignKey(
+        CommentBadge, on_delete=models.CASCADE, related_name="translations"
+    )
+    language_code = models.CharField(
+        _("language code"), max_length=20, choices=settings.LANGUAGES
+    )
+    name = models.CharField(_("translated badge name"), max_length=40)
+
+    class Meta:
+        ordering = ("language_code", "id")
+        verbose_name = _("comment badge translation")
+        verbose_name_plural = _("comment badge translations")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("badge", "language_code"),
+                name="unique_comment_badge_translation_language",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.badge.name} ({self.language_code})"
 
 
 class CommentBadgeAssignment(models.Model):

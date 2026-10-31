@@ -172,6 +172,8 @@ class UserEmailChangeForm(forms.Form):
     def __init__(self, *args, user, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
+        if not user.has_usable_password():
+            self.fields.pop("current_password")
         self.fields["email"].initial = user.email
 
     def clean_email(self):
@@ -197,3 +199,39 @@ class UserEmailChangeForm(forms.Form):
                 _("Enter your current password to change your email address.")
             )
         return password
+
+
+class AccountDeletionForm(forms.Form):
+    current_password = forms.CharField(
+        label=_("Current password"),
+        widget=forms.PasswordInput(attrs={"autocomplete": "current-password"}),
+    )
+    username_confirmation = forms.CharField(label=_("Type your username to confirm"))
+
+    def __init__(self, *args, user, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+        if not user.has_usable_password():
+            self.fields.pop("current_password")
+
+    def clean_current_password(self):
+        password = self.cleaned_data["current_password"]
+        if not self.user.check_password(password):
+            raise forms.ValidationError(_("Your current password is incorrect."))
+        return password
+
+    def clean_username_confirmation(self):
+        value = self.cleaned_data["username_confirmation"].strip()
+        if value != self.user.get_username():
+            raise forms.ValidationError(_("Enter your username exactly as shown."))
+        return value
+
+    def clean(self):
+        cleaned = super().clean()
+        if self.user.is_superuser and not type(self.user).objects.filter(
+            is_superuser=True, is_active=True
+        ).exclude(pk=self.user.pk).exists():
+            raise forms.ValidationError(
+                _("Create another active superuser before deleting this account.")
+            )
+        return cleaned

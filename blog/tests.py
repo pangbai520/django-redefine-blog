@@ -28,6 +28,7 @@ from .models import (
     Comment,
     CommentBadge,
     CommentBadgeAssignment,
+    CommentBadgeTranslation,
     CommentEmoji,
     CommentEmojiPack,
     CommentGifSource,
@@ -489,6 +490,28 @@ class InternalCommentTests(TestCase):
         self.assertIn("internal-comment-emoji", preview.json()["html"])
         self.assertIn("https://example.com/doge.png", preview.json()["html"])
 
+    def test_username_immutability_hint_only_appears_on_registration_panel(self):
+        response = self.client.get(reverse("article", args=[self.article.slug]))
+        html = response.content.decode()
+        login_panel, register_panel = html.split('data-auth-panel="register"', 1)
+
+        self.assertNotIn("Your username cannot be changed after registration.", login_panel)
+        self.assertIn("Your username cannot be changed after registration.", register_panel)
+
+    def test_badge_name_uses_the_current_language_translation(self):
+        user = User.objects.create_user("translated-badge", password="A-strong-password-123")
+        badge = CommentBadge.objects.create(config=self.site, name="Owner", enabled=True)
+        CommentBadgeTranslation.objects.update_or_create(
+            badge=badge, language_code="zh-hans", defaults={"name": "博主"}
+        )
+        CommentBadgeAssignment.objects.create(user=user, badge=badge)
+        Comment.objects.create(article=self.article, author=user, content="Hello")
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = "zh-hans"
+
+        payload = self.client.get(reverse("comment_list", args=[self.article.slug])).json()
+
+        self.assertEqual(payload["comments"][0]["badges"][0]["name"], "博主")
+
     def test_identical_comment_uploads_reuse_one_storage_object(self):
         user = User.objects.create_user("dedupe-uploader", password="A-strong-password-123")
         self.client.force_login(user)
@@ -505,8 +528,46 @@ class InternalCommentTests(TestCase):
             )
 
             self.assertEqual(first.json()["url"], second.json()["url"])
+            self.assertEqual(first.json()["image_id"], second.json()["image_id"])
             self.assertEqual(CommentImage.objects.count(), 1)
             self.assertEqual(len(list(Path(media_root, "comment-images").glob("*.png"))), 1)
+
+    def test_uploaded_image_ids_follow_two_comments_and_delete_only_after_last_reference(self):
+        user = User.objects.create_user("image-lifecycle", password="A-strong-password-123")
+        self.client.force_login(user)
+        png = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGBgAAAABQABpfZFQAAAAABJRU5ErkJggg==")
+
+        with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as media_root, override_settings(MEDIA_ROOT=media_root):
+            first_upload = self.client.post(
+                reverse("comment_upload"),
+                {"image": SimpleUploadedFile("one.png", png, content_type="image/png")},
+            ).json()
+            first_response = self.client.post(
+                reverse("comment_create", args=[self.article.slug]),
+                {"content": f"![image]({first_upload['url']})", "image_ids": first_upload["image_id"]},
+            )
+            second_upload = self.client.post(
+                reverse("comment_upload"),
+                {"image": SimpleUploadedFile("two.png", png, content_type="image/png")},
+            ).json()
+            second_response = self.client.post(
+                reverse("comment_create", args=[self.article.slug]),
+                {"content": f"![image]({second_upload['url']})", "image_ids": second_upload["image_id"]},
+            )
+            first_comment = Comment.objects.get(pk=first_response.json()["comment"]["id"])
+            second_comment = Comment.objects.get(pk=second_response.json()["comment"]["id"])
+            stored_path = Path(media_root, CommentImage.objects.first().image.name)
+
+            self.assertEqual(first_upload["url"], second_upload["url"])
+            self.assertEqual(CommentImage.objects.count(), 2)
+            self.assertTrue(stored_path.exists())
+            with self.captureOnCommitCallbacks(execute=True):
+                first_comment.delete()
+            self.assertTrue(stored_path.exists())
+            with self.captureOnCommitCallbacks(execute=True):
+                second_comment.delete()
+            self.assertFalse(stored_path.exists())
+            self.assertFalse(CommentImage.objects.exists())
 
     def test_shared_comment_image_is_deleted_only_after_its_last_comment(self):
         user = User.objects.create_user(

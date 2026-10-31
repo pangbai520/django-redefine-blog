@@ -22,6 +22,7 @@ class Command(BaseCommand):
         if destination.is_file() and not options["force"]:
             if self._sha256(destination) == DATABASE_SHA256:
                 self.stdout.write(f"IP location database is current: {destination}")
+                self._validate_lookup()
                 return
         destination.parent.mkdir(parents=True, exist_ok=True)
         temporary = destination.with_suffix(destination.suffix + ".download")
@@ -39,6 +40,19 @@ class Command(BaseCommand):
         finally:
             temporary.unlink(missing_ok=True)
         self.stdout.write(self.style.SUCCESS(f"Installed IP location database: {destination}"))
+        self._validate_lookup()
+
+    @staticmethod
+    def _validate_lookup():
+        from blog.ip_location import _searchers, get_ip_location
+
+        _searchers.clear()
+        get_ip_location.cache_clear()
+        if not get_ip_location("183.251.202.251"):
+            raise CommandError(
+                "The IP database was installed, but py-ip2region could not resolve a test address. "
+                "Install production dependencies before running this command."
+            )
 
     @staticmethod
     def _sha256(path):

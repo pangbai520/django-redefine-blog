@@ -10,6 +10,7 @@ from .models import (
     Category,
     CommentImage,
     CommentBadge,
+    CommentBadgeTranslation,
     CommentBadgeAssignment,
     Font,
     MenuLink,
@@ -19,6 +20,17 @@ from .models import (
     TrafficModel,
     UserProfile,
 )
+
+
+OWNER_BADGE_TRANSLATIONS = {
+    "en": "Blogger",
+    "es": "Autor",
+    "fr": "Auteur",
+    "ja": "ブログ管理者",
+    "zh-hans": "博主",
+    "zh-hk": "博主",
+    "zh-tw": "站長",
+}
 
 
 @receiver(post_delete, sender=CommentImage)
@@ -145,7 +157,7 @@ def grant_owner_badge(user, config=None):
         return
     badge = CommentBadge.objects.filter(
         config=config,
-        name__iexact="博主",
+        is_owner_badge=True,
         enabled=True,
     ).first()
     if badge:
@@ -183,7 +195,23 @@ def invalidate_owner_profile_content(sender, instance, **kwargs):
 
 @receiver(post_save, sender=CommentBadge)
 def grant_new_owner_badge(sender, instance, **kwargs):
-    if instance.name != "博主" or not instance.enabled:
+    if not instance.is_owner_badge or not instance.enabled:
         return
+    CommentBadgeTranslation.objects.bulk_create(
+        [
+            CommentBadgeTranslation(
+                badge=instance, language_code=language_code, name=name
+            )
+            for language_code, name in OWNER_BADGE_TRANSLATIONS.items()
+        ],
+        ignore_conflicts=True,
+    )
     for user in get_user_model().objects.filter(is_superuser=True).iterator():
         grant_owner_badge(user, config=instance.config)
+
+
+@receiver([post_save, post_delete], sender=CommentBadgeTranslation)
+def invalidate_badge_translation_content(sender, instance, **kwargs):
+    from .cache_utils import invalidate_content_caches
+
+    invalidate_content_caches()

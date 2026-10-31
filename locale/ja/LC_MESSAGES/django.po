@@ -732,7 +732,7 @@ msgid "Confirm your new email address"
 msgstr "新しいメールアドレスを確認"
 
 msgid "Hello %(username)s,"
-msgstr "%(username)s さん、"
+msgstr "%(username)s さん、こんにちは。"
 
 msgid "Open the link below to confirm this address for your comment account:"
 msgstr "以下のリンクを開き、コメント用アカウントのメールアドレスを確認してください。"
@@ -2041,7 +2041,7 @@ msgid "Visit records"
 msgstr "Visit records"
 
 msgid "Visit the site"
-msgstr "Visit the site"
+msgstr "サイトを開く"
 
 msgid "Visits today"
 msgstr "Visits today"
@@ -2050,7 +2050,7 @@ msgid "We could not send a new verification email. Please try again later."
 msgstr "We could not send a new verification email. Please try again later."
 
 msgid "Welcome — your account is ready"
-msgstr "Welcome — your account is ready"
+msgstr "ようこそ。アカウントの準備ができました"
 
 msgid "Your display name links to this address when it is set."
 msgstr "Your display name links to this address when it is set."
@@ -2075,3 +2075,64 @@ msgstr "personal website"
 
 msgid "reCAPTCHA v3 site key"
 msgstr "reCAPTCHA v3 site key"
+
+msgid "Settings"
+msgstr "設定"
+
+msgid "Account"
+msgstr "アカウント"
+
+msgid "Delete account"
+msgstr "アカウントを削除"
+
+msgid ""
+"This permanently removes your account. Existing comments remain but are "
+"anonymized."
+msgstr "アカウントを完全に削除します。既存のコメントは匿名化して残ります。"
+
+msgid "Type your username to confirm"
+msgstr "確認のためユーザー名を入力"
+
+msgid "Your current password is incorrect."
+msgstr "現在のパスワードが正しくありません。"
+
+msgid "Enter your username exactly as shown."
+msgstr "表示されたユーザー名を正確に入力してください。"
+
+msgid "Create another active superuser before deleting this account."
+msgstr "このアカウントを削除する前に、別の有効なスーパーユーザーを作成してください。"
+
+msgid "Deleted user"
+msgstr "削除済みユーザー"
+
+msgid "owner badge"
+msgstr "管理者バッジ"
+
+msgid "Automatically grant this badge to active superusers."
+msgstr "有効なスーパーユーザーにこのバッジを自動付与します。"
+
+msgid "language code"
+msgstr "言語コード"
+
+msgid "translated badge name"
+msgstr "翻訳済みバッジ名"
+
+msgid "Return to settings"
+msgstr "設定に戻る"
+
+msgid "Delete my account"
+msgstr "アカウントを削除"
+
+msgid ""
+"Thanks for joining %(site_name)s. Your email has been verified and your "
+"account is ready to use."
+msgstr "%(site_name)s へのご登録ありがとうございます。メールアドレスの確認が完了し、アカウントを利用できます。"
+
+msgid "Welcome to %(site_name)s"
+msgstr "%(site_name)s へようこそ"
+
+msgid "comment badge translation"
+msgstr "コメントバッジ翻訳"
+
+msgid "comment badge translations"
+msgstr "コメントバッジ翻訳"

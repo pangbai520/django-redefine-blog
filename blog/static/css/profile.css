@@ -19,13 +19,13 @@
 .profile-avatar-edit-badge { position: absolute; right: 6px; bottom: 6px; display: grid; place-items: center; width: 27px; height: 27px; border: 2px solid var(--second-background-color); border-radius: 9px; color: #fff; background: var(--primary-color); box-shadow: 0 3px 10px rgb(0 0 0 / 18%); font-size: .7rem; transition: transform .2s ease; }
 .profile-avatar-trigger:hover .profile-avatar-edit-badge { transform: scale(1.08); }
 .profile-form { display: grid; gap: 18px; }
-.profile-email-section, .profile-password-section { padding-top: 24px; border-top: 1px solid var(--border-color); scroll-margin-top: 90px; }
-.profile-email-section h2, .profile-password-section h2 { display: flex; align-items: center; gap: 9px; margin: 0 0 18px; font-size: 1.18rem; }
-.profile-email-section h2 i, .profile-password-section h2 i { color: var(--primary-color); }
+.profile-email-section, .profile-password-section, .profile-account-section { padding-top: 24px; border-top: 1px solid var(--border-color); scroll-margin-top: 90px; }
+.profile-email-section h2, .profile-password-section h2, .profile-account-section h2 { display: flex; align-items: center; gap: 9px; margin: 0 0 18px; font-size: 1.18rem; }
+.profile-email-section h2 i, .profile-password-section h2 i, .profile-account-section h2 i { color: var(--primary-color); }
 .profile-field { display: grid; gap: 7px; }
 .profile-field > label:first-child { display: flex; align-items: center; gap: 8px; font-weight: 600; }
 .profile-field > label:first-child i { width: 1.1em; color: var(--primary-color); text-align: center; }
-.profile-field input[type="text"], .profile-field input[type="email"], .profile-field input[type="password"], .profile-field input[type="file"], .profile-field input:not([type]) { width: 100%; min-height: 44px; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 10px; outline: none; color: var(--default-text-color); background: var(--second-background-color); transition: border-color .2s ease, box-shadow .2s ease; }
+.profile-field input[type="text"], .profile-field input[type="email"], .profile-field input[type="url"], .profile-field input[type="password"], .profile-field input[type="file"], .profile-field input:not([type]) { width: 100%; min-height: 44px; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 10px; outline: none; color: var(--default-text-color); background: var(--second-background-color); transition: border-color .2s ease, box-shadow .2s ease; }
 .profile-field input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 16%, transparent); }
 .profile-field input:disabled { cursor: not-allowed; opacity: .68; }
 .profile-field small { color: var(--third-text-color); }
@@ -34,6 +34,9 @@
 .profile-forgot-password { display: inline-flex; width: fit-content; align-items: center; gap: 5px; color: var(--primary-color); font-size: .82rem; text-decoration: none; }
 .profile-forgot-password:hover { text-decoration: underline; }
 .profile-field .errorlist { margin: 0; padding: 0; color: #c53030; list-style: none; font-size: .88rem; }
+.profile-field-errors { padding: 9px 11px; border: 1px solid #ef9a9a; border-radius: 9px; color: #a61b1b; background: #fff0f0; font-size: .88rem; }
+.profile-field-errors .errorlist { margin: 0; padding: 0; list-style: none; }
+html.dark .profile-field-errors { border-color: rgb(248 113 113 / 45%); color: #fca5a5; background: rgb(127 29 29 / 28%); }
 .profile-checkbox { display: flex; align-items: center; gap: 8px; color: var(--third-text-color); font-size: .9rem; }
 .profile-checkbox input { width: auto; min-height: auto; }
 .profile-notice, .profile-pending-email { display: flex; align-items: center; gap: 10px; margin: 0 0 20px; padding: 12px 14px; border-radius: 10px; }
@@ -54,6 +57,11 @@ html.dark .profile-pending-email { color: #f9d776; background: rgb(120 83 0 / 28
 .profile-secondary-button { color: var(--default-text-color); background: var(--second-background-color); }
 .profile-cancel-email-form { margin-top: 18px; text-align: right; }
 .profile-cancel-email-form button { color: #b42318; background: transparent; }
+.profile-account-section { display: grid; gap: 16px; }
+.profile-danger-zone { display: grid; gap: 12px; padding: 18px; border: 1px solid rgb(220 38 38 / 32%); border-radius: 12px; background: rgb(220 38 38 / 5%); }
+.profile-danger-zone h3, .profile-danger-zone p { margin: 0; }
+.profile-danger-zone p { color: var(--third-text-color); }
+.profile-delete-button { width: fit-content; min-height: 42px; padding: 9px 16px; border: 1px solid #b42318; border-radius: 10px; color: #fff; background: #b42318; cursor: pointer; }
 body.profile-crop-open { overflow: hidden; }
 .profile-crop-modal { position: fixed !important; inset: 0 !important; z-index: 10020; display: grid; place-items: center; padding: 20px; }
 .profile-crop-modal[hidden] { display: none; }

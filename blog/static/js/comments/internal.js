@@ -315,6 +315,7 @@
     function bindComposer(node, mode, item) {
       if (!node) return node;
       node.dataset.composerMode = mode || "create";
+      if (mode === "reply" || mode === "edit") node.dataset.uploadIds = "";
       var input = node.querySelector(".wl-editor");
       var pane = node.querySelector(".internal-comment-preview");
       var parent = node.querySelector('input[name="parent_id"]');
@@ -656,12 +657,14 @@
       node.dataset.submitting = "true";
       var data = new FormData();
       panel.querySelectorAll("input, textarea").forEach(function (input) { if (input.name) data.append(input.name, input.value); });
+      String(node.dataset.uploadIds || "").split(",").filter(Boolean).forEach(function (id) { data.append("image_ids", id); });
       submit.disabled = true;
       var editId = node.dataset.editId;
       var endpoint = editId ? "/api/comments/" + editId + "/edit/" : "/api/comments/" + encodeURIComponent(slug) + "/create/";
       fetch(endpoint, { method: "POST", body: data, headers: { "X-CSRFToken": csrf(), Accept: "application/json" }, credentials: "same-origin" })
         .then(function (response) { return parseJsonResponse(response, message("UnableSubmit", "Unable to submit comment")); })
         .then(function () {
+          node.dataset.uploadIds = "";
           if (node === composer) { var mainEditor = node.querySelector(".wl-editor"); if (mainEditor) { mainEditor.value = ""; mainEditor.dispatchEvent(new Event("input")); } }
           if (node === replyComposer) { replyComposer.remove(); replyComposer = null; replyTarget = null; }
           if (node === editComposer) { editComposer.remove(); editComposer = null; editTarget = null; }
@@ -813,6 +816,11 @@
         .then(function (response) { return parseJsonResponse(response, message("UploadFailed", "Upload failed")); })
         .then(function (body) {
           if (!body.url) throw new Error(message("UploadUrlMissing", "Upload failed: server did not return an image URL."));
+          if (body.image_id && owner) {
+            var ids = String(owner.dataset.uploadIds || "").split(",").filter(Boolean);
+            if (ids.indexOf(String(body.image_id)) === -1) ids.push(String(body.image_id));
+            owner.dataset.uploadIds = ids.join(",");
+          }
           var targetEditor = owner && owner.querySelector(".wl-editor");
           if (targetEditor) { targetEditor.value += "\n![image](" + body.url + ")\n"; targetEditor.dispatchEvent(new Event("input")); }
         })

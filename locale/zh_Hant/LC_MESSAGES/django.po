@@ -732,7 +732,7 @@ msgid "Confirm your new email address"
 msgstr "確認你的新電子郵件"
 
 msgid "Hello %(username)s,"
-msgstr "你好，%(username)s："
+msgstr "您好，%(username)s："
 
 msgid "Open the link below to confirm this address for your comment account:"
 msgstr "開啟以下連結，為你的留言帳號確認此電子郵件："
@@ -2041,7 +2041,7 @@ msgid "Visit records"
 msgstr "Visit records"
 
 msgid "Visit the site"
-msgstr "Visit the site"
+msgstr "造訪網站"
 
 msgid "Visits today"
 msgstr "Visits today"
@@ -2050,7 +2050,7 @@ msgid "We could not send a new verification email. Please try again later."
 msgstr "We could not send a new verification email. Please try again later."
 
 msgid "Welcome — your account is ready"
-msgstr "Welcome — your account is ready"
+msgstr "歡迎，您的帳號已可使用"
 
 msgid "Your display name links to this address when it is set."
 msgstr "Your display name links to this address when it is set."
@@ -2075,3 +2075,64 @@ msgstr "personal website"
 
 msgid "reCAPTCHA v3 site key"
 msgstr "reCAPTCHA v3 site key"
+
+msgid "Settings"
+msgstr "設定"
+
+msgid "Account"
+msgstr "帳號"
+
+msgid "Delete account"
+msgstr "註銷帳號"
+
+msgid ""
+"This permanently removes your account. Existing comments remain but are "
+"anonymized."
+msgstr "此操作會永久刪除您的帳號；既有評論將保留，但會匿名化。"
+
+msgid "Type your username to confirm"
+msgstr "輸入使用者名稱以確認"
+
+msgid "Your current password is incorrect."
+msgstr "目前密碼不正確。"
+
+msgid "Enter your username exactly as shown."
+msgstr "請準確輸入上方顯示的使用者名稱。"
+
+msgid "Create another active superuser before deleting this account."
+msgstr "請先建立另一個可用的超級使用者，再刪除此帳號。"
+
+msgid "Deleted user"
+msgstr "已註銷使用者"
+
+msgid "owner badge"
+msgstr "站長徽章"
+
+msgid "Automatically grant this badge to active superusers."
+msgstr "自動將此徽章授予可用的超級使用者。"
+
+msgid "language code"
+msgstr "語言代碼"
+
+msgid "translated badge name"
+msgstr "徽章譯名"
+
+msgid "Return to settings"
+msgstr "返回設定"
+
+msgid "Delete my account"
+msgstr "註銷我的帳號"
+
+msgid ""
+"Thanks for joining %(site_name)s. Your email has been verified and your "
+"account is ready to use."
+msgstr "感謝您註冊 %(site_name)s。您的電子郵件已驗證，帳號現在可以使用了。"
+
+msgid "Welcome to %(site_name)s"
+msgstr "歡迎加入 %(site_name)s"
+
+msgid "comment badge translation"
+msgstr "評論徽章翻譯"
+
+msgid "comment badge translations"
+msgstr "評論徽章翻譯"

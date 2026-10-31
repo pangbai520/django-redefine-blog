@@ -2041,7 +2041,7 @@ msgid "Visit records"
 msgstr "Visit records"
 
 msgid "Visit the site"
-msgstr "Visit the site"
+msgstr "瀏覽網站"
 
 msgid "Visits today"
 msgstr "Visits today"
@@ -2050,7 +2050,7 @@ msgid "We could not send a new verification email. Please try again later."
 msgstr "We could not send a new verification email. Please try again later."
 
 msgid "Welcome — your account is ready"
-msgstr "Welcome — your account is ready"
+msgstr "歡迎，你的帳戶已可使用"
 
 msgid "Your display name links to this address when it is set."
 msgstr "Your display name links to this address when it is set."
@@ -2075,3 +2075,64 @@ msgstr "personal website"
 
 msgid "reCAPTCHA v3 site key"
 msgstr "reCAPTCHA v3 site key"
+
+msgid "Settings"
+msgstr "設定"
+
+msgid "Account"
+msgstr "帳戶"
+
+msgid "Delete account"
+msgstr "刪除帳戶"
+
+msgid ""
+"This permanently removes your account. Existing comments remain but are "
+"anonymized."
+msgstr "此操作會永久刪除你的帳戶；現有留言會保留，但會匿名化。"
+
+msgid "Type your username to confirm"
+msgstr "輸入用戶名稱以確認"
+
+msgid "Your current password is incorrect."
+msgstr "現有密碼不正確。"
+
+msgid "Enter your username exactly as shown."
+msgstr "請準確輸入上方顯示的用戶名稱。"
+
+msgid "Create another active superuser before deleting this account."
+msgstr "請先建立另一個可用的超級用戶，再刪除此帳戶。"
+
+msgid "Deleted user"
+msgstr "已刪除用戶"
+
+msgid "owner badge"
+msgstr "站長徽章"
+
+msgid "Automatically grant this badge to active superusers."
+msgstr "自動將此徽章授予可用的超級用戶。"
+
+msgid "language code"
+msgstr "語言代碼"
+
+msgid "translated badge name"
+msgstr "徽章譯名"
+
+msgid "Return to settings"
+msgstr "返回設定"
+
+msgid "Delete my account"
+msgstr "刪除我的帳戶"
+
+msgid ""
+"Thanks for joining %(site_name)s. Your email has been verified and your "
+"account is ready to use."
+msgstr "感謝你註冊 %(site_name)s。你的電郵已驗證，帳戶現在可以使用了。"
+
+msgid "Welcome to %(site_name)s"
+msgstr "歡迎加入 %(site_name)s"
+
+msgid "comment badge translation"
+msgstr "留言徽章翻譯"
+
+msgid "comment badge translations"
+msgstr "留言徽章翻譯"

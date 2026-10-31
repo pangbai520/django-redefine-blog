@@ -182,7 +182,7 @@ def create_demo_content(*, owner, update_existing=False):
     CommentBadge.objects.update_or_create(
         config=site,
         name="博主",
-        defaults={"color": "", "admin_only": True, "enabled": True, "order": 0},
+        defaults={"is_owner_badge": True, "color": "", "admin_only": True, "enabled": True, "order": 0},
     )
     CommentEmojiPack.objects.update_or_create(
         config=site,

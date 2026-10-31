@@ -131,6 +131,7 @@ class PublicCoreFeatureTests(TestCase):
         badge = CommentBadge.objects.create(
             config=self.site,
             name="博主",
+            is_owner_badge=True,
             color="",
             admin_only=True,
         )
@@ -149,7 +150,9 @@ class PublicCoreFeatureTests(TestCase):
             "early@example.com",
             "password-for-tests",
         )
-        badge = CommentBadge.objects.create(config=self.site, name="博主", color="")
+        badge = CommentBadge.objects.create(
+            config=self.site, name="博主", color="", is_owner_badge=True
+        )
 
         self.assertTrue(
             CommentBadgeAssignment.objects.filter(user=owner, badge=badge).exists()

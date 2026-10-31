@@ -732,7 +732,7 @@ msgid "Confirm your new email address"
 msgstr "确认你的新邮箱"
 
 msgid "Hello %(username)s,"
-msgstr "你好，%(username)s："
+msgstr "您好，%(username)s："
 
 msgid "Open the link below to confirm this address for your comment account:"
 msgstr "打开以下链接，将此邮箱确认用于你的评论账号："
@@ -2039,7 +2039,7 @@ msgid "Visit records"
 msgstr "访问记录"
 
 msgid "Visit the site"
-msgstr "访问站点"
+msgstr "访问网站"
 
 msgid "Visits today"
 msgstr "Visits today"
@@ -2048,7 +2048,7 @@ msgid "We could not send a new verification email. Please try again later."
 msgstr "暂时无法发送新的验证邮件，请稍后重试。"
 
 msgid "Welcome — your account is ready"
-msgstr "Welcome — your account is ready"
+msgstr "欢迎，您的账号已可使用"
 
 msgid "Your display name links to this address when it is set."
 msgstr "设置后，您的显示名称将链接到此地址。"
@@ -2073,3 +2073,64 @@ msgstr "个人网站"
 
 msgid "reCAPTCHA v3 site key"
 msgstr "reCAPTCHA v3 site key"
+
+msgid "Settings"
+msgstr "设置"
+
+msgid "Account"
+msgstr "账号"
+
+msgid "Delete account"
+msgstr "注销账号"
+
+msgid ""
+"This permanently removes your account. Existing comments remain but are "
+"anonymized."
+msgstr "此操作会永久删除您的账号；已有评论将保留，但会匿名化。"
+
+msgid "Type your username to confirm"
+msgstr "输入用户名以确认"
+
+msgid "Your current password is incorrect."
+msgstr "当前密码不正确。"
+
+msgid "Enter your username exactly as shown."
+msgstr "请准确输入上方显示的用户名。"
+
+msgid "Create another active superuser before deleting this account."
+msgstr "请先创建另一个可用的超级用户，再删除此账号。"
+
+msgid "Deleted user"
+msgstr "已注销用户"
+
+msgid "owner badge"
+msgstr "博主徽章"
+
+msgid "Automatically grant this badge to active superusers."
+msgstr "自动将此徽章授予可用的超级用户。"
+
+msgid "language code"
+msgstr "语言代码"
+
+msgid "translated badge name"
+msgstr "徽章译名"
+
+msgid "Return to settings"
+msgstr "返回设置"
+
+msgid "Delete my account"
+msgstr "注销我的账号"
+
+msgid ""
+"Thanks for joining %(site_name)s. Your email has been verified and your "
+"account is ready to use."
+msgstr "感谢您注册 %(site_name)s。您的电子邮箱已验证，账号现在可以使用了。"
+
+msgid "Welcome to %(site_name)s"
+msgstr "欢迎加入 %(site_name)s"
+
+msgid "comment badge translation"
+msgstr "评论徽章翻译"
+
+msgid "comment badge translations"
+msgstr "评论徽章翻译"

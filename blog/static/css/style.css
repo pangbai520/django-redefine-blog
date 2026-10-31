@@ -2141,6 +2141,13 @@ html.is-animating .transition-navbar {
 .bookmark-nav-item {
   transition: none;
 }
+@media (hover: hover) {
+  .bookmark-nav-item:hover {
+    color: var(--primary-color);
+    background-color: var(--second-background-color);
+    border-color: var(--second-background-color);
+  }
+}
 .bookmarks-page .bookmark-card {
   transition: transform 300ms ease, box-shadow 300ms ease;
 }
@@ -2156,7 +2163,6 @@ html.is-animating .transition-navbar {
 @media (hover: hover) {
   .bookmarks-page .bookmark-card-link:hover .bookmark-card {
     transform: translateY(-0.25rem);
-    box-shadow: var(--redefine-box-shadow);
   }
   .bookmarks-page .bookmark-card-link:hover .bookmark-card-image {
     transform: scale(1.05);

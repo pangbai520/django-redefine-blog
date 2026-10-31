@@ -45,8 +45,7 @@
                 <div class="wl-login-details">
                     {% if request.user.profile.website %}<a class="wl-login-nick" href="{{ request.user.profile.website }}" target="_blank" rel="nofollow noopener noreferrer">{{ current_display_name }}</a>
                     {% else %}<span class="wl-login-nick">{{ current_display_name }}</span>{% endif %}
-                    <a class="wl-btn" href="{% url 'comment_profile' %}?next={{ request.path|urlencode }}%23comments"><i class="fa-solid fa-user-pen" aria-hidden="true"></i> {% translate "Profile" %}</a>
-                    <form method="post" action="{% url 'comment_logout' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="wl-btn" type="submit">{% translate "Log out" %}</button></form>
+                    <a class="wl-btn" href="{% url 'comment_profile' %}?next={{ request.path|urlencode }}%23comments"><i class="fa-solid fa-gear" aria-hidden="true"></i> {% translate "Settings" %}</a>
                 </div>
             </div>
         {% endif %}
@@ -122,7 +121,7 @@
         </div>
         <form class="internal-auth-form internal-auth-modal-form" data-auth-form data-auth-panel="login">
             {% csrf_token %}
-            <p><label><span class="internal-auth-field-label"><i class="fa-solid fa-user" aria-hidden="true"></i>{% translate "Username" %}</span><span class="internal-auth-field"><input name="username" required autocomplete="username"></span><small class="internal-auth-field-help">{% translate "Your username cannot be changed after registration." %}</small></label></p>
+            <p><label><span class="internal-auth-field-label"><i class="fa-solid fa-user" aria-hidden="true"></i>{% translate "Username" %}</span><span class="internal-auth-field"><input name="username" required autocomplete="username"></span></label></p>
             <p><label><span class="internal-auth-field-label"><i class="fa-solid fa-lock" aria-hidden="true"></i>{% translate "Password" %}</span><span class="internal-auth-field"><input name="password" type="password" required autocomplete="current-password"></span></label></p>
             <button class="wl-btn primary internal-auth-submit" type="submit"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><span>{% translate "Sign in" %}</span></button>
             {% if github_oauth_url %}<p><a class="wl-btn" href="{{ github_oauth_url }}"><i class="fa-brands fa-github" aria-hidden="true"></i> {% translate "Continue with GitHub" %}</a></p>{% endif %}
@@ -131,7 +130,7 @@
         </form>
         {% if site.comment_registration_enabled %}<form class="internal-auth-form internal-auth-modal-form" data-auth-form data-auth-panel="register" hidden>
             {% csrf_token %}
-            <p><label><span class="internal-auth-field-label"><i class="fa-solid fa-user" aria-hidden="true"></i>{% translate "Username" %}</span><span class="internal-auth-field"><input name="username" required autocomplete="username"></span></label></p>
+            <p><label><span class="internal-auth-field-label"><i class="fa-solid fa-user" aria-hidden="true"></i>{% translate "Username" %}</span><span class="internal-auth-field"><input name="username" required autocomplete="username"></span><small class="internal-auth-field-help">{% translate "Your username cannot be changed after registration." %}</small></label></p>
             <p><label><span class="internal-auth-field-label"><i class="fa-solid fa-envelope" aria-hidden="true"></i>{% translate "Email" %}</span><span class="internal-auth-field"><input name="email" type="email" required autocomplete="email"></span></label></p>
             <p><label><span class="internal-auth-field-label"><i class="fa-solid fa-lock" aria-hidden="true"></i>{% translate "Password" %}</span><span class="internal-auth-field"><input name="password" type="password" minlength="8" required autocomplete="new-password"></span></label></p>
             <p><label><span class="internal-auth-field-label"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>{% translate "Confirm password" %}</span><span class="internal-auth-field"><input name="password_confirm" type="password" minlength="8" required autocomplete="new-password"></span></label></p>

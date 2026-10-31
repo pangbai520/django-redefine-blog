@@ -8,7 +8,8 @@ from django.core import mail
 from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, translation
+from django.template.loader import render_to_string
 
 from .account_cleanup import CLEANUP_CACHE_KEY
 from .ip_location import format_ip2region_result
@@ -276,6 +277,72 @@ class RuntimeRegressionTests(TestCase):
         self.client.get(reverse("comment_register"))
 
         self.assertFalse(User.objects.filter(pk=user.pk).exists())
+
+    @override_settings(UNVERIFIED_ACCOUNT_RETENTION_HOURS=1)
+    def test_expired_unverified_registration_is_removed_during_normal_page_traffic(self):
+        User = self.site._meta.apps.get_model("auth", "User")
+        user = User.objects.create_user(
+            username="abandoned-home-reader",
+            email="abandoned-home@example.com",
+            password="A-strong-password-123",
+            is_active=False,
+        )
+        pending = PendingRegistration.objects.create(user=user)
+        PendingRegistration.objects.filter(pk=pending.pk).update(
+            created_at=timezone.now() - timedelta(hours=2)
+        )
+        cache.delete(CLEANUP_CACHE_KEY)
+
+        self.client.get(reverse("index"))
+
+        self.assertFalse(User.objects.filter(pk=user.pk).exists())
+
+    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    def test_welcome_email_uses_the_language_that_verified_the_account(self):
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = "zh-hans"
+        self.client.post(
+            reverse("comment_register"),
+            {
+                "username": "welcome-reader",
+                "email": "welcome-reader@example.com",
+                "password": "A-strong-password-123",
+                "password_confirm": "A-strong-password-123",
+            },
+        )
+        verify_url = re.search(
+            r"https?://[^\s]+/comments/verify/[^\s]+", mail.outbox[0].body
+        ).group(0)
+
+        self.client.post(verify_url.replace("http://testserver", ""))
+
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertIn("欢迎加入", mail.outbox[1].subject)
+        self.assertIn("您的电子邮箱已验证", mail.outbox[1].body)
+        self.assertIn("访问网站", mail.outbox[1].alternatives[0].content)
+
+    def test_welcome_email_has_real_translations_for_every_supported_locale(self):
+        User = self.site._meta.apps.get_model("auth", "User")
+        user = User(username="localized-reader")
+        expected = {
+            "es": "Te damos la bienvenida",
+            "fr": "Bienvenue",
+            "ja": "ようこそ",
+            "zh-hans": "欢迎",
+            "zh-hk": "歡迎",
+            "zh-tw": "歡迎",
+        }
+        for language_code, phrase in expected.items():
+            with self.subTest(language_code=language_code), translation.override(language_code):
+                rendered = render_to_string(
+                    "emails/welcome.html",
+                    {
+                        "language_code": language_code,
+                        "site": self.site,
+                        "site_url": "https://example.com/",
+                        "user": user,
+                    },
+                )
+                self.assertIn(phrase, rendered)
 
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_verification_email_uses_request_language_and_site_accent(self):

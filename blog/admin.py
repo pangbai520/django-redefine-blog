@@ -24,6 +24,7 @@ from .models import (
     Category,
     Comment,
     CommentBadge,
+    CommentBadgeTranslation,
     CommentBadgeAssignment,
     CommentEmoji,
     CommentEmojiPack,
@@ -510,6 +511,11 @@ class CommentAdmin(admin.ModelAdmin):
         self.message_user(request, _("Selected comments were unpinned."))
 
 
+class CommentBadgeTranslationInline(admin.TabularInline):
+    model = CommentBadgeTranslation
+    extra = 0
+
+
 @admin.register(CommentBadge)
 class CommentBadgeAdmin(admin.ModelAdmin):
     class form(forms.ModelForm):
@@ -531,9 +537,10 @@ class CommentBadgeAdmin(admin.ModelAdmin):
             fields = "__all__"
 
     exclude = ("config",)
-    list_display = ("name", "color", "admin_only", "enabled", "order")
-    list_filter = ("admin_only", "enabled")
+    list_display = ("name", "is_owner_badge", "color", "admin_only", "enabled", "order")
+    list_filter = ("is_owner_badge", "admin_only", "enabled")
     search_fields = ("name",)
+    inlines = (CommentBadgeTranslationInline,)
 
     def save_model(self, request, obj, form, change):
         if not obj.config_id:

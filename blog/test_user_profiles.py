@@ -15,7 +15,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .cache_utils import cache_version
-from .models import ArticleModel, Comment, SiteConfiguration, UserProfile
+from .models import ArticleModel, Comment, CommentImage, SiteConfiguration, UserProfile
 
 
 User = get_user_model()
@@ -568,6 +568,24 @@ class UserProfileTests(TestCase):
         self.assertContains(response, 'name="action" value="password"')
         self.assertContains(response, "Change password")
         self.assertContains(response, "Username cannot be changed.")
+        self.assertContains(response, "Settings")
+        self.assertContains(response, "Delete account")
+
+    def test_profile_website_uses_the_same_styled_input_as_other_fields(self):
+        stylesheet = (Path(__file__).parent / "static" / "css" / "profile.css").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('.profile-field input[type="url"]', stylesheet)
+
+    def test_password_errors_use_the_red_alert_component(self):
+        template = (
+            Path(__file__).parent / "templates" / "comments" / "password_reset_confirm.html"
+        ).read_text(encoding="utf-8")
+        stylesheet = (
+            Path(__file__).parent / "static" / "css" / "internal-comments.css"
+        ).read_text(encoding="utf-8")
+        self.assertIn("internal-password-error", template)
+        self.assertIn(".internal-password-error", stylesheet)
 
     def test_password_change_stays_in_profile_and_preserves_the_session(self):
         self.client.force_login(self.user)
@@ -647,7 +665,7 @@ class UserProfileTests(TestCase):
         )
 
         self.assertContains(response, f'href="{return_to}"')
-        self.assertContains(response, 'name="next" value="/article/source-article/#comments"', count=3)
+        self.assertContains(response, 'name="next" value="/article/source-article/#comments"', count=5)
 
     def test_profile_rejects_an_external_return_url(self):
         self.client.force_login(self.user)
@@ -695,8 +713,55 @@ class UserProfileTests(TestCase):
 
         response = self.client.get(reverse("comment_profile"))
 
-        self.assertContains(response, "编辑个人资料")
+        self.assertContains(response, "设置")
         self.assertContains(response, "用户名不能修改。")
         self.assertContains(response, "裁剪头像")
         self.assertNotContains(response, "点击头像即可选择并裁剪新图片。")
         self.assertContains(response, 'class="page-title-header profile-heading-title"')
+
+    def test_account_deletion_anonymizes_comments_and_preserves_attached_images(self):
+        article = ArticleModel.objects.create(
+            title="Account deletion", slug="account-deletion", content="Body", is_published=True
+        )
+        comment = Comment.objects.create(article=article, author=self.user, content="Keep me")
+        image = CommentImage.objects.create(
+            uploader=self.user, comment=comment, image="comment-images/kept.png"
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("comment_profile"),
+            {
+                "action": "delete-account",
+                "current_password": self.password,
+                "username_confirmation": self.user.username,
+            },
+        )
+
+        self.assertRedirects(response, reverse("index"))
+        self.assertFalse(User.objects.filter(pk=self.user.pk).exists())
+        comment.refresh_from_db()
+        image.refresh_from_db()
+        self.assertIsNone(comment.author_id)
+        self.assertTrue(comment.author_deleted)
+        self.assertEqual(comment.display_name, "Deleted user")
+        self.assertIsNone(image.uploader_id)
+        self.assertEqual(image.comment_id, comment.pk)
+
+    def test_oauth_style_account_can_delete_with_exact_username(self):
+        self.user.set_unusable_password()
+        self.user.save(update_fields=("password",))
+        self.client.force_login(self.user)
+
+        page = self.client.get(reverse("comment_profile"))
+        response = self.client.post(
+            reverse("comment_profile"),
+            {
+                "action": "delete-account",
+                "username_confirmation": self.user.username,
+            },
+        )
+
+        self.assertNotContains(page, 'name="current_password"', html=False)
+        self.assertRedirects(response, reverse("index"))
+        self.assertFalse(User.objects.filter(pk=self.user.pk).exists())

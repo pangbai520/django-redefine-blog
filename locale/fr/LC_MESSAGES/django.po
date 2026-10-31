@@ -2082,7 +2082,7 @@ msgid "Visit records"
 msgstr "Visit records"
 
 msgid "Visit the site"
-msgstr "Visit the site"
+msgstr "Visiter le site"
 
 msgid "Visits today"
 msgstr "Visits today"
@@ -2091,7 +2091,7 @@ msgid "We could not send a new verification email. Please try again later."
 msgstr "We could not send a new verification email. Please try again later."
 
 msgid "Welcome — your account is ready"
-msgstr "Welcome — your account is ready"
+msgstr "Bienvenue — votre compte est prêt"
 
 msgid "Your display name links to this address when it is set."
 msgstr "Your display name links to this address when it is set."
@@ -2116,3 +2116,68 @@ msgstr "personal website"
 
 msgid "reCAPTCHA v3 site key"
 msgstr "reCAPTCHA v3 site key"
+
+msgid "Settings"
+msgstr "Paramètres"
+
+msgid "Account"
+msgstr "Compte"
+
+msgid "Delete account"
+msgstr "Supprimer le compte"
+
+msgid ""
+"This permanently removes your account. Existing comments remain but are "
+"anonymized."
+msgstr ""
+"Cette action supprime définitivement votre compte. Les commentaires "
+"existants seront conservés et anonymisés."
+
+msgid "Type your username to confirm"
+msgstr "Saisissez votre nom d’utilisateur pour confirmer"
+
+msgid "Your current password is incorrect."
+msgstr "Votre mot de passe actuel est incorrect."
+
+msgid "Enter your username exactly as shown."
+msgstr "Saisissez exactement le nom d’utilisateur affiché."
+
+msgid "Create another active superuser before deleting this account."
+msgstr "Créez un autre superutilisateur actif avant de supprimer ce compte."
+
+msgid "Deleted user"
+msgstr "Utilisateur supprimé"
+
+msgid "owner badge"
+msgstr "badge du propriétaire"
+
+msgid "Automatically grant this badge to active superusers."
+msgstr "Attribuer automatiquement ce badge aux superutilisateurs actifs."
+
+msgid "language code"
+msgstr "code de langue"
+
+msgid "translated badge name"
+msgstr "nom traduit du badge"
+
+msgid "Return to settings"
+msgstr "Retour aux paramètres"
+
+msgid "Delete my account"
+msgstr "Supprimer mon compte"
+
+msgid ""
+"Thanks for joining %(site_name)s. Your email has been verified and your "
+"account is ready to use."
+msgstr ""
+"Merci d’avoir rejoint %(site_name)s. Votre adresse e-mail est vérifiée et "
+"votre compte est prêt."
+
+msgid "Welcome to %(site_name)s"
+msgstr "Bienvenue sur %(site_name)s"
+
+msgid "comment badge translation"
+msgstr "traduction de badge de commentaire"
+
+msgid "comment badge translations"
+msgstr "traductions de badges de commentaire"

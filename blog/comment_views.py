@@ -38,13 +38,18 @@ from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_de
 from django.utils.html import escape
 from django.utils.translation import gettext as _
 from markdown import Markdown
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageOps, ImageSequence, UnidentifiedImageError
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from core.markdown.blocks.code_block import render_highlighted_code
 
 from .account_cleanup import maybe_cleanup_expired_unverified_accounts
-from .forms import CommentRegistrationForm, UserEmailChangeForm, UserProfileForm
+from .forms import (
+    AccountDeletionForm,
+    CommentRegistrationForm,
+    UserEmailChangeForm,
+    UserProfileForm,
+)
 from .ip_location import get_ip_location
 from .middleware import get_client_ip
 from .models import (
@@ -406,7 +411,7 @@ def _comment_payload(comment, request):
             badge__enabled=True,
         ).select_related("badge")
         badges = [
-            {"name": assignment.badge.name, "color": assignment.color_override or assignment.badge.color}
+            {"name": assignment.badge.localized_name(), "color": assignment.color_override or assignment.badge.color}
             for assignment in assignments
         ]
     like_count = getattr(comment, "like_total", None)
@@ -804,6 +809,7 @@ def profile(request):
     password_is_set = request.user.has_usable_password()
     password_form_class = PasswordChangeForm if password_is_set else SetPasswordForm
     password_form = password_form_class(request.user)
+    deletion_form = AccountDeletionForm(user=request.user)
 
     if request.method == "POST" and request.POST.get("action", "profile") == "profile":
         profile_form = UserProfileForm(
@@ -907,6 +913,24 @@ def profile(request):
             update_session_auth_hash(request, user)
             return _profile_redirect(return_to, password="updated")
 
+    if request.method == "POST" and request.POST.get("action") == "delete-account":
+        deletion_form = AccountDeletionForm(request.POST, user=request.user)
+        if deletion_form.is_valid():
+            user = request.user
+            with transaction.atomic():
+                CommentImage.objects.filter(uploader=user, comment__isnull=True).delete()
+                user.blog_comments.update(
+                    author=None,
+                    author_deleted=True,
+                    nickname="",
+                    email="",
+                    website="",
+                )
+                logout(request)
+                user.delete()
+            return redirect(reverse("index"))
+        response_status = 400
+
     preview_display_name = (
         profile_record.pending_resolved_display_name
         if profile_record.profile_review_pending
@@ -924,6 +948,7 @@ def profile(request):
             "profile_form": profile_form,
             "email_form": email_form,
             "password_form": password_form,
+            "deletion_form": deletion_form,
             "profile": profile_record,
             "profile_preview_display_name": preview_display_name,
             "profile_preview_avatar": preview_avatar,
@@ -1010,7 +1035,7 @@ def comments(request, slug):
         "author__comment_badges",
         queryset=CommentBadgeAssignment.objects.filter(
             badge__enabled=True
-        ).select_related("badge"),
+        ).select_related("badge").prefetch_related("badge__translations"),
         to_attr="visible_comment_badges",
     )
     qs = (
@@ -1061,21 +1086,31 @@ def comment_preview(request):
     )
 
 
-def _sync_comment_images(comment, uploader):
+def _content_references_comment_image(content, upload):
+    image_url = upload.image.url
+    image_path = urlparse(image_url).path
+    return image_url in content or bool(image_path and image_path in content)
+
+
+def _sync_comment_images(comment, uploader, upload_ids=()):
     """Attach referenced uploads and remove files discarded by an edit."""
     content = comment.content or ""
     for upload in comment.images.all():
-        if upload.image.url not in content:
+        if not _content_references_comment_image(content, upload):
             upload.delete()
     if uploader is None:
         return
+    candidate_ids = {str(value) for value in upload_ids if str(value).isdigit()}
     candidates = CommentImage.objects.filter(
         uploader=uploader,
         comment__isnull=True,
         created_at__gte=timezone.now() - timedelta(days=1),
     )
     for upload in candidates:
-        if upload.image.url in content:
+        if (
+            (not candidate_ids or str(upload.pk) in candidate_ids)
+            and _content_references_comment_image(content, upload)
+        ):
             upload.comment = comment
             upload.save(update_fields=("comment",))
 
@@ -1140,7 +1175,11 @@ def create_comment(request, slug):
     except ValidationError as exc:
         return _json_error(_validation_message(exc))
     comment.save()
-    _sync_comment_images(comment, request.user if request.user.is_authenticated else None)
+    _sync_comment_images(
+        comment,
+        request.user if request.user.is_authenticated else None,
+        request.POST.getlist("image_ids"),
+    )
 
     if comment.is_approved and parent and parent.author_id:
         _notify(
@@ -1199,7 +1238,7 @@ def edit_comment(request, comment_id):
         return _json_error(_("Comment length must be between 1 and 5000 characters."))
     comment.content = content
     comment.save(update_fields=("content", "updated_at"))
-    _sync_comment_images(comment, request.user)
+    _sync_comment_images(comment, request.user, request.POST.getlist("image_ids"))
     return JsonResponse({"ok": True, "comment": _comment_payload(comment, request)})
 
 
@@ -1374,10 +1413,18 @@ def comment_upload(request):
     extension = {"image/jpeg": "jpg", "image/png": "png", "image/gif": "gif", "image/webp": "webp"}[upload.content_type]
     upload.seek(0)
     digest = hashlib.sha256()
-    for chunk in upload.chunks():
-        digest.update(chunk)
+    with Image.open(upload) as image:
+        digest.update(f"{image.size[0]}x{image.size[1]}:{getattr(image, 'n_frames', 1)}".encode())
+        for frame in ImageSequence.Iterator(image):
+            normalized = ImageOps.exif_transpose(frame).convert("RGBA")
+            digest.update(normalized.tobytes())
+            digest.update(str(frame.info.get("duration", 0)).encode())
+    content_hash = digest.hexdigest()
     upload.seek(0)
-    path = f"comment-images/{digest.hexdigest()}.{extension}"
+    existing_path = CommentImage.objects.filter(
+        content_hash=content_hash
+    ).exclude(image="").values_list("image", flat=True).first()
+    path = existing_path or f"comment-images/{content_hash}.{extension}"
     # remove abandoned uploads opportunistically, so cancelled comments cannot
     # accumulate files forever even when no scheduled cleanup job is installed
     CommentImage.objects.filter(
@@ -1400,10 +1447,14 @@ def comment_upload(request):
             image = CommentImage.objects.filter(
                 uploader=request.user,
                 comment__isnull=True,
-                image=saved,
+                content_hash=content_hash,
             ).first()
             if image is None:
-                image = CommentImage.objects.create(uploader=request.user, image=saved)
+                image = CommentImage.objects.create(
+                    uploader=request.user,
+                    image=saved,
+                    content_hash=content_hash,
+                )
         except Exception:
             if not CommentImage.objects.filter(image=saved).exists():
                 default_storage.delete(saved)
@@ -1411,4 +1462,4 @@ def comment_upload(request):
     except Exception:
         logger.exception("Failed to save comment image upload")
         return _json_error(_("Image upload failed. Please try again later."), 500)
-    return JsonResponse({"ok": True, "url": image.image.url})
+    return JsonResponse({"ok": True, "url": image.image.url, "image_id": image.pk})

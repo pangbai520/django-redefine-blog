@@ -153,5 +153,8 @@ class TrafficModelMiddleware:
         if (request.method == "GET" and response.status_code == 200
             and content_type.startswith("text/html")):
             record_request_traffic(request)
+            from .account_cleanup import maybe_cleanup_expired_unverified_accounts
+
+            maybe_cleanup_expired_unverified_accounts()
 
         return response

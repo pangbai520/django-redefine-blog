@@ -6,7 +6,7 @@
 <div class="page-template-container profile-page">
     <div class="page-template-content">
         <header class="profile-heading">
-            <h1 class="page-title-header profile-heading-title">{% translate "Edit profile" %}</h1>
+            <h1 class="page-title-header profile-heading-title">{% translate "Settings" %}</h1>
             <a class="profile-back-button" href="{{ return_to }}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>{% translate "Back" %}</span></a>
         </header>
 
@@ -129,9 +129,9 @@
                         <div class="profile-field">
                             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                             {{ field }}
+                            {% if field.errors %}<div class="profile-field-errors" role="alert">{{ field.errors }}</div>{% endif %}
                             {% if field.help_text %}<div class="profile-help">{{ field.help_text|safe }}</div>{% endif %}
                             {% if password_is_set and field.name == "old_password" %}<a class="profile-forgot-password" href="{% url 'password_reset' %}"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>{% translate "Forgot your password?" %}</a>{% endif %}
-                            {{ field.errors }}
                         </div>
                         {% endfor %}
                         {% if password_form.non_field_errors %}<div class="profile-notice is-error" role="alert">{{ password_form.non_field_errors }}</div>{% endif %}
@@ -139,6 +139,30 @@
                             <button class="profile-primary-button" type="submit"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>{% if password_is_set %}{% translate "Save password" %}{% else %}{% translate "Set password" %}{% endif %}</span></button>
                         </div>
                     </form>
+                </section>
+
+                <section class="profile-account-section">
+                    <h2><i class="fa-solid fa-user-shield" aria-hidden="true"></i>{% translate "Account" %}</h2>
+                    <form method="post" action="{% url 'comment_logout' %}" data-skip-preloader>
+                        {% csrf_token %}<input type="hidden" name="next" value="{{ return_to }}">
+                        <button class="profile-secondary-button" type="submit"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>{% translate "Log out" %}</button>
+                    </form>
+                    <div class="profile-danger-zone">
+                        <h3>{% translate "Delete account" %}</h3>
+                        <p>{% translate "This permanently removes your account. Existing comments remain but are anonymized." %}</p>
+                        <form method="post" class="profile-form" data-skip-preloader>
+                            {% csrf_token %}<input type="hidden" name="action" value="delete-account"><input type="hidden" name="next" value="{{ return_to }}">
+                            {% for field in deletion_form %}
+                            <div class="profile-field">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}<div class="profile-field-errors" role="alert">{{ field.errors }}</div>{% endif %}
+                            </div>
+                            {% endfor %}
+                            {% if deletion_form.non_field_errors %}<div class="profile-field-errors" role="alert">{{ deletion_form.non_field_errors }}</div>{% endif %}
+                            <button class="profile-delete-button" type="submit"><i class="fa-solid fa-trash-can" aria-hidden="true"></i>{% translate "Delete my account" %}</button>
+                        </form>
+                    </div>
                 </section>
             </div>
         </div>

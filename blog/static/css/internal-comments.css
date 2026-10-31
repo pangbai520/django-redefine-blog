@@ -161,6 +161,11 @@
   line-height: 1.45;
 }
 .internal-auth-form .errorlist li { margin: 0; }
+.internal-password-error { display: block; margin-top: 7px; padding: 9px 11px; border: 1px solid #ef9a9a; border-radius: 9px; color: #a61b1b; background: #fff0f0; font-size: .88rem; }
+.internal-password-error .errorlist { margin: 0; padding: 0; list-style: none; }
+.internal-password-help { display: block; margin-top: 7px; color: var(--third-text-color); font-size: .86rem; }
+.internal-password-help ul { margin: 0; padding-left: 1.2rem; }
+html.dark .internal-password-error { border-color: rgb(248 113 113 / 45%); color: #fca5a5; background: rgb(127 29 29 / 28%); }
 .internal-auth-form .helptext { display: block; margin: -5px 0 14px; color: var(--waline-info-color); font-size: .86em; }
 .internal-auth-modal { position: fixed !important; inset: 0 !important; z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; background: rgb(17 24 39 / 42%); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
 .internal-auth-modal[hidden] { display: none; }
