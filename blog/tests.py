@@ -1,9 +1,11 @@
 import base64
 import json
+import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
 
 from django.template.loader import render_to_string
+from django.conf import settings
 from django.test import RequestFactory, TestCase, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.cache import cache
@@ -469,6 +471,77 @@ class InternalCommentTests(TestCase):
             preview.json()["html"],
             posted.json()["comment"]["content_html"],
         )
+
+    def test_comment_preview_resolves_configured_emoji(self):
+        pack = CommentEmojiPack.objects.create(config=self.site, name="Bilibili")
+        CommentEmoji.objects.create(
+            pack=pack,
+            name="bmoji_doge",
+            image_url="https://example.com/doge.png",
+        )
+
+        preview = self.client.post(
+            reverse("comment_preview"),
+            {"content": ":bmoji_doge:"},
+        )
+
+        self.assertEqual(preview.status_code, 200)
+        self.assertIn("internal-comment-emoji", preview.json()["html"])
+        self.assertIn("https://example.com/doge.png", preview.json()["html"])
+
+    def test_identical_comment_uploads_reuse_one_storage_object(self):
+        user = User.objects.create_user("dedupe-uploader", password="A-strong-password-123")
+        self.client.force_login(user)
+        png = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGBgAAAABQABpfZFQAAAAABJRU5ErkJggg==")
+
+        with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as media_root, override_settings(MEDIA_ROOT=media_root):
+            first = self.client.post(
+                reverse("comment_upload"),
+                {"image": SimpleUploadedFile("first.png", png, content_type="image/png")},
+            )
+            second = self.client.post(
+                reverse("comment_upload"),
+                {"image": SimpleUploadedFile("second.png", png, content_type="image/png")},
+            )
+
+            self.assertEqual(first.json()["url"], second.json()["url"])
+            self.assertEqual(CommentImage.objects.count(), 1)
+            self.assertEqual(len(list(Path(media_root, "comment-images").glob("*.png"))), 1)
+
+    def test_shared_comment_image_is_deleted_only_after_its_last_comment(self):
+        user = User.objects.create_user(
+            "shared-image-owner", password="A-strong-password-123"
+        )
+        first_comment = Comment.objects.create(
+            article=self.article, author=user, content="First reference"
+        )
+        second_comment = Comment.objects.create(
+            article=self.article, author=user, content="Second reference"
+        )
+
+        with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as media_root, override_settings(MEDIA_ROOT=media_root):
+            relative_path = "comment-images/shared.png"
+            stored_path = Path(media_root, relative_path)
+            stored_path.parent.mkdir(parents=True, exist_ok=True)
+            stored_path.write_bytes(b"shared image bytes")
+            CommentImage.objects.create(
+                uploader=user, comment=first_comment, image=relative_path
+            )
+            CommentImage.objects.create(
+                uploader=user, comment=second_comment, image=relative_path
+            )
+
+            with self.captureOnCommitCallbacks(execute=True):
+                first_comment.delete()
+            self.assertTrue(stored_path.exists())
+            self.assertEqual(
+                CommentImage.objects.filter(image=relative_path).count(), 1
+            )
+
+            with self.captureOnCommitCallbacks(execute=True):
+                second_comment.delete()
+            self.assertFalse(stored_path.exists())
+            self.assertFalse(CommentImage.objects.filter(image=relative_path).exists())
 
     @patch("blog.comment_views.default_storage.url", return_value="/media/comment-images/test.png")
     @patch("blog.comment_views.default_storage.save", return_value="comment-images/test.png")

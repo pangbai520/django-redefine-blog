@@ -1,7 +1,7 @@
 import logging
+import hashlib
 import json
 import re
-import uuid
 from datetime import timedelta
 from html import unescape
 from html.parser import HTMLParser
@@ -27,6 +27,7 @@ from django.core.mail import EmailMultiAlternatives, send_mail
 from django.core.files.storage import default_storage
 from django.core.validators import URLValidator, validate_email
 from django.db import transaction
+from django.db.models import Count, Exists, OuterRef, Prefetch
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -42,7 +43,9 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from core.markdown.blocks.code_block import render_highlighted_code
 
+from .account_cleanup import maybe_cleanup_expired_unverified_accounts
 from .forms import CommentRegistrationForm, UserEmailChangeForm, UserProfileForm
+from .ip_location import get_ip_location
 from .middleware import get_client_ip
 from .models import (
     ArticleModel,
@@ -53,6 +56,7 @@ from .models import (
     CommentImage,
     CommentLike,
     CommentNotification,
+    PendingRegistration,
     SiteConfiguration,
     UserProfile,
 )
@@ -277,7 +281,7 @@ def _emoji_pack_items(pack):
         # prefer Waline's info.json manifest, because it preserves the exact
         # item order, prefix and extension before any directory-listing fallback
         try:
-            manifest_request = Request(base + "/info.json", headers={"User-Agent": "DjangoRedefineBlog/1.0"})
+            manifest_request = Request(base + "/info.json", headers={"User-Agent": "DjangoRedefine/1.0"})
             with urlopen(manifest_request, timeout=4) as response:
                 manifest = json.loads(response.read().decode("utf-8"))
             prefix = str(manifest.get("prefix", ""))
@@ -303,7 +307,7 @@ def _emoji_pack_items(pack):
             pass
         for listing_url in (base + "/?meta", base + "/"):
             try:
-                request = Request(listing_url, headers={"User-Agent": "DjangoRedefineBlog/1.0"})
+                request = Request(listing_url, headers={"User-Agent": "DjangoRedefine/1.0"})
                 with urlopen(request, timeout=4) as response:
                     raw = response.read().decode("utf-8")
                 if raw:
@@ -373,44 +377,63 @@ def _validation_message(exc):
     return str(exc)
 
 
-def _comment_payload(comment, request):
-    liked = bool(
-        request.user.is_authenticated
-        and CommentLike.objects.filter(comment=comment, user=request.user).exists()
-    )
-    content_html = _render_comment_markdown(comment.content)
-    site = _site()
+def _apply_comment_emoji(content_html, site):
     if site.comment_emoji_enabled:
         for pack in CommentEmojiPack.objects.filter(config=site, enabled=True).prefetch_related("items"):
             for item in _emoji_pack_items(pack):
                 token = escape(f":{item['name']}:")
                 image = f'<img class="wl-emoji internal-comment-emoji" src="{escape(item["url"])}" alt="{escape(item["name"])}">'
                 content_html = content_html.replace(token, image)
+    return content_html
+
+
+def _comment_payload(comment, request):
+    liked = getattr(comment, "viewer_liked", None)
+    if liked is None:
+        liked = bool(
+            request.user.is_authenticated
+            and CommentLike.objects.filter(comment=comment, user=request.user).exists()
+        )
+    site = _site()
+    content_html = _apply_comment_emoji(
+        _render_comment_markdown(comment.content), site
+    )
     badges = []
     if comment.author_id:
+        prefetched_badges = getattr(comment.author, "visible_comment_badges", None)
+        assignments = prefetched_badges if prefetched_badges is not None else CommentBadgeAssignment.objects.filter(
+            user_id=comment.author_id,
+            badge__enabled=True,
+        ).select_related("badge")
         badges = [
             {"name": assignment.badge.name, "color": assignment.color_override or assignment.badge.color}
-            for assignment in CommentBadgeAssignment.objects.filter(
-                user_id=comment.author_id,
-                badge__enabled=True,
-            ).select_related("badge")
+            for assignment in assignments
         ]
+    like_count = getattr(comment, "like_total", None)
+    if like_count is None:
+        like_count = comment.like_count
     return {
         "id": comment.id,
         "parent_id": comment.parent_id,
         "author": comment.display_name,
         "content": comment.content,
         "content_html": content_html,
-        "website": comment.website,
+        "website": (
+            comment.author.profile.website
+            if comment.author_id
+            and hasattr(comment.author, "profile")
+            and comment.author.profile.website
+            else comment.website
+        ),
         "avatar": comment.avatar_url,
         "verified": bool(comment.author_id),
         "badges": badges,
         "is_sticky": bool(comment.is_sticky),
         "created_at": timezone.localtime(comment.created_at).isoformat(),
-        "ip_address": comment.ip_address or "",
+        "ip_address": get_ip_location(comment.ip_address) or comment.ip_address or "",
         "browser": comment.browser,
         "operating_system": comment.operating_system,
-        "like_count": comment.like_count,
+        "like_count": like_count,
         "liked": liked,
         "can_edit": bool(request.user.is_authenticated and comment.author_id == request.user.id),
         "can_delete": bool(
@@ -476,6 +499,32 @@ def _send_verification_email(request, user):
         raise RuntimeError("The verification email was not accepted by the mail backend.")
 
 
+def _send_welcome_email(request, user):
+    """Thank a newly verified reader without making activation depend on SMTP."""
+    site = _site()
+    context = {
+        "language_code": getattr(request, "LANGUAGE_CODE", settings.LANGUAGE_CODE),
+        "site": site,
+        "user": user,
+        "site_url": request.build_absolute_uri(reverse("index")),
+    }
+    subject = render_to_string(
+        "emails/welcome_subject.txt", context, request=request
+    ).strip()
+    message = EmailMultiAlternatives(
+        subject,
+        render_to_string("emails/welcome.txt", context, request=request),
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+    )
+    message.attach_alternative(
+        render_to_string("emails/welcome.html", context, request=request),
+        "text/html",
+    )
+    if message.send() != 1:
+        raise RuntimeError("The welcome email was not accepted by the mail backend.")
+
+
 def _send_profile_email_confirmation(request, user, email):
     token = signing.dumps(
         {"user_id": user.pk, "email": email},
@@ -521,6 +570,7 @@ def _create_registered_user(request, form, site):
     )
     if not site.comment_require_email_verification:
         return user
+    PendingRegistration.objects.create(user=user)
     try:
         _send_verification_email(request, user)
     except Exception:
@@ -530,8 +580,25 @@ def _create_registered_user(request, form, site):
     return user
 
 
+def _resend_verification_after_password_check(request, username, password):
+    """Resend only when the submitted password proves account ownership."""
+    user = User.objects.filter(username=username, is_active=False).first()
+    if not user or not user.check_password(password):
+        return None
+    if _rate_limited(request, "verification-resend", limit=3, period=60 * 60):
+        return False
+    PendingRegistration.objects.get_or_create(user=user)
+    try:
+        _send_verification_email(request, user)
+    except Exception:
+        logger.exception("Failed to resend verification email to user %s", user.pk)
+        return False
+    return True
+
+
 def register(request):
     site = _site()
+    maybe_cleanup_expired_unverified_accounts()
     if not site.comment_registration_enabled:
         return _json_error(_("Registration is disabled."), 403) if request.headers.get("Accept") == "application/json" else render(
             request, "comments/register.html", {"form": None, "registration_disabled": True}
@@ -585,6 +652,7 @@ def verify(request, uidb64, token):
             {
                 "already_verified": bool(user and user.is_active),
                 "token_valid": token_valid,
+                "email": user.email if user else "",
             },
             status=200 if token_valid or (user and user.is_active) else 400,
         )
@@ -592,11 +660,16 @@ def verify(request, uidb64, token):
     if token_valid:
         user.is_active = True
         user.save(update_fields=("is_active",))
+        PendingRegistration.objects.filter(user=user).delete()
         login(
             request,
             user,
             backend="django.contrib.auth.backends.ModelBackend",
         )
+        try:
+            _send_welcome_email(request, user)
+        except Exception:
+            logger.exception("Failed to send welcome email to user %s", user.pk)
         return render(request, "comments/verify_done.html", {"verified": True})
     return render(
         request,
@@ -622,9 +695,12 @@ def login_view(request):
         form = AuthenticationForm(request)
     if request.method == "POST" and not login_limited and not form.is_valid():
         username = request.POST.get("username", "").strip()
-        pending_user = User.objects.filter(username=username, is_active=False).first()
-        if pending_user:
-            form.add_error(None, _("We sent a verification email to your registered address. Please verify your email before signing in."))
+        password = request.POST.get("password", "")
+        resend_result = _resend_verification_after_password_check(request, username, password)
+        if resend_result is True:
+            form.add_error(None, _("A new verification email was sent. Please check your inbox before signing in."))
+        elif resend_result is False:
+            form.add_error(None, _("We could not send a new verification email. Please try again later."))
     template = "comments/login_modal.html" if request.GET.get("modal") == "1" else "comments/login.html"
     return render(request, template, {"form": form})
 
@@ -637,9 +713,15 @@ def login_ajax(request):
     password = request.POST.get("password", "")
     user = authenticate(request, username=username, password=password)
     if user is None:
-        pending = User.objects.filter(username=username, is_active=False).exists()
+        verification_sent = _resend_verification_after_password_check(
+            request, username, password
+        )
         return _json_error(
-            "We sent a verification email to your registered address. Please verify your email before signing in." if pending else "Invalid username or password.",
+            _("A new verification email was sent. Please check your inbox before signing in.")
+            if verification_sent is True
+            else _("We could not send a new verification email. Please try again later.")
+            if verification_sent is False
+            else _("Invalid username or password."),
             401,
         )
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
@@ -649,6 +731,7 @@ def login_ajax(request):
 @require_POST
 def register_ajax(request):
     site = _site()
+    maybe_cleanup_expired_unverified_accounts()
     if not site.comment_registration_enabled:
         return _json_error(_("Registration is disabled."), 403)
     if _rate_limited(request, "register", limit=5, period=60 * 60):
@@ -683,6 +766,7 @@ def profile(request):
         user=request.user
     )
     public_display_name = profile_record.display_name
+    public_website = profile_record.website
     public_avatar_name = profile_record.avatar.name
     response_status = 200
     return_to = _safe_next(
@@ -708,7 +792,12 @@ def profile(request):
                 profile_record.pending_display_name
                 if profile_record.profile_review_pending
                 else profile_record.display_name
-            )
+            ),
+            "website": (
+                profile_record.pending_website
+                if profile_record.profile_review_pending
+                else profile_record.website
+            ),
         },
     )
     email_form = UserEmailChangeForm(user=request.user)
@@ -724,6 +813,7 @@ def profile(request):
         )
         if profile_form.is_valid():
             submitted_name = profile_form.cleaned_data["display_name"]
+            submitted_website = profile_form.cleaned_data["website"]
             uploaded_avatar = (
                 profile_form.cleaned_data.get("avatar")
                 if "avatar" in request.FILES
@@ -738,6 +828,7 @@ def profile(request):
             )
             has_public_change = bool(
                 submitted_name != public_display_name
+                or submitted_website != public_website
                 or uploaded_avatar is not None
                 or (remove_avatar and public_avatar_name)
                 or profile_record.profile_review_pending
@@ -746,9 +837,11 @@ def profile(request):
                 # ModelForm validation assigns cleaned values to its instance.
                 # Restore the live identity before saving those values as a draft.
                 profile_record.display_name = public_display_name
+                profile_record.website = public_website
                 profile_record.avatar = public_avatar_name
                 profile_record.stage_profile_changes(
                     display_name=submitted_name,
+                    website=submitted_website,
                     avatar=uploaded_avatar,
                     remove_avatar=remove_avatar,
                 )
@@ -902,13 +995,39 @@ def profile_email_confirm(request, token):
 @require_GET
 def comments(request, slug):
     article = get_object_or_404(ArticleModel.objects.published(), slug=slug)
-    if not _internal_comments_available(_site(), article):
+    site = _site()
+    if not _internal_comments_available(site, article):
         return _json_error(_("Comments are disabled for this article."), 403)
+    from .signals import grant_owner_badge
+
+    for owner in User.objects.filter(
+        is_superuser=True,
+        blog_comments__article=article,
+    ).distinct():
+        grant_owner_badge(owner, site)
+
+    badge_prefetch = Prefetch(
+        "author__comment_badges",
+        queryset=CommentBadgeAssignment.objects.filter(
+            badge__enabled=True
+        ).select_related("badge"),
+        to_attr="visible_comment_badges",
+    )
     qs = (
         Comment.objects.filter(article=article, is_approved=True)
         .select_related("author", "author__profile")
+        .prefetch_related(badge_prefetch)
+        .annotate(like_total=Count("likes"))
         .order_by("-is_sticky", "-created_at")
     )
+    if request.user.is_authenticated:
+        qs = qs.annotate(
+            viewer_liked=Exists(
+                CommentLike.objects.filter(
+                    comment_id=OuterRef("pk"), user=request.user
+                )
+            )
+        )
     comments = [_comment_payload(item, request) for item in qs]
     return JsonResponse({"ok": True, "comments": comments})
 
@@ -936,7 +1055,10 @@ def comment_preview(request):
     content = request.POST.get("content") or ""
     if len(content) > 5000:
         return _json_error(_("Comment length must not exceed 5000 characters."))
-    return JsonResponse({"ok": True, "html": _render_comment_markdown(content)})
+    site = _site()
+    return JsonResponse(
+        {"ok": True, "html": _apply_comment_emoji(_render_comment_markdown(content), site)}
+    )
 
 
 def _sync_comment_images(comment, uploader):
@@ -982,6 +1104,9 @@ def create_comment(request, slug):
     nickname = (request.POST.get("nickname") or "").strip()[:80]
     email = (request.POST.get("email") or "").strip()[:254]
     website = (request.POST.get("website") or "").strip()[:200]
+    if request.user.is_authenticated:
+        profile = getattr(request.user, "profile", None)
+        website = (profile.website if profile else "")[:200]
     if not request.user.is_authenticated:
         if email:
             try:
@@ -1193,7 +1318,7 @@ def comment_gif_proxy(request):
         query_string = urlencode({key: value[0] for key, value in query.items()})
         upstream = Request(
             "https://api.giphy.com" + parsed_path + "?" + query_string,
-            headers={"Accept": "application/json", "User-Agent": "DjangoRedefineBlog/1.0"},
+            headers={"Accept": "application/json", "User-Agent": "DjangoRedefine/1.0"},
         )
         with urlopen(upstream, timeout=8) as response:
             payload = json.loads(response.read().decode("utf-8"))
@@ -1247,7 +1372,12 @@ def comment_upload(request):
     # derive the suffix from the accepted MIME type, so misleading client
     # extensions cannot create executable-looking filenames
     extension = {"image/jpeg": "jpg", "image/png": "png", "image/gif": "gif", "image/webp": "webp"}[upload.content_type]
-    path = f"comment-images/{uuid.uuid4().hex}.{extension}"
+    upload.seek(0)
+    digest = hashlib.sha256()
+    for chunk in upload.chunks():
+        digest.update(chunk)
+    upload.seek(0)
+    path = f"comment-images/{digest.hexdigest()}.{extension}"
     # remove abandoned uploads opportunistically, so cancelled comments cannot
     # accumulate files forever even when no scheduled cleanup job is installed
     CommentImage.objects.filter(
@@ -1255,11 +1385,28 @@ def comment_upload(request):
         created_at__lt=timezone.now() - timedelta(days=1),
     ).delete()
     try:
-        saved = default_storage.save(path, upload)
+        if default_storage.exists(path):
+            saved = path
+        else:
+            saved = default_storage.save(path, upload)
+            # A storage backend may resolve a simultaneous name collision by
+            # returning a suffixed name. The digest path is already the same
+            # content, so discard that racing copy and share the canonical
+            # object instead.
+            if saved != path and default_storage.exists(path):
+                default_storage.delete(saved)
+                saved = path
         try:
-            image = CommentImage.objects.create(uploader=request.user, image=saved)
+            image = CommentImage.objects.filter(
+                uploader=request.user,
+                comment__isnull=True,
+                image=saved,
+            ).first()
+            if image is None:
+                image = CommentImage.objects.create(uploader=request.user, image=saved)
         except Exception:
-            default_storage.delete(saved)
+            if not CommentImage.objects.filter(image=saved).exists():
+                default_storage.delete(saved)
             raise
     except Exception:
         logger.exception("Failed to save comment image upload")

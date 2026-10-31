@@ -642,7 +642,7 @@ msgid "Bookmarks"
 msgstr "书签"
 
 msgid "Essays"
-msgstr "随笔"
+msgstr "说说"
 
 msgid "Masonry"
 msgstr "照片墙"
@@ -789,7 +789,7 @@ msgid "pending email"
 msgstr "待确认邮箱"
 
 msgid "This email address is already registered."
-msgstr "此邮箱地址已被注册。"
+msgstr "此邮箱已被注册。"
 
 msgid "Change email"
 msgstr "更改邮箱"
@@ -798,7 +798,7 @@ msgid "Enter a different email address."
 msgstr "请输入不同的邮箱地址。"
 
 msgid "Review profile changes"
-msgstr "审核个人资料更改"
+msgstr "审核个人资料变更"
 
 msgid "pending display name"
 msgstr "待审核显示名称"
@@ -946,3 +946,1130 @@ msgstr "更新日志"
 
 msgid "Status"
 msgstr "状态"
+
+msgid "2 columns"
+msgstr "两列"
+
+msgid "3 columns"
+msgstr "三列"
+
+msgid ""
+"A new verification email was sent. Please check your inbox before signing "
+"in."
+msgstr "新的验证邮件已发送，请先查收邮件再登录。"
+
+msgid "APlayer"
+msgstr "APlayer"
+
+msgid "APlayer layout"
+msgstr "APlayer 布局"
+
+msgid "Active"
+msgstr "启用"
+
+msgid "Active configuration"
+msgstr "当前启用配置"
+
+msgid "Add article"
+msgstr "添加文章"
+
+msgid "Add site configuration"
+msgstr "添加站点配置"
+
+msgid "Additional footer text"
+msgstr "附加页脚文字"
+
+msgid "Administration"
+msgstr "管理后台"
+
+msgid "Advanced APlayer options"
+msgstr "APlayer 高级选项"
+
+msgid "Advanced settings"
+msgstr "高级设置"
+
+msgid "All rights reserved"
+msgstr "保留所有权利"
+
+msgid "Allow comment likes"
+msgstr "允许评论点赞"
+
+msgid "Allow comment-account registration"
+msgstr "允许注册评论账号"
+
+msgid "Allow guest comments"
+msgstr "允许访客评论"
+
+msgid "Apply Pangu spacing"
+msgstr "应用盘古之白"
+
+msgid "Approve new comments automatically"
+msgstr "自动通过新评论"
+
+msgid "Approve selected comments"
+msgstr "通过所选评论"
+
+msgid "Approve selected profile changes"
+msgstr "通过所选资料变更"
+
+msgid "Approved %(count)d profile change."
+msgstr "Approved %(count)d profile change."
+
+msgid "Approved %(count)d profile changes."
+msgstr "Approved %(count)d profile changes."
+
+msgid "Article"
+msgstr "文章"
+
+msgid "Article date format"
+msgstr "文章日期格式"
+
+msgid "Article display"
+msgstr "文章显示"
+
+msgid "Article image alignment"
+msgstr "文章图片对齐方式"
+
+msgid "Article title alignment"
+msgstr "文章标题对齐方式"
+
+msgid "Articles"
+msgstr "文章"
+
+msgid "Audio track"
+msgstr "音频曲目"
+
+msgid "Audio tracks"
+msgstr "音频曲目"
+
+msgid "Author level thresholds"
+msgstr "作者等级阈值"
+
+msgid "Automatic excerpt length"
+msgstr "自动摘要长度"
+
+msgid "Banner subtitle size"
+msgstr "横幅副标题大小"
+
+msgid "Banner text line height"
+msgstr "横幅文字行高"
+
+msgid "Banner title size"
+msgstr "横幅标题大小"
+
+msgid "Blocked"
+msgstr "Blocked"
+
+msgid "Blocked IP address"
+msgstr "已封禁 IP 地址"
+
+msgid "Blocked IP addresses"
+msgstr "已封禁 IP 地址"
+
+msgid "Blog content"
+msgstr "博客内容"
+
+msgid "Blur"
+msgstr "模糊"
+
+msgid "Bookmark"
+msgstr "书签"
+
+msgid "Bookmark categories"
+msgstr "书签分类"
+
+msgid "Bookmark category"
+msgstr "书签分类"
+
+msgid "Bottom"
+msgstr "Bottom"
+
+msgid "Built-in comments"
+msgstr "内置评论"
+
+msgid "Calculate author level automatically"
+msgstr "自动计算作者等级"
+
+msgid "Category limit on article cards"
+msgstr "文章卡片分类数量上限"
+
+msgid "Center"
+msgstr "居中"
+
+msgid "Centered"
+msgstr "居中"
+
+msgid "Choose a comment provider when comments are enabled."
+msgstr "Choose a comment provider when comments are enabled."
+
+msgid "Choose a provider and complete its settings when comments are enabled."
+msgstr ""
+"Choose a provider and complete its settings when comments are enabled."
+
+msgid "Client ID"
+msgstr "Client ID"
+
+msgid "Client secret"
+msgstr "Client secret"
+
+msgid "Client version"
+msgstr "Client version"
+
+msgid "Code block frame style"
+msgstr "代码块边框样式"
+
+msgid "Code blocks and table of contents"
+msgstr "代码块与目录"
+
+msgid "Code injected before the closing body tag"
+msgstr "注入 body 结束标签前的代码"
+
+msgid "Code injected into the page head"
+msgstr "注入页面 head 的代码"
+
+msgid "Colour"
+msgstr "颜色"
+
+msgid "Colour override"
+msgstr "覆盖颜色"
+
+msgid "Colours and preloader"
+msgstr "颜色与加载动画"
+
+msgid "Comment GIF provider"
+msgstr "评论 GIF 来源"
+
+msgid "Comment GIF providers"
+msgstr "评论 GIF 来源"
+
+msgid "Comment badge"
+msgstr "评论徽章"
+
+msgid "Comment badge assignment"
+msgstr "评论徽章分配"
+
+msgid "Comment badge assignments"
+msgstr "评论徽章分配"
+
+msgid "Comment badges"
+msgstr "评论徽章"
+
+msgid "Comment box position"
+msgstr "Comment box position"
+
+msgid "Comment emoji"
+msgstr "评论表情"
+
+msgid "Comment emoji pack"
+msgstr "评论表情包"
+
+msgid "Comment emoji packs"
+msgstr "评论表情包"
+
+msgid "Comment emojis"
+msgstr "评论表情"
+
+msgid "Comment like"
+msgstr "评论点赞"
+
+msgid "Comment likes"
+msgstr "评论点赞"
+
+msgid "Comment notification"
+msgstr "评论通知"
+
+msgid "Comment notifications"
+msgstr "评论通知"
+
+msgid "Comment provider"
+msgstr "评论系统"
+
+msgid "Configuration"
+msgstr "配置"
+
+msgid "Configuration name"
+msgstr "配置名称"
+
+msgid "Confirm that you want to activate this account: %(email)s"
+msgstr "确认您要激活此账号：%(email)s"
+
+msgid "Current avatar"
+msgstr "当前头像"
+
+msgid "Custom navigation labels"
+msgstr "Custom navigation labels"
+
+msgid "Dark"
+msgstr "深色"
+
+msgid "Dark-mode banner image"
+msgstr "深色模式横幅图片"
+
+msgid "Dark-mode banner text colour"
+msgstr "深色模式横幅文字颜色"
+
+msgid "Dark-mode syntax theme"
+msgstr "深色模式代码高亮主题"
+
+msgid "Default"
+msgstr "默认"
+
+msgid "Default article licence"
+msgstr "默认文章许可协议"
+
+msgid "Default colour mode"
+msgstr "默认颜色模式"
+
+msgid "Default social preview description"
+msgstr "默认社交分享描述"
+
+msgid "Default social preview image"
+msgstr "默认社交分享图片"
+
+msgid "Delay before deleting"
+msgstr "删除前延迟"
+
+msgid "Deleting speed"
+msgstr "删除速度"
+
+msgid "Deployment region"
+msgstr "Deployment region"
+
+msgid "Disable comments on selected articles"
+msgstr "为所选文章禁用评论"
+
+msgid "Disable this to choose a colour for this assignment only."
+msgstr "Disable this to choose a colour for this assignment only."
+
+msgid "Disable this to choose a custom badge colour."
+msgstr "Disable this to choose a custom badge colour."
+
+msgid "Disabled"
+msgstr "已禁用"
+
+msgid "Disabled comments on %(count)d article."
+msgstr "Disabled comments on %(count)d article."
+
+msgid "Disabled comments on %(count)d articles."
+msgstr "Disabled comments on %(count)d articles."
+
+msgid "Discussion category"
+msgstr "Discussion category"
+
+msgid "Discussion category ID"
+msgstr "Discussion category ID"
+
+msgid "Draft"
+msgstr "草稿"
+
+msgid "Drafts"
+msgstr "草稿"
+
+msgid "Edit site configuration"
+msgstr "编辑站点配置"
+
+msgid "Emoji URLs (JSON array)"
+msgstr "Emoji URLs (JSON array)"
+
+msgid "Enable APlayer"
+msgstr "启用 APlayer"
+
+msgid "Enable GIF picker"
+msgstr "启用 GIF 选择器"
+
+msgid "Enable Google Analytics"
+msgstr "启用 Google Analytics"
+
+msgid "Enable Mermaid diagrams"
+msgstr "启用 Mermaid 图表"
+
+msgid "Enable Open Graph metadata"
+msgstr "启用 Open Graph 元数据"
+
+msgid "Enable RSS feed"
+msgstr "启用 RSS 订阅"
+
+msgid "Enable bookmarks page"
+msgstr "启用书签页面"
+
+msgid "Enable comments"
+msgstr "启用评论"
+
+msgid "Enable comments on selected articles"
+msgstr "为所选文章启用评论"
+
+msgid "Enable custom code injection"
+msgstr "启用自定义代码注入"
+
+msgid "Enable emoji picker"
+msgstr "启用表情选择器"
+
+msgid "Enable essays page"
+msgstr "启用说说页面"
+
+msgid "Enable friend-links page"
+msgstr "启用友情链接页面"
+
+msgid "Enable home banner"
+msgstr "启用首页横幅"
+
+msgid "Enable home subtitle"
+msgstr "启用首页副标题"
+
+msgid "Enable masonry gallery"
+msgstr "启用瀑布流相册"
+
+msgid "Enable page preloader"
+msgstr "启用页面加载动画"
+
+msgid "Enable page transitions"
+msgstr "启用页面切换动画"
+
+msgid "Enable reactions"
+msgstr "Enable reactions"
+
+msgid "Enable related articles"
+msgstr "启用相关文章"
+
+msgid "Enable sidebar"
+msgstr "启用侧边栏"
+
+msgid "Enable spoiler masking"
+msgstr "启用剧透遮罩"
+
+msgid "Enable table of contents"
+msgstr "启用文章目录"
+
+msgid ""
+"Enable the player here and manage songs on the Audio tracks page. Use the "
+"JSON field only for advanced APlayer options."
+msgstr ""
+"Enable the player here and manage songs on the Audio tracks page. Use the "
+"JSON field only for advanced APlayer options."
+
+msgid "Enable visitor counters"
+msgstr "启用访问统计"
+
+msgid "Enabled"
+msgstr "已启用"
+
+msgid "Enabled comments on %(count)d article."
+msgstr "Enabled comments on %(count)d article."
+
+msgid "Enabled comments on %(count)d articles."
+msgstr "Enabled comments on %(count)d articles."
+
+msgid "Enter a JSON list of paths that should not show recommendations."
+msgstr "Enter a JSON list of paths that should not show recommendations."
+
+msgid "Enter a colour in #RGB or #RRGGBB format."
+msgstr "Enter a colour in #RGB or #RRGGBB format."
+
+msgid "Enter a valid JSON array."
+msgstr "Enter a valid JSON array."
+
+msgid "Enter a value between %(minimum)s and %(maximum)s."
+msgstr "Enter a value between %(minimum)s and %(maximum)s."
+
+msgid "Enter a value from 0 to 100."
+msgstr "请输入 0 到 100 之间的值。"
+
+msgid "Essay"
+msgstr "说说"
+
+msgid "Expand side tools automatically"
+msgstr "自动展开侧边工具"
+
+msgid "Expand table of contents"
+msgstr "展开全部目录项"
+
+msgid "Extensions"
+msgstr "扩展"
+
+msgid "External RSS feed URL"
+msgstr "外部 RSS 地址"
+
+msgid "First sidebar panel"
+msgstr "侧边栏首个面板"
+
+msgid "Fixed"
+msgstr "固定"
+
+msgid "Fixed bottom player"
+msgstr "底部固定播放器"
+
+msgid "Follow primary colour"
+msgstr "跟随主题色"
+
+msgid "Font"
+msgstr "字体"
+
+msgid "Font Awesome"
+msgstr "Font Awesome"
+
+msgid "Fonts"
+msgstr "字体"
+
+msgid "Footer icon HTML"
+msgstr "页脚图标 HTML"
+
+msgid "Friend link"
+msgstr "友情链接"
+
+msgid "Friend links"
+msgstr "友情链接"
+
+msgid "Friend-link categories"
+msgstr "友链分类"
+
+msgid "Friend-link category"
+msgstr "友链分类"
+
+msgid "Friend-link columns"
+msgstr "友情链接列数"
+
+msgid "Google Analytics measurement ID"
+msgstr "Google Analytics 衡量 ID"
+
+msgid "Hide navigation bar while scrolling"
+msgstr "滚动时隐藏导航栏"
+
+msgid "Hitokoto API URL"
+msgstr "一言 API 地址"
+
+msgid "Home banner"
+msgstr "首页横幅"
+
+msgid "Home banner style"
+msgstr "首页横幅样式"
+
+msgid "Home banner title"
+msgstr "首页横幅标题"
+
+msgid "Home subtitle"
+msgstr "首页副标题"
+
+msgid "Hover scale effect"
+msgstr "悬停缩放效果"
+
+msgid "Hover shadow"
+msgstr "悬停阴影"
+
+msgid "ICP registration URL"
+msgstr "ICP备案链接"
+
+msgid "ICP registration number"
+msgstr "ICP备案号"
+
+msgid "Immediate"
+msgstr "Immediate"
+
+msgid "Inactive"
+msgstr "停用"
+
+msgid "Initial typing delay"
+msgstr "开始输入前延迟"
+
+msgid "Invalid username or password."
+msgstr "用户名或密码错误。"
+
+msgid "Language-specific label"
+msgstr "Language-specific label"
+
+msgid "Lazy"
+msgstr "Lazy"
+
+msgid "Lazy-load article images"
+msgstr "延迟加载文章图片"
+
+msgid "Left"
+msgstr "左侧"
+
+msgid "Light"
+msgstr "浅色"
+
+msgid "Light-mode banner image"
+msgstr "浅色模式横幅图片"
+
+msgid "Light-mode banner text colour"
+msgstr "浅色模式横幅文字颜色"
+
+msgid "Light-mode syntax theme"
+msgstr "浅色模式代码高亮主题"
+
+msgid "Likes"
+msgstr "Likes"
+
+msgid "Load Font Awesome Duotone"
+msgstr "加载 Font Awesome Duotone"
+
+msgid "Load Font Awesome Light"
+msgstr "加载 Font Awesome Light"
+
+msgid "Load Font Awesome Sharp Solid"
+msgstr "加载 Font Awesome Sharp Solid"
+
+msgid "Load Font Awesome Thin"
+msgstr "加载 Font Awesome Thin"
+
+msgid "Loading strategy"
+msgstr "Loading strategy"
+
+msgid "Login security event"
+msgstr "登录安全事件"
+
+msgid "Login security events"
+msgstr "登录安全事件"
+
+msgid "Loop subtitle text"
+msgstr "循环副标题"
+
+msgid "Made %(count)d IP block permanent."
+msgstr "Made %(count)d IP block permanent."
+
+msgid "Made %(count)d IP blocks permanent."
+msgstr "Made %(count)d IP blocks permanent."
+
+msgid "Make selected blocks permanent"
+msgstr "Make selected blocks permanent"
+
+msgid "Mark selected notifications as read"
+msgstr "Mark selected notifications as read"
+
+msgid "Mark selected notifications as unread"
+msgstr "Mark selected notifications as unread"
+
+msgid "Masonry image"
+msgstr "瀑布流图片"
+
+msgid "Masonry images"
+msgstr "瀑布流图片"
+
+msgid "Maximum heading depth"
+msgstr "目录最大标题层级"
+
+msgid "Menu"
+msgstr "菜单"
+
+msgid "Mini player"
+msgstr "迷你播放器"
+
+msgid "Mobile related-article limit"
+msgstr "移动端相关文章数量"
+
+msgid "Move selected articles to drafts"
+msgstr "将所选文章移为草稿"
+
+msgid "Moved %(count)d article to drafts."
+msgstr "Moved %(count)d article to drafts."
+
+msgid "Moved %(count)d articles to drafts."
+msgstr "Moved %(count)d articles to drafts."
+
+msgid "Navigation and sidebar"
+msgstr "导航栏与侧边栏"
+
+msgid "Navigation gradient end colour"
+msgstr "导航栏渐变结束色"
+
+msgid "Navigation gradient start colour"
+msgstr "导航栏渐变起始色"
+
+msgid "Navigation label translation"
+msgstr "导航名称翻译"
+
+msgid "Navigation label translations"
+msgstr "导航名称翻译"
+
+msgid "Navigation link"
+msgstr "导航链接"
+
+msgid "Navigation links"
+msgstr "导航链接"
+
+msgid "Navigation transparency"
+msgstr "导航栏透明度"
+
+msgid "No avatar change"
+msgstr "头像未变更"
+
+msgid "Number table-of-contents entries"
+msgstr "显示目录编号"
+
+msgid "OAuth proxy URL"
+msgstr "OAuth proxy URL"
+
+msgid "Only trusted administrators should add HTML or scripts here."
+msgstr "仅可信管理员可在此添加 HTML 或脚本。"
+
+msgid "Open table of contents by default"
+msgstr "默认打开目录"
+
+msgid "Optional JSON object for advanced APlayer settings."
+msgstr "可选的 APlayer 高级设置 JSON 对象。"
+
+msgid "Page mapping"
+msgstr "Page mapping"
+
+msgid "Page title"
+msgstr "Page title"
+
+msgid "PangBai Blog admin"
+msgstr "PangBai Blog admin"
+
+msgid "PangBai Blog administration"
+msgstr "PangBai Blog administration"
+
+msgid "Passwords do not match."
+msgstr "两次输入的密码不一致。"
+
+msgid "Pathname"
+msgstr "Pathname"
+
+msgid "Paths excluded from recommendations"
+msgstr "不显示推荐的路径"
+
+msgid "Pending avatar"
+msgstr "待审核头像"
+
+msgid "Pending email change"
+msgstr "待确认邮箱变更"
+
+msgid "Pending profile review"
+msgstr "待审核资料"
+
+msgid "Pending review"
+msgstr "待审核"
+
+msgid "Personal website"
+msgstr "个人网站"
+
+msgid "Pin selected comment"
+msgstr "置顶所选评论"
+
+msgid "Pinned %(count)d comment."
+msgstr "Pinned %(count)d comment."
+
+msgid "Pinned %(count)d comments."
+msgstr "Pinned %(count)d comments."
+
+msgid "Preload search data"
+msgstr "预加载搜索数据"
+
+msgid "Preloader message"
+msgstr "加载动画文字"
+
+msgid "Primary colour"
+msgstr "主题色"
+
+msgid "Public domain"
+msgstr "公有领域"
+
+msgid "Public profile"
+msgstr "公开资料"
+
+msgid "Publication status"
+msgstr "发布状态"
+
+msgid "Publish selected articles"
+msgstr "发布所选文章"
+
+msgid "Published"
+msgstr "已发布"
+
+msgid "Published %(count)d article."
+msgstr "Published %(count)d article."
+
+msgid "Published %(count)d articles."
+msgstr "Published %(count)d articles."
+
+msgid "Quick actions"
+msgstr "快捷操作"
+
+msgid "Reactions (JSON array)"
+msgstr "Reactions (JSON array)"
+
+msgid "Reject selected profile changes"
+msgstr "驳回所选资料变更"
+
+msgid "Rejected %(count)d profile change."
+msgstr "Rejected %(count)d profile change."
+
+msgid "Rejected %(count)d profile changes."
+msgstr "Rejected %(count)d profile changes."
+
+msgid "Related-article limit"
+msgstr "相关文章数量"
+
+msgid "Related-article placeholder image"
+msgstr "相关文章占位图"
+
+msgid "Related-articles title"
+msgstr "相关文章标题"
+
+msgid "Removed %(count)d IP block."
+msgstr "Removed %(count)d IP block."
+
+msgid "Removed %(count)d IP blocks."
+msgstr "Removed %(count)d IP blocks."
+
+msgid "Repository"
+msgstr "Repository"
+
+msgid "Repository ID"
+msgstr "Repository ID"
+
+msgid "Repository name"
+msgstr "Repository name"
+
+msgid "Repository owner"
+msgstr "Repository owner"
+
+msgid "Require email verification"
+msgstr "要求验证邮箱"
+
+msgid "Require sign-in to comment"
+msgstr "评论前必须登录"
+
+msgid "Return selected comments to review"
+msgstr "将所选评论退回审核"
+
+msgid "Reverse"
+msgstr "反向"
+
+msgid "Review comments"
+msgstr "Review comments"
+
+msgid "Review pending"
+msgstr "等待审核"
+
+msgid "Right"
+msgstr "右侧"
+
+msgid "Rotate the settings icon"
+msgstr "旋转设置图标"
+
+msgid "SEO, analytics, and footer"
+msgstr "SEO、统计与页脚"
+
+msgid "Saving…"
+msgstr "正在保存…"
+
+msgid "Search keywords"
+msgstr "站点关键词"
+
+msgid "Select exactly one configuration."
+msgstr "Select exactly one configuration."
+
+msgid "Selected comments were approved."
+msgstr "Selected comments were approved."
+
+msgid "Selected comments were returned to review."
+msgstr "Selected comments were returned to review."
+
+msgid "Selected comments were unpinned."
+msgstr "Selected comments were unpinned."
+
+msgid "Selected notifications were marked as read."
+msgstr "Selected notifications were marked as read."
+
+msgid "Selected notifications were marked as unread."
+msgstr "Selected notifications were marked as unread."
+
+msgid "Send comment email notifications"
+msgstr "发送评论邮件通知"
+
+msgid "Send discussion metadata"
+msgstr "Send discussion metadata"
+
+msgid "Sending reset email…"
+msgstr "正在发送重置邮件…"
+
+msgid "Sending verification email…"
+msgstr "正在发送验证邮件…"
+
+msgid "Separate keywords with commas."
+msgstr "使用英文逗号分隔关键词。"
+
+msgid "Server URL"
+msgstr "Server URL"
+
+msgid "Show Hitokoto author"
+msgstr "显示一言作者"
+
+msgid "Show ICP registration"
+msgstr "显示 ICP 备案"
+
+msgid "Show article copyright notice"
+msgstr "显示文章版权声明"
+
+msgid "Show article image captions"
+msgstr "显示文章图片说明"
+
+msgid "Show article statistics"
+msgstr "显示文章统计"
+
+msgid "Show article views"
+msgstr "显示文章阅读量"
+
+msgid "Show article word count"
+msgstr "显示文章字数"
+
+msgid "Show author level"
+msgstr "显示作者等级"
+
+msgid "Show categories on article cards"
+msgstr "在文章卡片显示分类"
+
+msgid "Show code copy button"
+msgstr "显示代码复制按钮"
+
+msgid "Show estimated reading time"
+msgstr "显示预计阅读时间"
+
+msgid "Show external-link icons"
+msgstr "显示外链图标"
+
+msgid "Show footer content statistics"
+msgstr "显示页脚内容统计"
+
+msgid "Show navigation search"
+msgstr "显示导航搜索"
+
+msgid "Show reading percentage"
+msgstr "显示阅读百分比"
+
+msgid "Show reading progress bar"
+msgstr "显示阅读进度条"
+
+msgid "Show sidebar on mobile"
+msgstr "在移动端显示侧边栏"
+
+msgid "Show site uptime"
+msgstr "显示站点运行时间"
+
+msgid "Show social links"
+msgstr "显示社交链接"
+
+msgid "Show tags on article cards"
+msgstr "在文章卡片显示标签"
+
+msgid "Show total page views"
+msgstr "显示总访问量"
+
+msgid "Show unique visitors"
+msgstr "显示访客数"
+
+msgid "Sidebar announcement"
+msgstr "侧边栏公告"
+
+msgid "Sidebar position"
+msgstr "侧边栏位置"
+
+msgid "Simple"
+msgstr "简洁"
+
+msgid "Site author"
+msgstr "站点作者"
+
+msgid "Site avatar"
+msgstr "站点头像"
+
+msgid "Site configuration"
+msgstr "站点配置"
+
+msgid "Site configurations"
+msgstr "站点配置"
+
+msgid "Site description"
+msgstr "站点描述"
+
+msgid "Site favicon"
+msgstr "站点图标"
+
+msgid "Site identity"
+msgstr "站点标识"
+
+msgid "Site launch date"
+msgstr "站点上线日期"
+
+msgid "Site logo"
+msgstr "站点 Logo"
+
+msgid "Site name"
+msgstr "站点名称"
+
+msgid "Site overview"
+msgstr "站点概览"
+
+msgid "Site subtitle"
+msgstr "站点副标题"
+
+msgid ""
+"Skipped %(count)d duplicate selection because only one comment can be pinned"
+" per article."
+msgstr ""
+"Skipped %(count)d duplicate selection because only one comment can be pinned"
+" per article."
+
+msgid ""
+"Skipped %(count)d duplicate selections because only one comment can be "
+"pinned per article."
+msgstr ""
+"Skipped %(count)d duplicate selections because only one comment can be "
+"pinned per article."
+
+msgid "Social link layout"
+msgstr "社交链接布局"
+
+msgid "Standalone pages"
+msgstr "独立页面"
+
+msgid "Static"
+msgstr "静态"
+
+msgid "Subtitle text list"
+msgstr "副标题文字列表"
+
+msgid "Tag cloud"
+msgstr "标签云"
+
+msgid "Tag limit on article cards"
+msgstr "文章卡片标签数量上限"
+
+msgid "Tag page style"
+msgstr "标签页样式"
+
+msgid ""
+"The active configuration cannot be deleted, and at least one configuration "
+"must remain."
+msgstr ""
+"The active configuration cannot be deleted, and at least one configuration "
+"must remain."
+
+msgid "The navigation gradient is independent of the primary colour."
+msgstr "导航栏渐变色独立于站点主题色。"
+
+msgid "The selected configuration is now active."
+msgstr "The selected configuration is now active."
+
+msgid "This field is required for the selected comment provider."
+msgstr "This field is required for the selected comment provider."
+
+msgid "This username is already in use."
+msgstr "此用户名已被使用。"
+
+msgid "This value must be a JSON %(type)s."
+msgstr "This value must be a JSON %(type)s."
+
+msgid "This value must be a JSON array."
+msgstr "This value must be a JSON array."
+
+msgid "Top"
+msgstr "Top"
+
+msgid "Turnstile site key"
+msgstr "Turnstile site key"
+
+msgid "Typing speed"
+msgstr "打字速度"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "Unblock selected addresses"
+msgstr "Unblock selected addresses"
+
+msgid "Unpin selected comments"
+msgstr "取消置顶所选评论"
+
+msgid "Use Hitokoto quotes"
+msgstr "使用一言"
+
+msgid "Use as the active configuration"
+msgstr "设为当前启用配置"
+
+msgid "Use auto, relative, or a Moment.js-style date format."
+msgstr "可填写 auto、relative 或 Moment.js 风格的日期格式。"
+
+msgid "Use badge or primary colour"
+msgstr "使用徽章颜色或主题色"
+
+msgid "Use selected configuration"
+msgstr "使用所选配置"
+
+msgid "Use smart backspace"
+msgstr "使用智能退格"
+
+msgid "Use strict matching"
+msgstr "Use strict matching"
+
+msgid "Use the Waline service root, not its /ui administration path."
+msgstr "Use the Waline service root, not its /ui administration path."
+
+msgid "Used by links, buttons, pagination, and status indicators."
+msgstr "用于链接、按钮、分页和状态标记。"
+
+msgid ""
+"Used by links, buttons, pagination, and status indicators. Configure the "
+"navigation gradient separately below."
+msgstr ""
+"Used by links, buttons, pagination, and status indicators. Configure the "
+"navigation gradient separately below."
+
+msgid "User profile"
+msgstr "用户资料"
+
+msgid "User profiles"
+msgstr "用户资料"
+
+msgid "Verify your email"
+msgstr "验证您的电子邮件"
+
+msgid "Verifying…"
+msgstr "正在验证…"
+
+msgid "View site"
+msgstr "查看站点"
+
+msgid "Visit record"
+msgstr "访问记录"
+
+msgid "Visit records"
+msgstr "访问记录"
+
+msgid "Visit the site"
+msgstr "访问站点"
+
+msgid "Visits today"
+msgstr "Visits today"
+
+msgid "We could not send a new verification email. Please try again later."
+msgstr "暂时无法发送新的验证邮件，请稍后重试。"
+
+msgid "Welcome — your account is ready"
+msgstr "Welcome — your account is ready"
+
+msgid "Your display name links to this address when it is set."
+msgstr "设置后，您的显示名称将链接到此地址。"
+
+msgid "Your username cannot be changed after registration."
+msgstr "用户名注册后无法修改。"
+
+msgid "array"
+msgstr "array"
+
+msgid "macOS window"
+msgstr "macOS 窗口"
+
+msgid "object"
+msgstr "object"
+
+msgid "pending personal website"
+msgstr "待审核个人网站"
+
+msgid "personal website"
+msgstr "个人网站"
+
+msgid "reCAPTCHA v3 site key"
+msgstr "reCAPTCHA v3 site key"

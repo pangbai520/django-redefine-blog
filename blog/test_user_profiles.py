@@ -80,6 +80,43 @@ class UserProfileTests(TestCase):
         payload = self.client.get(reverse("comment_list", args=[article.slug])).json()
         self.assertEqual(payload["comments"][0]["author"], "Redefine Reader")
 
+    def test_personal_website_is_used_by_existing_and_new_comments(self):
+        article = ArticleModel.objects.create(
+            title="Profile website",
+            slug="profile-website",
+            content="Content",
+            is_published=True,
+        )
+        old_comment = Comment.objects.create(
+            article=article,
+            author=self.user,
+            content="Before profile edit",
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("comment_profile"),
+            {
+                "action": "profile",
+                "display_name": "Reader",
+                "website": "https://reader.example.com/about",
+            },
+        )
+        self.assertRedirects(response, reverse("comment_profile") + "?updated=1")
+
+        payload = self.client.get(reverse("comment_list", args=[article.slug])).json()
+        self.assertEqual(
+            payload["comments"][0]["website"],
+            "https://reader.example.com/about",
+        )
+        created = self.client.post(
+            reverse("comment_create", args=[article.slug]),
+            {"content": "After profile edit"},
+        ).json()["comment"]
+        self.assertEqual(created["website"], "https://reader.example.com/about")
+        old_comment.refresh_from_db()
+        self.assertEqual(old_comment.website, "")
+
     def test_avatar_is_validated_and_exposed_to_comments(self):
         article = ArticleModel.objects.create(
             title="Avatar comment",

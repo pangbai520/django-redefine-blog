@@ -24,7 +24,7 @@
                 <strong>{% translate "Profile changes are waiting for review." %}</strong>
                 <span>{% translate "Your current public profile remains visible until an administrator approves the changes." %}</span>
             </div>
-            <form method="post">
+            <form method="post" data-skip-preloader>
                 {% csrf_token %}<input type="hidden" name="action" value="cancel-profile-review"><input type="hidden" name="next" value="{{ return_to }}">
                 <button type="submit">{% translate "Withdraw pending changes" %}</button>
             </form>
@@ -52,7 +52,7 @@
             </aside>
 
             <div class="profile-forms">
-                <form id="profile-details-form" method="post" enctype="multipart/form-data" class="profile-form" data-profile-form>
+                <form id="profile-details-form" method="post" enctype="multipart/form-data" class="profile-form" data-profile-form data-skip-preloader>
                     {% csrf_token %}<input type="hidden" name="action" value="profile"><input type="hidden" name="next" value="{{ return_to }}">
                     <div class="profile-field">
                         <label for="{{ profile_form.display_name.id_for_label }}"><i class="fa-solid fa-signature" aria-hidden="true"></i>{% translate "Display name" %}</label>
@@ -67,6 +67,13 @@
                         <small>{% translate "Username cannot be changed." %}</small>
                     </div>
 
+                    <div class="profile-field">
+                        <label for="{{ profile_form.website.id_for_label }}"><i class="fa-solid fa-link" aria-hidden="true"></i>{% translate "Personal website" %}</label>
+                        {{ profile_form.website }}
+                        <small>{% translate "Your display name links to this address when it is set." %}</small>
+                        {{ profile_form.website.errors }}
+                    </div>
+
                     <div class="profile-actions">
                         <button class="profile-primary-button" type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>{% translate "Save profile" %}</span></button>
                     </div>
@@ -77,7 +84,7 @@
                     {% if not password_is_set %}
                     <div class="profile-notice" role="status"><i class="fa-solid fa-key" aria-hidden="true"></i><span>{% translate "Set a password before changing your email address." %}</span></div>
                     {% else %}
-                    <form method="post" class="profile-form profile-email-form">
+                    <form method="post" class="profile-form profile-email-form" data-skip-preloader>
                         {% csrf_token %}<input type="hidden" name="action" value="email"><input type="hidden" name="next" value="{{ return_to }}">
                         <div class="profile-field">
                             <label for="{{ email_form.email.id_for_label }}">{% translate "Email" %}</label>
@@ -106,7 +113,7 @@
                     </form>
 
                     {% if profile.pending_email %}
-                    <form method="post" class="profile-cancel-email-form">
+                    <form method="post" class="profile-cancel-email-form" data-skip-preloader>
                         {% csrf_token %}<input type="hidden" name="action" value="cancel-email"><input type="hidden" name="next" value="{{ return_to }}">
                         <button type="submit"><i class="fa-solid fa-ban" aria-hidden="true"></i><span>{% translate "Cancel pending email change" %}</span></button>
                     </form>
@@ -116,7 +123,7 @@
 
                 <section id="profile-password" class="profile-password-section">
                     <h2><i class="fa-solid fa-key" aria-hidden="true"></i>{% if password_is_set %}{% translate "Change password" %}{% else %}{% translate "Set password" %}{% endif %}</h2>
-                    <form method="post" class="profile-form profile-password-form">
+                    <form method="post" class="profile-form profile-password-form" data-skip-preloader>
                         {% csrf_token %}<input type="hidden" name="action" value="password"><input type="hidden" name="next" value="{{ return_to }}">
                         {% for field in password_form %}
                         <div class="profile-field">

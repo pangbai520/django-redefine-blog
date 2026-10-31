@@ -1,0 +1,5 @@
+{% load i18n %}{% blocktranslate with username=user.username %}Hello {{ username }},{% endblocktranslate %}
+
+{% blocktranslate with site_name=site.site_name %}Thanks for joining {{ site_name }}. Your email has been verified and your account is ready to use.{% endblocktranslate %}
+
+{{ site_url }}

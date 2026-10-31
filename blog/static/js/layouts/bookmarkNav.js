@@ -42,7 +42,7 @@ export default function initBookmarkNav() {
 
   function setActiveNavItem(preferredSectionId = null) {
     const fromTop = window.scrollY + 100;
-    let currentSection = sections[0];
+    let currentSection = null;
     const documentHeight = document.documentElement?.scrollHeight || 0;
     const reachedPageBottom =
       window.scrollY > 0 &&
@@ -52,7 +52,7 @@ export default function initBookmarkNav() {
     if (preferredSectionId) {
       currentSection = sections.find(
         (section) => section.id === preferredSectionId,
-      ) || currentSection;
+      ) || null;
     } else if (reachedPageBottom) {
       currentSection = sections.at(-1);
     } else {
@@ -67,7 +67,6 @@ export default function initBookmarkNav() {
     navItems.forEach((item) => {
       const isActive =
         item.getAttribute('data-category') === currentSection?.id;
-      item.classList.toggle('bg-second-background-color', isActive);
       item.classList.toggle('active', isActive);
     });
   }
@@ -87,6 +86,7 @@ export default function initBookmarkNav() {
   const onScroll = throttle(() => setActiveNavItem(), 100);
   window.addEventListener('scroll', onScroll, { passive: true, signal });
 
-  // select the first category above its section, so the navigation is never blank
+  // Match Redefine: the category navigation starts neutral and only becomes
+  // active after its section reaches the reading position.
   setActiveNavItem();
 }

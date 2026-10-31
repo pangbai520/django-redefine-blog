@@ -3,17 +3,38 @@ from django.dispatch import receiver
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
 from django.db.utils import OperationalError, ProgrammingError
+from django.utils import timezone
 
 from .models import (
     ArticleModel,
     Category,
+    CommentImage,
     CommentBadge,
     CommentBadgeAssignment,
+    Font,
+    MenuLink,
+    MenuLinkTranslation,
     SiteConfiguration,
     Tag,
     TrafficModel,
     UserProfile,
 )
+
+
+@receiver(post_delete, sender=CommentImage)
+def delete_comment_image_file(sender, instance, **kwargs):
+    """Remove storage objects after explicit, queryset, or cascade deletion."""
+    if not instance.image or not instance.image.name:
+        return
+    storage = instance.image.storage
+    name = instance.image.name
+    from django.db import transaction
+
+    def delete_if_unreferenced():
+        if not CommentImage.objects.filter(image=name).exists():
+            storage.delete(name)
+
+    transaction.on_commit(delete_if_unreferenced)
 
 
 @receiver(pre_save, sender=ArticleModel)
@@ -83,6 +104,33 @@ def invalidate_site_content(sender, instance, **kwargs):
     invalidate_content_caches()
 
 
+@receiver([post_save, post_delete], sender=MenuLink)
+@receiver([post_save, post_delete], sender=Font)
+def touch_related_site_configuration(sender, instance, **kwargs):
+    SiteConfiguration.objects.filter(pk=instance.config_id).update(
+        updated_at=timezone.now()
+    )
+    cache.delete("actived_site_config")
+    from .cache_utils import invalidate_content_caches
+
+    invalidate_content_caches()
+
+
+@receiver([post_save, post_delete], sender=MenuLinkTranslation)
+def touch_translated_menu_configuration(sender, instance, **kwargs):
+    config_id = MenuLink.objects.filter(pk=instance.menu_link_id).values_list(
+        "config_id", flat=True
+    ).first()
+    if config_id:
+        SiteConfiguration.objects.filter(pk=config_id).update(
+            updated_at=timezone.now()
+        )
+        cache.delete("actived_site_config")
+        from .cache_utils import invalidate_content_caches
+
+        invalidate_content_caches()
+
+
 @receiver([post_save, post_delete], sender=TrafficModel)
 def clear_traffic_cache(sender, instance, **kwargs):
     cache.delete("site_traffic")
@@ -97,7 +145,7 @@ def grant_owner_badge(user, config=None):
         return
     badge = CommentBadge.objects.filter(
         config=config,
-        name="博主",
+        name__iexact="博主",
         enabled=True,
     ).first()
     if badge:
@@ -112,11 +160,12 @@ def sync_owner_badges():
 
 @receiver(post_save, sender=get_user_model())
 def grant_owner_badge_to_superuser(sender, instance, **kwargs):
-    try:
-        UserProfile.objects.get_or_create(user=instance)
-    except (OperationalError, ProgrammingError):
-        # auth users can be saved while the profile migration is still running
-        pass
+    if instance.is_active:
+        try:
+            UserProfile.objects.get_or_create(user=instance)
+        except (OperationalError, ProgrammingError):
+            # auth users can be saved while the profile migration is still running
+            pass
     grant_owner_badge(instance)
     if instance.is_superuser:
         from .cache_utils import invalidate_content_caches

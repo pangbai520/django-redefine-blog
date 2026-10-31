@@ -1,13 +1,23 @@
 import re
+from datetime import timedelta
+from unittest.mock import patch
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 
-from .models import ArticleModel, SiteConfiguration, TrafficModel
+from .account_cleanup import CLEANUP_CACHE_KEY
+from .ip_location import format_ip2region_result
+from .models import (
+    ArticleModel,
+    PendingRegistration,
+    SiteConfiguration,
+    TrafficModel,
+    UserProfile,
+)
 
 
 class RuntimeRegressionTests(TestCase):
@@ -36,24 +46,93 @@ class RuntimeRegressionTests(TestCase):
             HTTP_USER_AGENT="Mozilla/5.0 Real Browser",
             REMOTE_ADDR="192.0.2.40",
         )
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["article_pv"], 1)
         self.assertEqual(
-            TrafficModel.objects.filter(path=self.article.get_absolute_url()).count(), 1
+            TrafficModel.objects.filter(path=self.article.get_absolute_url()).count(),
+            1,
         )
+        self.article.refresh_from_db()
+        self.assertEqual(self.article.view_count, 1)
+
         second = self.client.get(
             reverse("article", args=[self.article.slug]),
             HTTP_USER_AGENT="Mozilla/5.0 Real Browser",
             REMOTE_ADDR="192.0.2.40",
         )
         self.assertEqual(second.context["article_pv"], 1)
+        self.article.refresh_from_db()
+        self.assertEqual(self.article.view_count, 1)
+
+    @override_settings(TRAFFIC_REQUIRE_BROWSER_NAVIGATION=True)
+    def test_article_read_does_not_require_sec_fetch_headers(self):
+        response = self.client.get(
+            reverse("article", args=[self.article.slug]),
+            HTTP_USER_AGENT="Mozilla/5.0 Mobile Privacy Browser",
+            REMOTE_ADDR="192.0.2.43",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["article_pv"], 1)
+        self.article.refresh_from_db()
+        self.assertEqual(self.article.view_count, 1)
+
+    def test_article_view_count_survives_traffic_retention_cleanup(self):
+        self.client.get(
+            reverse("article", args=[self.article.slug]),
+            HTTP_USER_AGENT="Mozilla/5.0 Real Browser",
+            REMOTE_ADDR="192.0.2.44",
+        )
+        TrafficModel.objects.all().delete()
+
+        self.article.refresh_from_db()
+        self.assertEqual(self.article.view_count, 1)
+
+    def test_comment_location_prefers_region_and_falls_back_to_ip(self):
+        user = self.site._meta.apps.get_model("auth", "User").objects.create_user(
+            username="location-reader", password="A-strong-password-123"
+        )
+        comment = self.article.comments.create(
+            author=user,
+            content="Location",
+            ip_address="183.251.202.251",
+        )
+        with patch("blog.comment_views.get_ip_location", return_value="福建三明"):
+            response = self.client.get(
+                reverse("comment_list", args=[self.article.slug])
+            )
+        self.assertEqual(response.json()["comments"][0]["ip_address"], "福建三明")
+
+        with patch("blog.comment_views.get_ip_location", return_value=""):
+            response = self.client.get(
+                reverse("comment_list", args=[self.article.slug])
+            )
+        self.assertEqual(
+            response.json()["comments"][0]["ip_address"],
+            str(comment.ip_address),
+        )
+
+    def test_ip2region_chinese_location_is_compact(self):
+        self.assertEqual(
+            format_ip2region_result("中国|福建省|三明市|电信|CN"),
+            "福建三明",
+        )
+
+    def test_swup_does_not_reuse_stale_pages(self):
+        response = self.client.get("/")
+        self.assertContains(response, "cache: false")
+        self.assertContains(response, "data-site-revision=")
 
     @override_settings(TRAFFIC_REQUIRE_BROWSER_NAVIGATION=True)
     def test_production_traffic_requires_a_top_level_browser_navigation(self):
         self.client.get(
-            "/", HTTP_USER_AGENT="Mozilla/5.0 Real Browser", REMOTE_ADDR="192.0.2.41"
+            "/",
+            HTTP_USER_AGENT="Mozilla/5.0 Real Browser",
+            REMOTE_ADDR="192.0.2.41",
         )
         self.assertFalse(TrafficModel.objects.exists())
+
         self.client.get(
             "/",
             HTTP_USER_AGENT="Mozilla/5.0 Real Browser",
@@ -64,7 +143,9 @@ class RuntimeRegressionTests(TestCase):
         self.assertEqual(TrafficModel.objects.count(), 1)
 
     def test_saved_accent_overrides_each_compiled_theme_boundary(self):
-        html = self.client.get("/").content.decode()
+        response = self.client.get("/")
+        html = response.content.decode()
+
         self.assertIn("body.light-mode", html)
         self.assertIn("body.dark-mode", html)
         self.assertGreaterEqual(html.count("--primary-color: #00bbfe"), 3)
@@ -79,7 +160,9 @@ class RuntimeRegressionTests(TestCase):
     def test_robots_txt_points_to_sitemap_and_hides_private_routes(self):
         response = self.client.get(reverse("robots_txt"), secure=True)
         text = response.content.decode()
+
         self.assertEqual(response["Content-Type"], "text/plain; charset=utf-8")
+        self.assertIn("User-agent: *", text)
         self.assertIn("Disallow: /api/", text)
         self.assertIn("Disallow: /comments/", text)
         self.assertIn("Sitemap: https://testserver/sitemap.xml", text)
@@ -90,6 +173,7 @@ class RuntimeRegressionTests(TestCase):
             HTTP_USER_AGENT="Mozilla/5.0 Real Browser",
             REMOTE_ADDR="192.0.2.42",
         )
+
         self.assertContains(response, '<meta name="robots" content="noindex,nofollow">')
         self.assertFalse(TrafficModel.objects.exists())
 
@@ -107,7 +191,9 @@ class RuntimeRegressionTests(TestCase):
             )
         )
         cache.clear()
+
         body = self.client.get("/sitemap.xml", secure=True).content.decode()
+
         self.assertIn("https://testserver/bookmarks/", body)
         self.assertNotIn("https://testserver/essays/", body)
         self.assertNotIn("https://testserver/masonry/", body)
@@ -130,16 +216,50 @@ class RuntimeRegressionTests(TestCase):
         match = re.search(r"https?://[^\s]+/comments/verify/[^\s]+", mail.outbox[0].body)
         self.assertIsNotNone(match)
         verify_path = match.group(0).replace("http://testserver", "")
+
         first_scan = self.client.get(verify_path)
         self.assertContains(first_scan, "Confirm that you want to activate this account")
-        user = get_user_model().objects.get(username="mail-reader")
+        self.assertContains(first_scan, "mail-reader@example.com")
+        self.assertContains(first_scan, "data-skip-preloader")
+        user = self.site._meta.apps.get_model("auth", "User").objects.get(
+            username="mail-reader"
+        )
         self.assertFalse(user.is_active)
-        self.assertEqual(self.client.get(verify_path).status_code, 200)
+        self.assertTrue(PendingRegistration.objects.filter(user=user).exists())
+        self.assertFalse(UserProfile.objects.filter(user=user).exists())
+
+        second_scan = self.client.get(verify_path)
+        self.assertEqual(second_scan.status_code, 200)
         user.refresh_from_db()
         self.assertFalse(user.is_active)
-        self.assertEqual(self.client.post(verify_path).status_code, 200)
+
+        activation = self.client.post(verify_path)
+        self.assertEqual(activation.status_code, 200)
         user.refresh_from_db()
         self.assertTrue(user.is_active)
+        self.assertFalse(PendingRegistration.objects.filter(user=user).exists())
+        self.assertTrue(UserProfile.objects.filter(user=user).exists())
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertIn("Welcome", mail.outbox[1].subject)
+
+    @override_settings(UNVERIFIED_ACCOUNT_RETENTION_HOURS=1)
+    def test_expired_unverified_registration_is_removed_lazily(self):
+        User = self.site._meta.apps.get_model("auth", "User")
+        user = User.objects.create_user(
+            username="abandoned-reader",
+            email="abandoned@example.com",
+            password="A-strong-password-123",
+            is_active=False,
+        )
+        pending = PendingRegistration.objects.create(user=user)
+        PendingRegistration.objects.filter(pk=pending.pk).update(
+            created_at=timezone.now() - timedelta(hours=2)
+        )
+        cache.delete(CLEANUP_CACHE_KEY)
+
+        self.client.get(reverse("comment_register"))
+
+        self.assertFalse(User.objects.filter(pk=user.pk).exists())
 
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_verification_email_uses_request_language_and_site_accent(self):
@@ -153,6 +273,7 @@ class RuntimeRegressionTests(TestCase):
                 "password_confirm": "A-strong-password-123",
             },
         )
+
         self.assertEqual(response.status_code, 200)
         message = mail.outbox[0]
         self.assertIn("验证您的账号", message.subject)

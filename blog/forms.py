@@ -15,21 +15,25 @@ User = get_user_model()
 
 
 class CommentRegistrationForm(forms.Form):
-    username = forms.CharField(max_length=150, label="Username")
-    email = forms.EmailField(label="Email")
-    password = forms.CharField(widget=forms.PasswordInput, min_length=8, label="Password")
-    password_confirm = forms.CharField(widget=forms.PasswordInput, label="Confirm password")
+    username = forms.CharField(
+        max_length=150,
+        label=_("Username"),
+        help_text=_("Your username cannot be changed after registration."),
+    )
+    email = forms.EmailField(label=_("Email"))
+    password = forms.CharField(widget=forms.PasswordInput, min_length=8, label=_("Password"))
+    password_confirm = forms.CharField(widget=forms.PasswordInput, label=_("Confirm password"))
 
     def clean_username(self):
         username = self.cleaned_data["username"].strip()
         if User.objects.filter(username__iexact=username).exists():
-            raise forms.ValidationError("This username is already in use.")
+            raise forms.ValidationError(_("This username is already in use."))
         return username
 
     def clean_email(self):
         email = self.cleaned_data["email"].strip().lower()
         if User.objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError("This email address is already registered.")
+            raise forms.ValidationError(_("This email address is already registered."))
         return email
 
     def clean(self):
@@ -45,7 +49,7 @@ class CommentRegistrationForm(forms.Form):
             except forms.ValidationError as exc:
                 self.add_error("password", exc)
         if password and cleaned.get("password_confirm") and password != cleaned["password_confirm"]:
-            self.add_error("password_confirm", "Passwords do not match.")
+            self.add_error("password_confirm", _("Passwords do not match."))
         return cleaned
 
 
@@ -79,12 +83,16 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ("display_name", "avatar")
+        fields = ("display_name", "website", "avatar")
         labels = {
             "display_name": _("Display name"),
+            "website": _("Personal website"),
             "avatar": _("Avatar"),
         }
         widgets = {
+            "website": forms.URLInput(
+                attrs={"placeholder": "https://example.com", "inputmode": "url"}
+            ),
             "avatar": forms.FileInput(
                 attrs={
                     "accept": ".jpg,.jpeg,.png,.gif,.webp",

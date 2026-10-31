@@ -50,6 +50,10 @@
 .internal-comment-toolbar .wl-actions [data-comment-action="markdown"] { color: var(--waline-theme-color); }
 .internal-comments .wl-comment-status { display: none !important; }
 .internal-comments .wl-card a.wl-nick { color: var(--waline-theme-color); }
+.internal-comments .wl-card span.wl-nick,
+.internal-comments span.wl-login-nick { color: var(--waline-color); }
+.internal-comments a.wl-login-nick { color: var(--waline-theme-color); text-decoration: none; }
+.internal-comments a.wl-login-nick:hover { text-decoration: underline; }
 .internal-comment-emoji { width: 1.4em; height: 1.4em; object-fit: contain; vertical-align: text-bottom; }
 .internal-comment-image { max-width: 100%; height: auto; vertical-align: middle; }
 .internal-preview-image { max-width: 100%; height: auto; }
@@ -145,7 +149,19 @@
 .internal-auth-form p { margin: 0 0 14px; }
 .internal-auth-form label { display: block; margin-bottom: 5px; }
 .internal-auth-form input { display: block; width: 100%; min-height: 38px; border: 1px solid var(--waline-border-color); border-radius: .5em; padding: 9px 11px; background: var(--second-background-color); color: var(--default-text-color); }
-.internal-auth-form .errorlist { color: #c62828; padding-left: 18px; }
+.internal-auth-form .errorlist {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, #dc2626 32%, transparent);
+  border-radius: .55em;
+  background: color-mix(in srgb, #dc2626 8%, var(--background-color));
+  color: #dc2626;
+  font-size: .9em;
+  line-height: 1.45;
+}
+.internal-auth-form .errorlist li { margin: 0; }
+.internal-auth-form .helptext { display: block; margin: -5px 0 14px; color: var(--waline-info-color); font-size: .86em; }
 .internal-auth-modal { position: fixed !important; inset: 0 !important; z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; background: rgb(17 24 39 / 42%); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
 .internal-auth-modal[hidden] { display: none; }
 .internal-auth-dialog { position: relative; width: min(440px, calc(100vw - 40px)); max-height: 90vh; overflow-y: auto; box-sizing: border-box; padding: 30px; border: 1px solid var(--waline-border-color); border-radius: 18px; color: var(--default-text-color); background: var(--background-color); box-shadow: var(--redefine-box-shadow-flat-hover); animation: internal-auth-dialog-enter .18s ease both; }
@@ -169,10 +185,11 @@
 .internal-auth-field { display: flex; align-items: center; min-height: 42px; overflow: hidden; border: 1px solid var(--waline-border-color); border-radius: 10px; background: var(--second-background-color); transition: border-color .18s ease, box-shadow .18s ease; }
 .internal-auth-field:focus-within { border-color: var(--waline-theme-color); box-shadow: 0 0 0 3px color-mix(in srgb, var(--waline-theme-color) 14%, transparent); }
 .internal-auth-modal-form .internal-auth-field input { min-width: 0; min-height: 42px; padding: 9px 12px; border: 0; border-radius: 0; outline: none; background: transparent; }
+.internal-auth-field-help { display: block; margin-top: 6px; color: var(--waline-info-color); font-size: .82rem; line-height: 1.45; }
 .internal-auth-submit { display: inline-flex; align-items: center; justify-content: center; gap: .5em; min-width: 108px; }
 .internal-auth-forgot { margin: 14px 0 0 !important; font-size: .9em; }
 .internal-auth-forgot a { display: inline-flex; align-items: center; gap: .45em; }
-.internal-comment-toast-region { position: fixed; top: 84px; right: 24px; z-index: 10040; display: grid; gap: 10px; width: min(380px, calc(100vw - 32px)); pointer-events: none; }
+.internal-comment-toast-region { position: fixed; top: 84px; left: 50%; z-index: 10040; display: grid; gap: 10px; width: min(460px, calc(100vw - 32px)); transform: translateX(-50%); pointer-events: none; }
 .internal-comment-toast { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 11px; padding: 13px 14px; border: 1px solid var(--waline-border-color); border-radius: 13px; color: var(--default-text-color); background: color-mix(in srgb, var(--background-color) 94%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: var(--redefine-box-shadow-flat-hover); line-height: 1.45; pointer-events: auto; animation: internal-comment-toast-enter .2s ease both; }
 .internal-comment-toast > i { color: var(--waline-theme-color); font-size: 1.05rem; }
 .internal-comment-toast-close { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 8px; color: var(--waline-info-color); background: transparent; cursor: pointer; }
@@ -189,7 +206,7 @@
 .internal-confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 22px; }
 .internal-confirm-actions .wl-btn { display: inline-flex; align-items: center; justify-content: center; gap: .45em; min-height: 42px; }
 @media (max-width: 580px) { .internal-auth-dialog { padding: 26px 22px 22px; border-radius: 16px; } }
-@media (max-width: 580px) { .internal-comment-toast-region { top: 70px; right: 16px; } .internal-confirm-dialog { padding: 24px 20px; border-radius: 16px; } }
+@media (max-width: 580px) { .internal-comment-toast-region { top: 70px; } .internal-confirm-dialog { padding: 24px 20px; border-radius: 16px; } }
 @media (max-width: 580px) {
   .wl-login-info { flex-basis: 64px; width: 64px; }
   .wl-login-details { max-width: 64px; }

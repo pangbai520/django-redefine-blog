@@ -106,8 +106,17 @@
     }
     function showToast(text, kind) {
       if (!toastRegion || !text) return;
+      var existing = Array.from(toastRegion.querySelectorAll(".internal-comment-toast")).find(function (item) {
+        return item.dataset.message === text;
+      });
+      if (existing) {
+        existing.classList.remove("is-leaving");
+        return;
+      }
+      toastRegion.replaceChildren();
       var toast = document.createElement("div");
       toast.className = "internal-comment-toast is-" + (kind || "error");
+      toast.dataset.message = text;
       toast.setAttribute("role", kind === "error" ? "alert" : "status");
       var iconNode = document.createElement("i");
       iconNode.className = "fa-solid " + (kind === "success" ? "fa-circle-check" : "fa-circle-exclamation");
@@ -192,7 +201,14 @@
       var isRegister = authForm.dataset.authPanel === "register";
       var endpoint = isRegister ? "/api/comments/register/" : "/api/comments/login/";
       var submitButton = authForm.querySelector("button[type=submit]");
-      if (submitButton) submitButton.disabled = true;
+      var originalButtonHtml = submitButton ? submitButton.innerHTML : "";
+      if (submitButton) {
+        submitButton.disabled = true;
+        if (isRegister) {
+          submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><span>' +
+            escapeHtml(message("SendingVerification", "Sending verification email…")) + '</span>';
+        }
+      }
       fetch(endpoint, { method: "POST", body: data, headers: { "X-CSRFToken": csrf(), Accept: "application/json" }, credentials: "same-origin" })
         .then(function (response) { return response.json().catch(function () { return {}; }).then(function (body) { if (!response.ok) throw new Error(body.error || (isRegister ? message("UnableRegister", "Unable to register.") : message("UnableSignIn", "Unable to sign in."))); return body; }); })
         .then(function (body) {
@@ -205,7 +221,12 @@
           window.location.reload();
         })
         .catch(function (error) { if (errorBox) errorBox.textContent = error.message; })
-        .finally(function () { if (submitButton) submitButton.disabled = false; });
+        .finally(function () {
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonHtml;
+          }
+        });
     }); });
 
     function csrf() {

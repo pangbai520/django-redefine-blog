@@ -1,4 +1,4 @@
-import uuid
+import hashlib
 import warnings
 from pathlib import Path
 
@@ -7,6 +7,7 @@ from django.core.files.storage import default_storage
 from django.http import JsonResponse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from PIL import Image, UnidentifiedImageError
 
 
@@ -15,6 +16,7 @@ def _upload_error(message, status=400):
 
 
 @require_POST
+@xframe_options_sameorigin
 def editor_image_upload(request):
     """Accept editor images only from staff who can create or edit articles."""
     user = request.user
@@ -76,9 +78,24 @@ def editor_image_upload(request):
         return _upload_error(_("Image data is invalid."))
 
     extension = "jpg" if detected_format == "JPEG" else detected_format.lower()
-    path = f"editor/{uuid.uuid4().hex}.{extension}"
+    upload.seek(0)
+    digest = hashlib.sha256()
+    for chunk in upload.chunks():
+        digest.update(chunk)
+    upload.seek(0)
+    path = f"editor/{digest.hexdigest()}.{extension}"
     try:
-        saved = default_storage.save(path, upload)
+        if default_storage.exists(path):
+            saved = path
+        else:
+            saved = default_storage.save(path, upload)
+            # FileSystemStorage avoids overwrites by adding a suffix. Two
+            # simultaneous uploads of identical bytes can therefore both pass
+            # the exists() check. Keep the canonical digest path and discard
+            # the racing duplicate once the first request has created it.
+            if saved != path and default_storage.exists(path):
+                default_storage.delete(saved)
+                saved = path
     except Exception:
         return _upload_error(_("Image upload failed. Please try again later."), 500)
     return JsonResponse(

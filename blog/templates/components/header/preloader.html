@@ -1,3 +1,15 @@
+<script>
+    (function () {
+        try {
+            if (sessionStorage.getItem('django-blog-skip-next-preloader') === '1') {
+                sessionStorage.removeItem('django-blog-skip-next-preloader');
+                document.documentElement.classList.add('skip-site-preloader');
+            }
+        } catch (error) {
+            // Storage can be unavailable in strict privacy modes; loading still works normally.
+        }
+    })();
+</script>
 <style>
     :root {
         --preloader-background-color: #fff;
@@ -43,6 +55,8 @@
         transition: opacity 0.2s ease-in-out;
     }
 
+    html.skip-site-preloader .preloader { display: none !important; }
+
     .ml13 {
         font-size: 3.2rem;
         color: var(--preloader-text-color);
@@ -71,7 +85,19 @@
     </h2>
     <script src="{% static 'js/libs/anime.min.js' %}"></script>
     <script>
+        document.addEventListener('submit', function (event) {
+            if (!event.target.closest('[data-skip-preloader]')) return;
+            try {
+                sessionStorage.setItem('django-blog-skip-next-preloader', '1');
+            } catch (error) {
+                // Ignore storage failures and fall back to the normal preloader.
+            }
+        }, true);
+
         var textWrapper = document.querySelector('.ml13');
+        if (document.documentElement.classList.contains('skip-site-preloader')) {
+            if (textWrapper) textWrapper.closest('.preloader').style.display = 'none';
+        }
         // split by words first, so long messages can wrap without breaking letter animation
         var words = textWrapper.textContent.trim().split(' ');
 

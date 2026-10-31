@@ -3,6 +3,7 @@ import tempfile
 from datetime import timedelta
 from io import BytesIO, StringIO
 from pathlib import Path
+from unittest.mock import patch
 
 from PIL import Image
 from django.conf import settings
@@ -12,11 +13,13 @@ from django.core.cache import cache
 from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
-from django.test import TestCase, override_settings
+from django.core.management.base import CommandError
+from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import CommentImage, SiteConfiguration
+from .models import ArticleModel, Comment, CommentImage, SiteConfiguration
+from .portable_data import export_archive, import_archive
 
 
 User = get_user_model()
@@ -79,9 +82,110 @@ class LaunchReadinessTests(TestCase):
             self.assertFalse(CommentImage.objects.filter(pk=upload.pk).exists())
             self.assertFalse(Path(media_root, "comment-images", "orphan.png").exists())
 
+    def test_deleting_a_comment_removes_its_last_image_file(self):
+        user = User.objects.create_user("image-author", password="password-for-tests")
+        article = ArticleModel.objects.create(
+            title="Image cleanup", content="Body", is_published=True
+        )
+        comment = Comment.objects.create(article=article, author=user, content="Image")
+        with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as media_root, override_settings(MEDIA_ROOT=media_root):
+            upload = CommentImage.objects.create(uploader=user, comment=comment)
+            upload.image.save("attached.png", ContentFile(b"attached"), save=True)
+            path = Path(upload.image.path)
+            self.assertTrue(path.exists())
+            with self.captureOnCommitCallbacks(execute=True):
+                comment.delete()
+            self.assertFalse(path.exists())
+
     def test_backup_command_creates_a_portable_archive(self):
         with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as backup_dir:
             call_command("backup_blog", directory=backup_dir, keep=2, stdout=StringIO())
             backups = list(Path(backup_dir).glob("blog-backup-*.zip"))
             self.assertEqual(len(backups), 1)
             self.assertGreater(backups[0].stat().st_size, 0)
+
+
+class PortableRestoreTests(TransactionTestCase):
+    def test_replace_restore_keeps_same_named_media_file(self):
+        with (
+            tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as temporary,
+            override_settings(MEDIA_ROOT=Path(temporary, "media")),
+        ):
+            media_root = Path(settings.MEDIA_ROOT)
+            site = SiteConfiguration.objects.create(
+                config_name="Portable",
+                site_name="Before backup",
+                is_active=True,
+            )
+            site.site_logo.save(
+                "same-name.svg",
+                ContentFile(b'<svg xmlns="http://www.w3.org/2000/svg"></svg>'),
+                save=True,
+            )
+            archive = Path(temporary, "backup.zip")
+            export_archive(archive)
+
+            site.site_name = "Changed after backup"
+            site.save(update_fields=["site_name"])
+            logo_path = media_root / site.site_logo.name
+            logo_path.write_bytes(b"changed")
+
+            import_archive(archive, replace=True)
+
+            restored = SiteConfiguration.objects.get(config_name="Portable")
+            self.assertEqual(restored.site_name, "Before backup")
+            self.assertEqual(
+                (media_root / restored.site_logo.name).read_bytes(),
+                b'<svg xmlns="http://www.w3.org/2000/svg"></svg>',
+            )
+
+    def test_media_preflight_failure_does_not_change_database(self):
+        with (
+            tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as temporary,
+            override_settings(MEDIA_ROOT=Path(temporary, "media")),
+        ):
+            site = SiteConfiguration.objects.create(
+                config_name="Portable",
+                site_name="Before backup",
+                is_active=True,
+            )
+            archive = Path(temporary, "backup.zip")
+            export_archive(archive)
+            site.site_name = "Must survive failed restore"
+            site.save(update_fields=["site_name"])
+
+            with (
+                patch("blog.portable_data._extract_media", side_effect=OSError("disk full")),
+                self.assertRaisesMessage(
+                    CommandError, "The archive could not be read completely."
+                ),
+            ):
+                import_archive(archive, replace=True)
+
+            site.refresh_from_db()
+            self.assertEqual(site.site_name, "Must survive failed restore")
+
+    def test_media_swap_failure_rolls_back_database(self):
+        with (
+            tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as temporary,
+            override_settings(MEDIA_ROOT=Path(temporary, "media")),
+        ):
+            site = SiteConfiguration.objects.create(
+                config_name="Portable",
+                site_name="Before backup",
+                is_active=True,
+            )
+            archive = Path(temporary, "backup.zip")
+            export_archive(archive)
+            site.site_name = "Must survive failed swap"
+            site.save(update_fields=["site_name"])
+
+            with (
+                patch("blog.portable_data._swap_media_tree", side_effect=OSError("swap failed")),
+                self.assertRaises(OSError),
+            ):
+                import_archive(archive, replace=True)
+
+            site.refresh_from_db()
+            self.assertEqual(site.site_name, "Must survive failed swap")
+

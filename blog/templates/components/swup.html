@@ -6,9 +6,13 @@
 <script src="{% static 'js/libs/SwupScrollPlugin.min.js' %}"></script>
 <script src="{% static 'js/libs/SwupPreloadPlugin.min.js' %}"></script>
 <script>
+    const initialSiteRevision = document.querySelector("#swup")?.dataset.siteRevision || "";
     // expose one global instance, so migrated modules can keep Redefine's
     // original swup.hooks convention without bundler-specific imports
     window.swup = new Swup({
+        // Site content changes must be fetched again. Swup's default in-memory
+        // cache otherwise serves an old page until the browser is hard-reloaded.
+        cache: false,
         plugins: [
             new SwupScriptsPlugin({
                 optin: true,
@@ -23,5 +27,11 @@
             new SwupPreloadPlugin(),
         ],
         containers: ["#swup"],
+    });
+    window.swup.hooks.on("page:view", () => {
+        const revision = document.querySelector("#swup")?.dataset.siteRevision || "";
+        if (initialSiteRevision && revision && revision !== initialSiteRevision) {
+            window.location.reload();
+        }
     });
 </script>

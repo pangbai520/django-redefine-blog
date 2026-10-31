@@ -46,12 +46,16 @@ def _is_browser_navigation(request):
     )
 
 
-def record_request_traffic(request):
+def record_request_traffic(request, *, require_browser_navigation=None):
     """Record a human-looking page navigation once per address and path each hour."""
     path = request.path_info or request.path or "/"
     if request.method != "GET" or path.startswith(TRAFFIC_EXCLUDED_PREFIXES):
         return False
-    if not _is_browser_navigation(request):
+    if require_browser_navigation is None:
+        require_browser_navigation = getattr(
+            settings, "TRAFFIC_REQUIRE_BROWSER_NAVIGATION", False
+        )
+    if require_browser_navigation and not _is_browser_navigation(request):
         return False
 
     ua = request.META.get("HTTP_USER_AGENT", "").lower()

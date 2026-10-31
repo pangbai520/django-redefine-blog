@@ -23,6 +23,7 @@ from django.utils.translation import get_language, gettext, gettext_lazy as _
 from functools import cached_property
 from markdown import Markdown
 from mdeditor.fields import MDTextField
+from django_cleanup.cleanup import cleanup_ignore
 
 from core.markdown.extensions import get_extensions
 from .utils.unicode_slugify import unicode_slugify
@@ -42,6 +43,7 @@ def user_avatar_upload_to(instance, filename):
 class SiteConfiguration(models.Model):
     config_name = models.CharField("Configuration name", max_length=50, default="Default Config")
     is_active = models.BooleanField("Set as the currently active configuration", default=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
 
 
     site_name = models.CharField(
@@ -628,14 +630,16 @@ class SiteConfiguration(models.Model):
         return obj
 
     def save(self, *args, **kwargs):
-        self.full_clean(validate_constraints=False)
+        validate = kwargs.pop("validate", True)
+        if validate:
+            self.full_clean(validate_constraints=False)
         with transaction.atomic():
             if self.is_active:
                 SiteConfiguration.objects.filter(is_active=True).exclude(pk=self.pk).update(
                     is_active=False
                 )
 
-            if not SiteConfiguration.objects.exists():
+            if self._state.adding and not SiteConfiguration.objects.exists():
                 self.is_active = True
 
             super().save(*args, **kwargs)
@@ -1143,6 +1147,7 @@ class ArticleModel(models.Model):
     # cache counters; archive and footer pages should not render every article body
     word_counter = models.PositiveIntegerField(default=0, editable=False)
     reading_time = models.PositiveIntegerField(default=0, editable=False)
+    view_count = models.PositiveBigIntegerField(default=0, editable=False)
 
     def _categories_meta(self, site, *, limited):
         categories_display = []
@@ -1486,6 +1491,23 @@ class ArticleSearchDocument(models.Model):
         return self.title
 
 
+class PendingRegistration(models.Model):
+    """Tracks accounts that still need to prove ownership of their email."""
+
+    user = models.OneToOneField(
+        "auth.User",
+        on_delete=models.CASCADE,
+        related_name="pending_registration",
+    )
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ("created_at",)
+
+    def __str__(self):
+        return self.user.get_username()
+
+
 class UserProfile(models.Model):
     """Public-facing identity for a registered comment account."""
 
@@ -1495,6 +1517,7 @@ class UserProfile(models.Model):
         related_name="profile",
     )
     display_name = models.CharField(_("display name"), max_length=80, blank=True)
+    website = models.URLField(_("personal website"), blank=True)
     avatar = models.ImageField(
         _("avatar"),
         upload_to=user_avatar_upload_to,
@@ -1504,6 +1527,7 @@ class UserProfile(models.Model):
     pending_display_name = models.CharField(
         _("pending display name"), max_length=80, blank=True
     )
+    pending_website = models.URLField(_("pending personal website"), blank=True)
     pending_avatar = models.ImageField(
         _("pending avatar"),
         upload_to=user_avatar_upload_to,
@@ -1535,11 +1559,14 @@ class UserProfile(models.Model):
             or self.user.get_username()
         )
 
-    def stage_profile_changes(self, *, display_name, avatar=None, remove_avatar=False):
+    def stage_profile_changes(
+        self, *, display_name, website="", avatar=None, remove_avatar=False
+    ):
         """Store a public identity draft without changing the live profile."""
         replaced_storage = self.pending_avatar.storage if self.pending_avatar else None
         replaced_name = self.pending_avatar.name if self.pending_avatar else ""
         self.pending_display_name = display_name.strip()
+        self.pending_website = website.strip()
         if avatar is not None:
             self.pending_avatar = avatar
             self.pending_avatar_change = True
@@ -1553,6 +1580,7 @@ class UserProfile(models.Model):
         self.save(
             update_fields=(
                 "pending_display_name",
+                "pending_website",
                 "pending_avatar",
                 "pending_avatar_change",
                 "profile_review_pending",
@@ -1568,6 +1596,7 @@ class UserProfile(models.Model):
         pending_storage = self.pending_avatar.storage if self.pending_avatar else None
         pending_name = self.pending_avatar.name if self.pending_avatar else ""
         self.pending_display_name = ""
+        self.pending_website = ""
         self.pending_avatar = None
         self.pending_avatar_change = False
         self.profile_review_pending = False
@@ -1575,6 +1604,7 @@ class UserProfile(models.Model):
         self.save(
             update_fields=(
                 "pending_display_name",
+                "pending_website",
                 "pending_avatar",
                 "pending_avatar_change",
                 "profile_review_pending",
@@ -1594,6 +1624,7 @@ class UserProfile(models.Model):
         pending_storage = self.pending_avatar.storage if self.pending_avatar else None
         pending_name = self.pending_avatar.name if self.pending_avatar else ""
         self.display_name = self.pending_display_name
+        self.website = self.pending_website
         if self.pending_avatar_change:
             if self.pending_avatar:
                 self.pending_avatar.open("rb")
@@ -1609,6 +1640,7 @@ class UserProfile(models.Model):
                 self.avatar = None
 
         self.pending_display_name = ""
+        self.pending_website = ""
         self.pending_avatar = None
         self.pending_avatar_change = False
         self.profile_review_pending = False
@@ -1616,8 +1648,10 @@ class UserProfile(models.Model):
         self.save(
             update_fields=(
                 "display_name",
+                "website",
                 "avatar",
                 "pending_display_name",
+                "pending_website",
                 "pending_avatar",
                 "pending_avatar_change",
                 "profile_review_pending",
@@ -1738,6 +1772,7 @@ class Comment(models.Model):
         return f"{self.display_name}: {self.content[:40]}"
 
 
+@cleanup_ignore
 class CommentImage(models.Model):
     """An uploaded comment image, retained only while a comment references it."""
 

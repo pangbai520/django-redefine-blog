@@ -6,7 +6,9 @@
 {% if site.preloader_enabled %}
 	{% include "components/header/preloader.html" %}
 {% endif %}
-<main class="page-container" id="swup" data-home-first-page="{% if is_homepage and not articles_page.has_previous %}true{% else %}false{% endif %}">
+<main class="page-container" id="swup"
+      data-site-revision="{{ site.pk }}-{{ site.updated_at|date:'U.u' }}"
+      data-home-first-page="{% if is_homepage and not articles_page.has_previous %}true{% else %}false{% endif %}">
 	{% render_blog_hook "main_start" %}
 	{% if site.homebanner_enabled and is_homepage and not articles_page.has_previous %}
 		{% include "pages/home/home-banner.html" %}

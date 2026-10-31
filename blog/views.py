@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import Http404, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.core.paginator import Paginator
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q
 from .models import (
     ArticleModel,
     BookmarkCategory,
@@ -84,8 +84,19 @@ def article(request, slug):
     article_path = reverse('article', args=[article.slug])
     # Record before rendering so the first real visit is visible immediately.
     # The middleware sees the same cache key afterwards and does not double count.
-    record_request_traffic(request)
-    article_pv = (TrafficModel.objects.filter(path=article_path).count())
+    recorded = record_request_traffic(
+        request,
+        # An explicit article view is already constrained to a published HTML
+        # page. Requiring Sec-Fetch headers here drops legitimate mobile and
+        # privacy-browser reads; bot and hourly IP/path checks still apply.
+        require_browser_navigation=False,
+    )
+    if recorded:
+        ArticleModel.objects.filter(pk=article.pk).update(
+            view_count=F("view_count") + 1
+        )
+        article.view_count += 1
+    article_pv = article.view_count
     post_count = ArticleModel.objects.published().count()
     prev_article = (
         ArticleModel.objects.published()

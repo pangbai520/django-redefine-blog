@@ -9,6 +9,13 @@ from django import forms
 from django.core.cache import cache
 from django.db import models, transaction
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _, ngettext
+from .admin_labels import (
+    SITE_CONFIGURATION_CHOICE_LABELS,
+    SITE_CONFIGURATION_FIELD_LABELS,
+    SITE_CONFIGURATION_HELP_TEXTS,
+    apply_admin_metadata,
+)
 from .models import (
     ArticleModel,
     AudioTrack,
@@ -37,9 +44,12 @@ from .models import (
 )
 
 
-admin.site.site_header = "Django Redefine Administration"
-admin.site.site_title = "Django Redefine Admin"
-admin.site.index_title = "Administration"
+apply_admin_metadata(globals())
+
+
+admin.site.site_header = _("Django Redefine administration")
+admin.site.site_title = _("Django Redefine admin")
+admin.site.index_title = _("Administration")
 admin.site.site_url = "/"
 
 
@@ -48,6 +58,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = (
         "user",
         "display_name",
+        "website",
         "review_pending",
         "pending_email",
         "pending_email_requested_at",
@@ -57,7 +68,9 @@ class UserProfileAdmin(admin.ModelAdmin):
         "user__username",
         "user__email",
         "display_name",
+        "website",
         "pending_display_name",
+        "pending_website",
         "pending_email",
     )
     raw_id_fields = ("user",)
@@ -71,16 +84,17 @@ class UserProfileAdmin(admin.ModelAdmin):
     actions = ("approve_profile_changes", "reject_profile_changes")
     fieldsets = (
         (
-            "Public profile",
-            {"fields": ("user", "display_name", "avatar", "avatar_preview")},
+            _("Public profile"),
+            {"fields": ("user", "display_name", "website", "avatar", "avatar_preview")},
         ),
         (
-            "Pending profile review",
+            _("Pending profile review"),
             {
                 "fields": (
                     "profile_review_pending",
                     "profile_review_requested_at",
                     "pending_display_name",
+                    "pending_website",
                     "pending_avatar",
                     "pending_avatar_preview",
                     "pending_avatar_change",
@@ -88,16 +102,21 @@ class UserProfileAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Pending email change",
+            _("Pending email change"),
             {"fields": ("pending_email", "pending_email_requested_at")},
         ),
     )
 
-    @admin.display(description="Review pending", boolean=True, ordering="profile_review_pending")
+    def get_queryset(self, request):
+        # A public profile is created only after email verification. Hide any
+        # legacy profile rows belonging to still-inactive accounts as well.
+        return super().get_queryset(request).filter(user__is_active=True)
+
+    @admin.display(description=_("Review pending"), boolean=True, ordering="profile_review_pending")
     def review_pending(self, obj):
         return obj.profile_review_pending
 
-    @admin.display(description="Current avatar")
+    @admin.display(description=_("Current avatar"))
     def avatar_preview(self, obj):
         if not obj.avatar:
             return "—"
@@ -107,30 +126,34 @@ class UserProfileAdmin(admin.ModelAdmin):
             obj.avatar.url,
         )
 
-    @admin.display(description="Pending avatar")
+    @admin.display(description=_("Pending avatar"))
     def pending_avatar_preview(self, obj):
         if not obj.profile_review_pending or not obj.pending_avatar_change:
-            return "No avatar change"
+            return _("No avatar change")
         if not obj.pending_avatar:
-            return "Remove current avatar"
+            return _("Remove current avatar")
         return format_html(
             '<img src="{}" alt="" style="width:72px;height:72px;object-fit:contain;'
             'border-radius:14px;background:var(--body-bg);">',
             obj.pending_avatar.url,
         )
 
-    @admin.action(description="Approve selected profile changes")
+    @admin.action(description=_("Approve selected profile changes"))
     def approve_profile_changes(self, request, queryset):
         approved = 0
         for profile in queryset.filter(profile_review_pending=True).iterator():
             approved += int(profile.approve_pending_profile_changes())
         self.message_user(
             request,
-            f"Approved {approved} profile change{'s' if approved != 1 else ''}.",
+            ngettext(
+                "Approved %(count)d profile change.",
+                "Approved %(count)d profile changes.",
+                approved,
+            ) % {"count": approved},
             messages.SUCCESS,
         )
 
-    @admin.action(description="Reject selected profile changes")
+    @admin.action(description=_("Reject selected profile changes"))
     def reject_profile_changes(self, request, queryset):
         rejected = 0
         for profile in queryset.filter(profile_review_pending=True).iterator():
@@ -138,7 +161,11 @@ class UserProfileAdmin(admin.ModelAdmin):
             rejected += 1
         self.message_user(
             request,
-            f"Rejected {rejected} profile change{'s' if rejected != 1 else ''}.",
+            ngettext(
+                "Rejected %(count)d profile change.",
+                "Rejected %(count)d profile changes.",
+                rejected,
+            ) % {"count": rejected},
             messages.SUCCESS,
         )
 
@@ -161,33 +188,33 @@ class SiteConfigurationForm(forms.ModelForm):
 
     waline_server_url = forms.URLField(
         required=False,
-        label="Server URL",
-        help_text="Use the Waline service root, not the /ui administration path.",
+        label=_("Server URL"),
+        help_text=_("Use the Waline service root, not its /ui administration path."),
     )
-    waline_lang = forms.CharField(required=False, initial="zh-CN", label="Language")
-    waline_emoji = forms.CharField(required=False, widget=forms.Textarea, label="Emoji URLs (JSON array)")
-    waline_reaction = forms.CharField(required=False, widget=forms.Textarea, label="Reaction (JSON array)")
-    waline_recaptcha_v3_key = forms.CharField(required=False, label="reCAPTCHA v3 key")
-    waline_turnstile_key = forms.CharField(required=False, label="Turnstile key")
-    gitalk_client_id = forms.CharField(required=False, label="Client ID")
-    gitalk_client_secret = forms.CharField(required=False, widget=forms.PasswordInput(render_value=True), label="Client Secret")
-    gitalk_owner = forms.CharField(required=False, label="Repository owner")
-    gitalk_repo = forms.CharField(required=False, label="Repository")
-    gitalk_proxy = forms.URLField(required=False, label="OAuth proxy")
-    twikoo_version = forms.CharField(required=False, initial="1.6.44", label="Version")
-    twikoo_server_url = forms.URLField(required=False, label="Server URL")
-    twikoo_region = forms.CharField(required=False, label="Region")
-    giscus_repo = forms.CharField(required=False, label="Repository")
-    giscus_repo_id = forms.CharField(required=False, label="Repository ID")
-    giscus_category = forms.CharField(required=False, label="Category")
-    giscus_category_id = forms.CharField(required=False, label="Category ID")
-    giscus_mapping = forms.ChoiceField(required=False, choices=[("pathname", "Pathname"), ("url", "URL"), ("title", "Title")], label="Mapping")
-    giscus_lang = forms.CharField(required=False, initial="en", label="Language")
-    giscus_strict = forms.ChoiceField(required=False, choices=[("0", "Disabled"), ("1", "Enabled")], label="Strict")
-    giscus_reactions_enabled = forms.ChoiceField(required=False, choices=[("0", "Disabled"), ("1", "Enabled")], label="Reactions")
-    giscus_emit_metadata = forms.ChoiceField(required=False, choices=[("0", "Disabled"), ("1", "Enabled")], label="Emit metadata")
-    giscus_input_position = forms.ChoiceField(required=False, choices=[("bottom", "Bottom"), ("top", "Top")], label="Input position")
-    giscus_loading = forms.ChoiceField(required=False, choices=[("lazy", "Lazy"), ("eager", "Eager")], label="Loading")
+    waline_lang = forms.CharField(required=False, initial="zh-CN", label=_("Language"))
+    waline_emoji = forms.CharField(required=False, widget=forms.Textarea, label=_("Emoji URLs (JSON array)"))
+    waline_reaction = forms.CharField(required=False, widget=forms.Textarea, label=_("Reactions (JSON array)"))
+    waline_recaptcha_v3_key = forms.CharField(required=False, label=_("reCAPTCHA v3 site key"))
+    waline_turnstile_key = forms.CharField(required=False, label=_("Turnstile site key"))
+    gitalk_client_id = forms.CharField(required=False, label=_("Client ID"))
+    gitalk_client_secret = forms.CharField(required=False, widget=forms.PasswordInput(render_value=True), label=_("Client secret"))
+    gitalk_owner = forms.CharField(required=False, label=_("Repository owner"))
+    gitalk_repo = forms.CharField(required=False, label=_("Repository name"))
+    gitalk_proxy = forms.URLField(required=False, label=_("OAuth proxy URL"))
+    twikoo_version = forms.CharField(required=False, initial="1.6.44", label=_("Client version"))
+    twikoo_server_url = forms.URLField(required=False, label=_("Server URL"))
+    twikoo_region = forms.CharField(required=False, label=_("Deployment region"))
+    giscus_repo = forms.CharField(required=False, label=_("Repository"))
+    giscus_repo_id = forms.CharField(required=False, label=_("Repository ID"))
+    giscus_category = forms.CharField(required=False, label=_("Discussion category"))
+    giscus_category_id = forms.CharField(required=False, label=_("Discussion category ID"))
+    giscus_mapping = forms.ChoiceField(required=False, choices=[("pathname", _("Pathname")), ("url", _("URL")), ("title", _("Page title"))], label=_("Page mapping"))
+    giscus_lang = forms.CharField(required=False, initial="en", label=_("Language"))
+    giscus_strict = forms.ChoiceField(required=False, choices=[("0", _("Disabled")), ("1", _("Enabled"))], label=_("Use strict matching"))
+    giscus_reactions_enabled = forms.ChoiceField(required=False, choices=[("0", _("Disabled")), ("1", _("Enabled"))], label=_("Enable reactions"))
+    giscus_emit_metadata = forms.ChoiceField(required=False, choices=[("0", _("Disabled")), ("1", _("Enabled"))], label=_("Send discussion metadata"))
+    giscus_input_position = forms.ChoiceField(required=False, choices=[("bottom", _("Bottom")), ("top", _("Top"))], label=_("Comment box position"))
+    giscus_loading = forms.ChoiceField(required=False, choices=[("lazy", _("Lazy")), ("eager", _("Immediate"))], label=_("Loading strategy"))
 
     class Meta:
         model = SiteConfiguration
@@ -207,6 +234,22 @@ class SiteConfigurationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        for field_name, label in SITE_CONFIGURATION_FIELD_LABELS.items():
+            field = self.fields.get(field_name)
+            if field is not None:
+                field.label = label
+        for field_name, help_text in SITE_CONFIGURATION_HELP_TEXTS.items():
+            field = self.fields.get(field_name)
+            if field is not None:
+                field.help_text = help_text
+        for field_name, translated_labels in SITE_CONFIGURATION_CHOICE_LABELS.items():
+            field = self.fields.get(field_name)
+            if field is None:
+                continue
+            field.choices = [
+                (value, translated_labels.get(value, label))
+                for value, label in field.choices
+            ]
         raw_config = self.instance.comment_config if self.instance.pk else {}
         raw_config = raw_config if isinstance(raw_config, dict) else {}
         for provider, fields in self.PROVIDER_FIELDS.items():
@@ -239,13 +282,19 @@ class SiteConfigurationForm(forms.ModelForm):
         cleaned = super().clean()
         provider = cleaned.get("comment_system")
         if cleaned.get("comment_enabled") and not provider:
-            self.add_error("comment_system", "启用评论后必须选择评论系统。")
+            self.add_error(
+                "comment_system",
+                _("Choose a comment provider when comments are enabled."),
+            )
 
         if cleaned.get("comment_enabled"):
             for suffix in self.REQUIRED_PROVIDER_FIELDS.get(provider, ()):
                 field_name = f"{provider}_{suffix}"
                 if not cleaned.get(field_name):
-                    self.add_error(field_name, "启用该评论系统时必须填写此项。")
+                    self.add_error(
+                        field_name,
+                        _("This field is required for the selected comment provider."),
+                    )
 
         for field_name in ("waline_emoji", "waline_reaction"):
             value = cleaned.get(field_name)
@@ -255,10 +304,10 @@ class SiteConfigurationForm(forms.ModelForm):
             try:
                 parsed = json.loads(value) if isinstance(value, str) else value
             except json.JSONDecodeError:
-                self.add_error(field_name, "请输入有效的 JSON 数组。")
+                self.add_error(field_name, _("Enter a valid JSON array."))
                 continue
             if not isinstance(parsed, list):
-                self.add_error(field_name, "这里必须是 JSON 数组，而不是对象或字符串。")
+                self.add_error(field_name, _("This value must be a JSON array."))
                 continue
             cleaned[field_name] = parsed
 
@@ -273,9 +322,10 @@ class SiteConfigurationForm(forms.ModelForm):
             if value in (None, ""):
                 continue
             if not isinstance(value, expected_type):
+                expected = _("array") if expected_type is list else _("object")
                 self.add_error(
                     field_name,
-                    f"此项必须是 JSON {('数组' if expected_type is list else '对象')}。",
+                    _("This value must be a JSON %(type)s.") % {"type": expected},
                 )
 
         ranges = {
@@ -292,7 +342,11 @@ class SiteConfigurationForm(forms.ModelForm):
         for field_name, (minimum, maximum) in ranges.items():
             value = cleaned.get(field_name)
             if value is not None and not minimum <= value <= maximum:
-                self.add_error(field_name, f"请输入 {minimum} 到 {maximum} 之间的值。")
+                self.add_error(
+                    field_name,
+                    _("Enter a value between %(minimum)s and %(maximum)s.")
+                    % {"minimum": minimum, "maximum": maximum},
+                )
 
         for field_name in (
             "colour_primary",
@@ -303,7 +357,10 @@ class SiteConfigurationForm(forms.ModelForm):
         ):
             value = cleaned.get(field_name)
             if value and not re.fullmatch(r"#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?", value):
-                self.add_error(field_name, "请输入 #RGB 或 #RRGGBB 格式的颜色。")
+                self.add_error(
+                    field_name,
+                    _("Enter a colour in #RGB or #RRGGBB format."),
+                )
 
         return cleaned
 
@@ -350,6 +407,8 @@ class MenuLinkTranslationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['language_code'].label = _("Language")
+        self.fields['name'].label = _("Display name")
         self.fields['language_code'].widget = forms.Select(
             choices=[
                 (code, label)
@@ -364,8 +423,8 @@ class MenuLinkTranslationInline(admin.TabularInline):
     form = MenuLinkTranslationForm
     extra = 0
     fields = ('language_code', 'name')
-    verbose_name = '语言版本'
-    verbose_name_plural = '自定义名称翻译（留空的语言使用标准翻译或默认名称）'
+    verbose_name = _("Language-specific label")
+    verbose_name_plural = _("Custom navigation labels")
 
 class FontInline(admin.TabularInline):
     model = Font
@@ -408,19 +467,21 @@ class CommentAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(_admin_like_count=models.Count("likes"))
 
-    @admin.display(description="喜欢", ordering="_admin_like_count")
+    @admin.display(description=_("Likes"), ordering="_admin_like_count")
     def admin_like_count(self, obj):
         return obj._admin_like_count
 
-    @admin.action(description="通过所选评论")
+    @admin.action(description=_("Approve selected comments"))
     def approve_comments(self, request, queryset):
-        self.message_user(request, f"已通过 {queryset.update(is_approved=True)} 条评论。")
+        queryset.update(is_approved=True)
+        self.message_user(request, _("Selected comments were approved."))
 
-    @admin.action(description="将所选评论设为待审核")
+    @admin.action(description=_("Return selected comments to review"))
     def hold_comments(self, request, queryset):
-        self.message_user(request, f"已将 {queryset.update(is_approved=False)} 条评论设为待审核。")
+        queryset.update(is_approved=False)
+        self.message_user(request, _("Selected comments were returned to review."))
 
-    @admin.action(description="置顶所选评论")
+    @admin.action(description=_("Pin selected comment"))
     def pin_comments(self, request, queryset):
         selected = list(queryset.order_by("article_id", "-created_at", "-pk"))
         by_article = {}
@@ -430,21 +491,30 @@ class CommentAdmin(admin.ModelAdmin):
             Comment.objects.filter(article_id__in=by_article).update(is_sticky=False)
             pinned = Comment.objects.filter(pk__in=[item.pk for item in by_article.values()]).update(is_sticky=True)
         skipped = len(selected) - pinned
-        message = f"已置顶 {pinned} 条评论。"
+        message = ngettext(
+            "Pinned %(count)d comment.",
+            "Pinned %(count)d comments.",
+            pinned,
+        ) % {"count": pinned}
         if skipped:
-            message += f" 同一文章只能置顶一条，已忽略 {skipped} 条重复选择。"
+            message += " " + ngettext(
+                "Skipped %(count)d duplicate selection because only one comment can be pinned per article.",
+                "Skipped %(count)d duplicate selections because only one comment can be pinned per article.",
+                skipped,
+            ) % {"count": skipped}
         self.message_user(request, message)
 
-    @admin.action(description="取消置顶所选评论")
+    @admin.action(description=_("Unpin selected comments"))
     def unpin_comments(self, request, queryset):
-        self.message_user(request, f"已取消置顶 {queryset.update(is_sticky=False)} 条评论。")
+        queryset.update(is_sticky=False)
+        self.message_user(request, _("Selected comments were unpinned."))
 
 
 @admin.register(CommentBadge)
 class CommentBadgeAdmin(admin.ModelAdmin):
     class form(forms.ModelForm):
-        color = forms.CharField(required=False, label="Color", widget=forms.TextInput(attrs={"type": "color", "class": "vTextField"}))
-        inherit_theme = forms.BooleanField(required=False, label="Follow theme color", help_text="勾选后跟随当前主题色；取消后可使用颜色选择器。")
+        color = forms.CharField(required=False, label=_("Colour"), widget=forms.TextInput(attrs={"type": "color", "class": "vTextField"}))
+        inherit_theme = forms.BooleanField(required=False, label=_("Follow primary colour"), help_text=_("Disable this to choose a custom badge colour."))
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -474,8 +544,8 @@ class CommentBadgeAdmin(admin.ModelAdmin):
 @admin.register(CommentBadgeAssignment)
 class CommentBadgeAssignmentAdmin(admin.ModelAdmin):
     class form(forms.ModelForm):
-        color_override = forms.CharField(required=False, label="Color override", widget=forms.TextInput(attrs={"type": "color", "class": "vTextField"}))
-        inherit_badge_color = forms.BooleanField(required=False, label="Inherit badge/theme color", help_text="勾选后继承徽章颜色；徽章颜色为空时继续跟随主题色。")
+        color_override = forms.CharField(required=False, label=_("Colour override"), widget=forms.TextInput(attrs={"type": "color", "class": "vTextField"}))
+        inherit_badge_color = forms.BooleanField(required=False, label=_("Use badge or primary colour"), help_text=_("Disable this to choose a colour for this assignment only."))
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -555,13 +625,15 @@ class CommentNotificationAdmin(admin.ModelAdmin):
     list_select_related = ("recipient", "actor", "comment")
     actions = ("mark_as_read", "mark_as_unread")
 
-    @admin.action(description="将所选通知标记为已读")
+    @admin.action(description=_("Mark selected notifications as read"))
     def mark_as_read(self, request, queryset):
-        self.message_user(request, f"已标记 {queryset.update(is_read=True)} 条通知。")
+        queryset.update(is_read=True)
+        self.message_user(request, _("Selected notifications were marked as read."))
 
-    @admin.action(description="将所选通知标记为未读")
+    @admin.action(description=_("Mark selected notifications as unread"))
     def mark_as_unread(self, request, queryset):
-        self.message_user(request, f"已标记 {queryset.update(is_read=False)} 条通知。")
+        queryset.update(is_read=False)
+        self.message_user(request, _("Selected notifications were marked as unread."))
 
 
 @admin.register(SiteConfiguration)
@@ -580,12 +652,16 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
     actions = ("activate_configuration",)
 
     def changelist_view(self, request, extra_context=None):
-        context = {"title": "Site configurations"}
+        context = {"title": _("Site configurations")}
         context.update(extra_context or {})
         return super().changelist_view(request, extra_context=context)
 
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
-        context = {"title": "Edit site configuration" if object_id else "Add site configuration"}
+        context = {
+            "title": _("Edit site configuration")
+            if object_id
+            else _("Add site configuration")
+        }
         context.update(extra_context or {})
         return super().changeform_view(
             request,
@@ -599,29 +675,32 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         field = super().formfield_for_dbfield(db_field, request, **kwargs)
-        if db_field.name == "aplayer_config":
+        if db_field.name == "colour_primary":
             field.help_text = (
-                'Set the player mode with {"type": "fixed"} or {"type": "mini"}; '
-                "other APlayer options may be added as JSON."
-            )
-        elif db_field.name == "colour_primary":
-            field.help_text = (
-                "站点强调色，用于分页、按钮、链接及状态元素。"
-                "导航栏渐变请在“导航栏与侧边栏”中单独设置。"
+                _("Used by links, buttons, pagination, and status indicators. "
+                  "Configure the navigation gradient separately below.")
             )
         elif db_field.name in {"navbar_lcolor", "navbar_rcolor"}:
-            field.help_text = "导航栏渐变色；它与站点强调色相互独立。"
+            field.help_text = _("The navigation gradient is independent of the primary colour.")
+        if db_field.name == "aplayer_config":
+            field.help_text = _("Optional JSON object for advanced APlayer settings.")
         return field
+
+    def save_model(self, request, obj, form, change):
+        # ModelForm has already run model and uniqueness validation. Avoid
+        # validating this very large configuration a second time on every
+        # admin save; direct model saves still keep full validation enabled.
+        obj.save(validate=False)
 
     fieldsets = (
         (
-            "Configuration",
+            _("Configuration"),
             {
                 "fields": ("config_name", "is_active"),
             },
         ),
         (
-            "Site identity",
+            _("Site identity"),
             {
                 "fields": (
                     "site_name",
@@ -633,7 +712,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             },
         ),
         (
-            "Colour and preloader",
+            _("Colours and preloader"),
             {
                 "classes": ("collapse",),
                 "fields": (
@@ -644,7 +723,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             },
         ),
         (
-            "Font Awesome",
+            _("Font Awesome"),
             {
                 "classes": (
                     "collapse",
@@ -656,7 +735,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             },
         ),
         (
-            "Home banner",
+            _("Home banner"),
             {
                 "classes": ("collapse",),
                 "fields": (
@@ -670,7 +749,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             },
         ),
         (
-            "Home subtitle",
+            _("Home subtitle"),
             {
                 "classes": ("collapse",),
                 "fields": (
@@ -685,7 +764,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             },
         ),
         (
-            "Navigation and sidebar",
+            _("Navigation and sidebar"),
             {
                 "classes": ("collapse",),
                 "fields": (
@@ -698,10 +777,10 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             },
         ),
         (
-            "Comments",
+            _("Comments"),
             {
                 "classes": ("collapse",),
-                "description": "Select a provider and complete its settings when comments are enabled.",
+                "description": _("Choose a provider and complete its settings when comments are enabled."),
                 "fields": (
                     ("comment_enabled", "comment_system"),
                     ("comment_require_login", "comment_allow_guest"),
@@ -727,7 +806,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             },
         ),
         (
-            "Article display",
+            _("Article display"),
             {
                 "classes": ("collapse",),
                 "fields": (
@@ -745,7 +824,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             },
         ),
         (
-            "Code blocks and table of contents",
+            _("Code blocks and table of contents"),
             {
                 "classes": ("collapse",),
                 "fields": (
@@ -757,7 +836,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             },
         ),
         (
-            "Extensions",
+            _("Extensions"),
             {
                 "classes": ("collapse",),
                 "fields": (
@@ -772,12 +851,12 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             },
         ),
         (
-            "APlayer",
+            _("APlayer"),
             {
                 "classes": ("collapse",),
                 "description": (
-                    "Enable the player here and manage songs on the Audio tracks page. "
-                    "Choose the player style directly; JSON is only for advanced APlayer options."
+                    _("Enable the player here and manage songs on the Audio tracks page. "
+                      "Use the JSON field only for advanced APlayer options.")
                 ),
                 "fields": (
                     ("aplayer_enabled", "aplayer_type"),
@@ -786,7 +865,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             },
         ),
         (
-            "SEO and footer",
+            _("SEO, analytics, and footer"),
             {
                 "classes": ("collapse",),
                 "fields": (
@@ -807,7 +886,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
                 ),
             },
         ),
-        ('Standalone pages', {
+        (_("Standalone pages"), {
             'classes': ('collapse',),
                 'fields': (
                 ('bookmarks_enabled', 'essays_enabled', 'masonry_enabled'),
@@ -816,7 +895,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             )
         }),
         (
-            "Advanced settings",
+            _("Advanced settings"),
             {
                 "classes": ("collapse",),
                 "fields": (
@@ -828,21 +907,21 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
         ),
     )
 
-    @admin.display(description="状态", ordering="is_active")
+    @admin.display(description=_("Status"), ordering="is_active")
     def active_state(self, obj):
-        label = "正在使用" if obj.is_active else "备用方案"
+        label = _("Active") if obj.is_active else _("Inactive")
         css_class = "admin-status admin-status-active" if obj.is_active else "admin-status"
         return format_html('<span class="{}">{}</span>', css_class, label)
 
-    @admin.action(description="将所选方案设为当前配置")
+    @admin.action(description=_("Use selected configuration"))
     def activate_configuration(self, request, queryset):
         if queryset.count() != 1:
-            self.message_user(request, "每次只能激活一个配置方案。", level=messages.ERROR)
+            self.message_user(request, _("Select exactly one configuration."), level=messages.ERROR)
             return
         selected = queryset.first()
         selected.is_active = True
         selected.save(update_fields=("is_active",))
-        self.message_user(request, f"已启用配置方案：{selected.config_name}", level=messages.SUCCESS)
+        self.message_user(request, _("The selected configuration is now active."), level=messages.SUCCESS)
 
 
     def has_delete_permission(self, request, obj=None):
@@ -861,7 +940,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
         ):
             self.message_user(
                 request,
-                "错误：不能删除正在使用的配置，或尝试清空所有配置！",
+                _("The active configuration cannot be deleted, and at least one configuration must remain."),
                 level=messages.ERROR,
             )
             return
@@ -872,24 +951,27 @@ class ArticleAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.ManyToManyField: {'widget': forms.CheckboxSelectMultiple},
     }
-    list_display = ("title", "publication_state", "writer", "created_at", "updated_at", "sticky", "word_counter", "reading_time", "show_comment")
+    list_display = (
+        "title", "publication_state", "writer", "created_at", "updated_at",
+        "sticky", "word_counter", "reading_time", "view_count", "show_comment",
+    )
     list_filter = ("is_published", "created_at", "category", "tags")
     search_fields = ("title", "slug", "writer", "excerpt", "content")
     filter_horizontal = ("category", "tags")
-    readonly_fields = ("slug", "word_counter", "reading_time", "updated_at")
+    readonly_fields = ("slug", "word_counter", "reading_time", "view_count", "updated_at")
     date_hierarchy = "created_at"
     ordering = ("-sticky", "-created_at")
     list_per_page = 40
     save_on_top = True
     actions = ("publish_articles", "unpublish_articles", "enable_comments", "disable_comments")
 
-    @admin.display(description="发布状态", ordering="is_published")
+    @admin.display(description=_("Publication status"), ordering="is_published")
     def publication_state(self, obj):
-        label = "已发布" if obj.is_published else "草稿"
+        label = _("Published") if obj.is_published else _("Draft")
         css_class = "admin-status admin-status-active" if obj.is_published else "admin-status"
         return format_html('<span class="{}">{}</span>', css_class, label)
 
-    @admin.action(description="发布所选文章")
+    @admin.action(description=_("Publish selected articles"))
     def publish_articles(self, request, queryset):
         updated = queryset.update(is_published=True)
         from .cache_utils import invalidate_content_caches
@@ -898,9 +980,16 @@ class ArticleAdmin(admin.ModelAdmin):
         for article in queryset.iterator():
             index_article(article)
         invalidate_content_caches()
-        self.message_user(request, f"已发布 {updated} 篇文章。")
+        self.message_user(
+            request,
+            ngettext(
+                "Published %(count)d article.",
+                "Published %(count)d articles.",
+                updated,
+            ) % {"count": updated},
+        )
 
-    @admin.action(description="撤回所选文章")
+    @admin.action(description=_("Move selected articles to drafts"))
     def unpublish_articles(self, request, queryset):
         updated = queryset.update(is_published=False)
         from .cache_utils import invalidate_content_caches
@@ -909,15 +998,38 @@ class ArticleAdmin(admin.ModelAdmin):
         for article in queryset.iterator():
             index_article(article)
         invalidate_content_caches()
-        self.message_user(request, f"已撤回 {updated} 篇文章。")
+        self.message_user(
+            request,
+            ngettext(
+                "Moved %(count)d article to drafts.",
+                "Moved %(count)d articles to drafts.",
+                updated,
+            ) % {"count": updated},
+        )
 
-    @admin.action(description="为所选文章开启评论")
+    @admin.action(description=_("Enable comments on selected articles"))
     def enable_comments(self, request, queryset):
-        self.message_user(request, f"已为 {queryset.update(show_comment=True)} 篇文章开启评论。")
+        updated = queryset.update(show_comment=True)
+        self.message_user(
+            request,
+            ngettext(
+                "Enabled comments on %(count)d article.",
+                "Enabled comments on %(count)d articles.",
+                updated,
+            ) % {"count": updated},
+        )
 
-    @admin.action(description="为所选文章关闭评论")
+    @admin.action(description=_("Disable comments on selected articles"))
     def disable_comments(self, request, queryset):
-        self.message_user(request, f"已为 {queryset.update(show_comment=False)} 篇文章关闭评论。")
+        updated = queryset.update(show_comment=False)
+        self.message_user(
+            request,
+            ngettext(
+                "Disabled comments on %(count)d article.",
+                "Disabled comments on %(count)d articles.",
+                updated,
+            ) % {"count": updated},
+        )
 
 
 @admin.register(AudioTrack)
@@ -1040,3 +1152,5 @@ class TrafficAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
+
+

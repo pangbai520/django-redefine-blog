@@ -1,8 +1,7 @@
 (function () {
   "use strict";
 
-  document.addEventListener("submit", function (event) {
-    var form = event.target;
+  function ensureEditorCsrf(form) {
     if (!(form instanceof HTMLFormElement) || !form.classList.contains("editormd-form")) return;
     if (form.querySelector('input[name="csrfmiddlewaretoken"]')) return;
     var token = document.querySelector('input[name="csrfmiddlewaretoken"]');
@@ -12,10 +11,31 @@
     hidden.name = "csrfmiddlewaretoken";
     hidden.value = token.value;
     form.appendChild(hidden);
+  }
+
+  document.addEventListener("submit", function (event) {
+    ensureEditorCsrf(event.target);
   }, true);
+
+  // Editor.md builds the upload form only after the image dialog opens and
+  // immediately submits it when a file is chosen. Inject CSRF at creation time
+  // as well, so the iframe upload does not depend on a cancellable submit event.
+  new MutationObserver(function (records) {
+    records.forEach(function (record) {
+      record.addedNodes.forEach(function (node) {
+        if (!(node instanceof Element)) return;
+        if (node.matches("form.editormd-form")) ensureEditorCsrf(node);
+        node.querySelectorAll("form.editormd-form").forEach(ensureEditorCsrf);
+      });
+    });
+  }).observe(document.documentElement, { childList: true, subtree: true });
 
   function normalize(value) {
     return (value || "").toLocaleLowerCase().replace(/\s+/g, " ").trim();
+  }
+
+  function translate(message) {
+    return typeof window.gettext === "function" ? window.gettext(message) : message;
   }
 
   function installConfigurationSearch() {
@@ -27,13 +47,17 @@
 
     var toolbar = document.createElement("div");
     toolbar.className = "redefine-config-search";
-    toolbar.innerHTML = '<input type="search" autocomplete="off" placeholder="Search settings, fields, or help text…" aria-label="Search configuration"><button type="button">Clear</button>';
+    var searchLabel = translate("Search settings, fields, or help text…");
+    toolbar.innerHTML = '<input type="search" autocomplete="off"><button type="button"></button>';
+    toolbar.querySelector("input").placeholder = searchLabel;
+    toolbar.querySelector("input").setAttribute("aria-label", translate("Search configuration"));
+    toolbar.querySelector("button").textContent = translate("Clear");
     firstFieldset.before(toolbar);
 
     var empty = document.createElement("p");
     empty.className = "redefine-search-empty";
     empty.hidden = true;
-    empty.textContent = "No matching settings.";
+    empty.textContent = translate("No matching settings.");
     toolbar.after(empty);
 
     var input = toolbar.querySelector("input");

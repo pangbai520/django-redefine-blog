@@ -946,3 +946,1132 @@ msgstr "更新履歴"
 
 msgid "Status"
 msgstr "状態"
+
+msgid "2 columns"
+msgstr "2 columns"
+
+msgid "3 columns"
+msgstr "3 columns"
+
+msgid ""
+"A new verification email was sent. Please check your inbox before signing "
+"in."
+msgstr ""
+"A new verification email was sent. Please check your inbox before signing "
+"in."
+
+msgid "APlayer"
+msgstr "APlayer"
+
+msgid "APlayer layout"
+msgstr "APlayer layout"
+
+msgid "Active"
+msgstr "Active"
+
+msgid "Active configuration"
+msgstr "Active configuration"
+
+msgid "Add article"
+msgstr "Add article"
+
+msgid "Add site configuration"
+msgstr "Add site configuration"
+
+msgid "Additional footer text"
+msgstr "Additional footer text"
+
+msgid "Administration"
+msgstr "Administration"
+
+msgid "Advanced APlayer options"
+msgstr "Advanced APlayer options"
+
+msgid "Advanced settings"
+msgstr "Advanced settings"
+
+msgid "All rights reserved"
+msgstr "All rights reserved"
+
+msgid "Allow comment likes"
+msgstr "Allow comment likes"
+
+msgid "Allow comment-account registration"
+msgstr "Allow comment-account registration"
+
+msgid "Allow guest comments"
+msgstr "Allow guest comments"
+
+msgid "Apply Pangu spacing"
+msgstr "Apply Pangu spacing"
+
+msgid "Approve new comments automatically"
+msgstr "Approve new comments automatically"
+
+msgid "Approve selected comments"
+msgstr "Approve selected comments"
+
+msgid "Approve selected profile changes"
+msgstr "Approve selected profile changes"
+
+msgid "Approved %(count)d profile change."
+msgstr "Approved %(count)d profile change."
+
+msgid "Approved %(count)d profile changes."
+msgstr "Approved %(count)d profile changes."
+
+msgid "Article"
+msgstr "Article"
+
+msgid "Article date format"
+msgstr "Article date format"
+
+msgid "Article display"
+msgstr "Article display"
+
+msgid "Article image alignment"
+msgstr "Article image alignment"
+
+msgid "Article title alignment"
+msgstr "Article title alignment"
+
+msgid "Articles"
+msgstr "Articles"
+
+msgid "Audio track"
+msgstr "Audio track"
+
+msgid "Audio tracks"
+msgstr "Audio tracks"
+
+msgid "Author level thresholds"
+msgstr "Author level thresholds"
+
+msgid "Automatic excerpt length"
+msgstr "Automatic excerpt length"
+
+msgid "Banner subtitle size"
+msgstr "Banner subtitle size"
+
+msgid "Banner text line height"
+msgstr "Banner text line height"
+
+msgid "Banner title size"
+msgstr "Banner title size"
+
+msgid "Blocked"
+msgstr "Blocked"
+
+msgid "Blocked IP address"
+msgstr "Blocked IP address"
+
+msgid "Blocked IP addresses"
+msgstr "Blocked IP addresses"
+
+msgid "Blog content"
+msgstr "Blog content"
+
+msgid "Blur"
+msgstr "Blur"
+
+msgid "Bookmark"
+msgstr "Bookmark"
+
+msgid "Bookmark categories"
+msgstr "Bookmark categories"
+
+msgid "Bookmark category"
+msgstr "Bookmark category"
+
+msgid "Bottom"
+msgstr "Bottom"
+
+msgid "Built-in comments"
+msgstr "Built-in comments"
+
+msgid "Calculate author level automatically"
+msgstr "Calculate author level automatically"
+
+msgid "Category limit on article cards"
+msgstr "Category limit on article cards"
+
+msgid "Center"
+msgstr "Center"
+
+msgid "Centered"
+msgstr "Centered"
+
+msgid "Choose a comment provider when comments are enabled."
+msgstr "Choose a comment provider when comments are enabled."
+
+msgid "Choose a provider and complete its settings when comments are enabled."
+msgstr ""
+"Choose a provider and complete its settings when comments are enabled."
+
+msgid "Client ID"
+msgstr "Client ID"
+
+msgid "Client secret"
+msgstr "Client secret"
+
+msgid "Client version"
+msgstr "Client version"
+
+msgid "Code block frame style"
+msgstr "Code block frame style"
+
+msgid "Code blocks and table of contents"
+msgstr "Code blocks and table of contents"
+
+msgid "Code injected before the closing body tag"
+msgstr "Code injected before the closing body tag"
+
+msgid "Code injected into the page head"
+msgstr "Code injected into the page head"
+
+msgid "Colour"
+msgstr "Colour"
+
+msgid "Colour override"
+msgstr "Colour override"
+
+msgid "Colours and preloader"
+msgstr "Colours and preloader"
+
+msgid "Comment GIF provider"
+msgstr "Comment GIF provider"
+
+msgid "Comment GIF providers"
+msgstr "Comment GIF providers"
+
+msgid "Comment badge"
+msgstr "Comment badge"
+
+msgid "Comment badge assignment"
+msgstr "Comment badge assignment"
+
+msgid "Comment badge assignments"
+msgstr "Comment badge assignments"
+
+msgid "Comment badges"
+msgstr "Comment badges"
+
+msgid "Comment box position"
+msgstr "Comment box position"
+
+msgid "Comment emoji"
+msgstr "Comment emoji"
+
+msgid "Comment emoji pack"
+msgstr "Comment emoji pack"
+
+msgid "Comment emoji packs"
+msgstr "Comment emoji packs"
+
+msgid "Comment emojis"
+msgstr "Comment emojis"
+
+msgid "Comment like"
+msgstr "Comment like"
+
+msgid "Comment likes"
+msgstr "Comment likes"
+
+msgid "Comment notification"
+msgstr "Comment notification"
+
+msgid "Comment notifications"
+msgstr "Comment notifications"
+
+msgid "Comment provider"
+msgstr "Comment provider"
+
+msgid "Configuration"
+msgstr "Configuration"
+
+msgid "Configuration name"
+msgstr "Configuration name"
+
+msgid "Confirm that you want to activate this account: %(email)s"
+msgstr "Confirm that you want to activate this account: %(email)s"
+
+msgid "Current avatar"
+msgstr "Current avatar"
+
+msgid "Custom navigation labels"
+msgstr "Custom navigation labels"
+
+msgid "Dark"
+msgstr "Dark"
+
+msgid "Dark-mode banner image"
+msgstr "Dark-mode banner image"
+
+msgid "Dark-mode banner text colour"
+msgstr "Dark-mode banner text colour"
+
+msgid "Dark-mode syntax theme"
+msgstr "Dark-mode syntax theme"
+
+msgid "Default"
+msgstr "Default"
+
+msgid "Default article licence"
+msgstr "Default article licence"
+
+msgid "Default colour mode"
+msgstr "Default colour mode"
+
+msgid "Default social preview description"
+msgstr "Default social preview description"
+
+msgid "Default social preview image"
+msgstr "Default social preview image"
+
+msgid "Delay before deleting"
+msgstr "Delay before deleting"
+
+msgid "Deleting speed"
+msgstr "Deleting speed"
+
+msgid "Deployment region"
+msgstr "Deployment region"
+
+msgid "Disable comments on selected articles"
+msgstr "Disable comments on selected articles"
+
+msgid "Disable this to choose a colour for this assignment only."
+msgstr "Disable this to choose a colour for this assignment only."
+
+msgid "Disable this to choose a custom badge colour."
+msgstr "Disable this to choose a custom badge colour."
+
+msgid "Disabled"
+msgstr "Disabled"
+
+msgid "Disabled comments on %(count)d article."
+msgstr "Disabled comments on %(count)d article."
+
+msgid "Disabled comments on %(count)d articles."
+msgstr "Disabled comments on %(count)d articles."
+
+msgid "Discussion category"
+msgstr "Discussion category"
+
+msgid "Discussion category ID"
+msgstr "Discussion category ID"
+
+msgid "Draft"
+msgstr "Draft"
+
+msgid "Drafts"
+msgstr "Drafts"
+
+msgid "Edit site configuration"
+msgstr "Edit site configuration"
+
+msgid "Emoji URLs (JSON array)"
+msgstr "Emoji URLs (JSON array)"
+
+msgid "Enable APlayer"
+msgstr "Enable APlayer"
+
+msgid "Enable GIF picker"
+msgstr "Enable GIF picker"
+
+msgid "Enable Google Analytics"
+msgstr "Enable Google Analytics"
+
+msgid "Enable Mermaid diagrams"
+msgstr "Enable Mermaid diagrams"
+
+msgid "Enable Open Graph metadata"
+msgstr "Enable Open Graph metadata"
+
+msgid "Enable RSS feed"
+msgstr "Enable RSS feed"
+
+msgid "Enable bookmarks page"
+msgstr "Enable bookmarks page"
+
+msgid "Enable comments"
+msgstr "Enable comments"
+
+msgid "Enable comments on selected articles"
+msgstr "Enable comments on selected articles"
+
+msgid "Enable custom code injection"
+msgstr "Enable custom code injection"
+
+msgid "Enable emoji picker"
+msgstr "Enable emoji picker"
+
+msgid "Enable essays page"
+msgstr "Enable essays page"
+
+msgid "Enable friend-links page"
+msgstr "Enable friend-links page"
+
+msgid "Enable home banner"
+msgstr "Enable home banner"
+
+msgid "Enable home subtitle"
+msgstr "Enable home subtitle"
+
+msgid "Enable masonry gallery"
+msgstr "Enable masonry gallery"
+
+msgid "Enable page preloader"
+msgstr "Enable page preloader"
+
+msgid "Enable page transitions"
+msgstr "Enable page transitions"
+
+msgid "Enable reactions"
+msgstr "Enable reactions"
+
+msgid "Enable related articles"
+msgstr "Enable related articles"
+
+msgid "Enable sidebar"
+msgstr "Enable sidebar"
+
+msgid "Enable spoiler masking"
+msgstr "Enable spoiler masking"
+
+msgid "Enable table of contents"
+msgstr "Enable table of contents"
+
+msgid ""
+"Enable the player here and manage songs on the Audio tracks page. Use the "
+"JSON field only for advanced APlayer options."
+msgstr ""
+"Enable the player here and manage songs on the Audio tracks page. Use the "
+"JSON field only for advanced APlayer options."
+
+msgid "Enable visitor counters"
+msgstr "Enable visitor counters"
+
+msgid "Enabled"
+msgstr "Enabled"
+
+msgid "Enabled comments on %(count)d article."
+msgstr "Enabled comments on %(count)d article."
+
+msgid "Enabled comments on %(count)d articles."
+msgstr "Enabled comments on %(count)d articles."
+
+msgid "Enter a JSON list of paths that should not show recommendations."
+msgstr "Enter a JSON list of paths that should not show recommendations."
+
+msgid "Enter a colour in #RGB or #RRGGBB format."
+msgstr "Enter a colour in #RGB or #RRGGBB format."
+
+msgid "Enter a valid JSON array."
+msgstr "Enter a valid JSON array."
+
+msgid "Enter a value between %(minimum)s and %(maximum)s."
+msgstr "Enter a value between %(minimum)s and %(maximum)s."
+
+msgid "Enter a value from 0 to 100."
+msgstr "Enter a value from 0 to 100."
+
+msgid "Essay"
+msgstr "Essay"
+
+msgid "Expand side tools automatically"
+msgstr "Expand side tools automatically"
+
+msgid "Expand table of contents"
+msgstr "Expand table of contents"
+
+msgid "Extensions"
+msgstr "Extensions"
+
+msgid "External RSS feed URL"
+msgstr "External RSS feed URL"
+
+msgid "First sidebar panel"
+msgstr "First sidebar panel"
+
+msgid "Fixed"
+msgstr "Fixed"
+
+msgid "Fixed bottom player"
+msgstr "Fixed bottom player"
+
+msgid "Follow primary colour"
+msgstr "Follow primary colour"
+
+msgid "Font"
+msgstr "Font"
+
+msgid "Font Awesome"
+msgstr "Font Awesome"
+
+msgid "Fonts"
+msgstr "Fonts"
+
+msgid "Footer icon HTML"
+msgstr "Footer icon HTML"
+
+msgid "Friend link"
+msgstr "Friend link"
+
+msgid "Friend links"
+msgstr "Friend links"
+
+msgid "Friend-link categories"
+msgstr "Friend-link categories"
+
+msgid "Friend-link category"
+msgstr "Friend-link category"
+
+msgid "Friend-link columns"
+msgstr "Friend-link columns"
+
+msgid "Google Analytics measurement ID"
+msgstr "Google Analytics measurement ID"
+
+msgid "Hide navigation bar while scrolling"
+msgstr "Hide navigation bar while scrolling"
+
+msgid "Hitokoto API URL"
+msgstr "Hitokoto API URL"
+
+msgid "Home banner"
+msgstr "Home banner"
+
+msgid "Home banner style"
+msgstr "Home banner style"
+
+msgid "Home banner title"
+msgstr "Home banner title"
+
+msgid "Home subtitle"
+msgstr "Home subtitle"
+
+msgid "Hover scale effect"
+msgstr "Hover scale effect"
+
+msgid "Hover shadow"
+msgstr "Hover shadow"
+
+msgid "ICP registration URL"
+msgstr "ICP registration URL"
+
+msgid "ICP registration number"
+msgstr "ICP registration number"
+
+msgid "Immediate"
+msgstr "Immediate"
+
+msgid "Inactive"
+msgstr "Inactive"
+
+msgid "Initial typing delay"
+msgstr "Initial typing delay"
+
+msgid "Invalid username or password."
+msgstr "Invalid username or password."
+
+msgid "Language-specific label"
+msgstr "Language-specific label"
+
+msgid "Lazy"
+msgstr "Lazy"
+
+msgid "Lazy-load article images"
+msgstr "Lazy-load article images"
+
+msgid "Left"
+msgstr "Left"
+
+msgid "Light"
+msgstr "Light"
+
+msgid "Light-mode banner image"
+msgstr "Light-mode banner image"
+
+msgid "Light-mode banner text colour"
+msgstr "Light-mode banner text colour"
+
+msgid "Light-mode syntax theme"
+msgstr "Light-mode syntax theme"
+
+msgid "Likes"
+msgstr "Likes"
+
+msgid "Load Font Awesome Duotone"
+msgstr "Load Font Awesome Duotone"
+
+msgid "Load Font Awesome Light"
+msgstr "Load Font Awesome Light"
+
+msgid "Load Font Awesome Sharp Solid"
+msgstr "Load Font Awesome Sharp Solid"
+
+msgid "Load Font Awesome Thin"
+msgstr "Load Font Awesome Thin"
+
+msgid "Loading strategy"
+msgstr "Loading strategy"
+
+msgid "Login security event"
+msgstr "Login security event"
+
+msgid "Login security events"
+msgstr "Login security events"
+
+msgid "Loop subtitle text"
+msgstr "Loop subtitle text"
+
+msgid "Made %(count)d IP block permanent."
+msgstr "Made %(count)d IP block permanent."
+
+msgid "Made %(count)d IP blocks permanent."
+msgstr "Made %(count)d IP blocks permanent."
+
+msgid "Make selected blocks permanent"
+msgstr "Make selected blocks permanent"
+
+msgid "Mark selected notifications as read"
+msgstr "Mark selected notifications as read"
+
+msgid "Mark selected notifications as unread"
+msgstr "Mark selected notifications as unread"
+
+msgid "Masonry image"
+msgstr "Masonry image"
+
+msgid "Masonry images"
+msgstr "Masonry images"
+
+msgid "Maximum heading depth"
+msgstr "Maximum heading depth"
+
+msgid "Menu"
+msgstr "Menu"
+
+msgid "Mini player"
+msgstr "Mini player"
+
+msgid "Mobile related-article limit"
+msgstr "Mobile related-article limit"
+
+msgid "Move selected articles to drafts"
+msgstr "Move selected articles to drafts"
+
+msgid "Moved %(count)d article to drafts."
+msgstr "Moved %(count)d article to drafts."
+
+msgid "Moved %(count)d articles to drafts."
+msgstr "Moved %(count)d articles to drafts."
+
+msgid "Navigation and sidebar"
+msgstr "Navigation and sidebar"
+
+msgid "Navigation gradient end colour"
+msgstr "Navigation gradient end colour"
+
+msgid "Navigation gradient start colour"
+msgstr "Navigation gradient start colour"
+
+msgid "Navigation label translation"
+msgstr "Navigation label translation"
+
+msgid "Navigation label translations"
+msgstr "Navigation label translations"
+
+msgid "Navigation link"
+msgstr "Navigation link"
+
+msgid "Navigation links"
+msgstr "Navigation links"
+
+msgid "Navigation transparency"
+msgstr "Navigation transparency"
+
+msgid "No avatar change"
+msgstr "No avatar change"
+
+msgid "Number table-of-contents entries"
+msgstr "Number table-of-contents entries"
+
+msgid "OAuth proxy URL"
+msgstr "OAuth proxy URL"
+
+msgid "Only trusted administrators should add HTML or scripts here."
+msgstr "Only trusted administrators should add HTML or scripts here."
+
+msgid "Open table of contents by default"
+msgstr "Open table of contents by default"
+
+msgid "Optional JSON object for advanced APlayer settings."
+msgstr "Optional JSON object for advanced APlayer settings."
+
+msgid "Page mapping"
+msgstr "Page mapping"
+
+msgid "Page title"
+msgstr "Page title"
+
+msgid "PangBai Blog admin"
+msgstr "PangBai Blog admin"
+
+msgid "PangBai Blog administration"
+msgstr "PangBai Blog administration"
+
+msgid "Passwords do not match."
+msgstr "Passwords do not match."
+
+msgid "Pathname"
+msgstr "Pathname"
+
+msgid "Paths excluded from recommendations"
+msgstr "Paths excluded from recommendations"
+
+msgid "Pending avatar"
+msgstr "Pending avatar"
+
+msgid "Pending email change"
+msgstr "Pending email change"
+
+msgid "Pending profile review"
+msgstr "Pending profile review"
+
+msgid "Pending review"
+msgstr "Pending review"
+
+msgid "Personal website"
+msgstr "Personal website"
+
+msgid "Pin selected comment"
+msgstr "Pin selected comment"
+
+msgid "Pinned %(count)d comment."
+msgstr "Pinned %(count)d comment."
+
+msgid "Pinned %(count)d comments."
+msgstr "Pinned %(count)d comments."
+
+msgid "Preload search data"
+msgstr "Preload search data"
+
+msgid "Preloader message"
+msgstr "Preloader message"
+
+msgid "Primary colour"
+msgstr "Primary colour"
+
+msgid "Public domain"
+msgstr "Public domain"
+
+msgid "Public profile"
+msgstr "Public profile"
+
+msgid "Publication status"
+msgstr "Publication status"
+
+msgid "Publish selected articles"
+msgstr "Publish selected articles"
+
+msgid "Published"
+msgstr "Published"
+
+msgid "Published %(count)d article."
+msgstr "Published %(count)d article."
+
+msgid "Published %(count)d articles."
+msgstr "Published %(count)d articles."
+
+msgid "Quick actions"
+msgstr "Quick actions"
+
+msgid "Reactions (JSON array)"
+msgstr "Reactions (JSON array)"
+
+msgid "Reject selected profile changes"
+msgstr "Reject selected profile changes"
+
+msgid "Rejected %(count)d profile change."
+msgstr "Rejected %(count)d profile change."
+
+msgid "Rejected %(count)d profile changes."
+msgstr "Rejected %(count)d profile changes."
+
+msgid "Related-article limit"
+msgstr "Related-article limit"
+
+msgid "Related-article placeholder image"
+msgstr "Related-article placeholder image"
+
+msgid "Related-articles title"
+msgstr "Related-articles title"
+
+msgid "Removed %(count)d IP block."
+msgstr "Removed %(count)d IP block."
+
+msgid "Removed %(count)d IP blocks."
+msgstr "Removed %(count)d IP blocks."
+
+msgid "Repository"
+msgstr "Repository"
+
+msgid "Repository ID"
+msgstr "Repository ID"
+
+msgid "Repository name"
+msgstr "Repository name"
+
+msgid "Repository owner"
+msgstr "Repository owner"
+
+msgid "Require email verification"
+msgstr "Require email verification"
+
+msgid "Require sign-in to comment"
+msgstr "Require sign-in to comment"
+
+msgid "Return selected comments to review"
+msgstr "Return selected comments to review"
+
+msgid "Reverse"
+msgstr "Reverse"
+
+msgid "Review comments"
+msgstr "Review comments"
+
+msgid "Review pending"
+msgstr "Review pending"
+
+msgid "Right"
+msgstr "Right"
+
+msgid "Rotate the settings icon"
+msgstr "Rotate the settings icon"
+
+msgid "SEO, analytics, and footer"
+msgstr "SEO, analytics, and footer"
+
+msgid "Saving…"
+msgstr "Saving…"
+
+msgid "Search keywords"
+msgstr "Search keywords"
+
+msgid "Select exactly one configuration."
+msgstr "Select exactly one configuration."
+
+msgid "Selected comments were approved."
+msgstr "Selected comments were approved."
+
+msgid "Selected comments were returned to review."
+msgstr "Selected comments were returned to review."
+
+msgid "Selected comments were unpinned."
+msgstr "Selected comments were unpinned."
+
+msgid "Selected notifications were marked as read."
+msgstr "Selected notifications were marked as read."
+
+msgid "Selected notifications were marked as unread."
+msgstr "Selected notifications were marked as unread."
+
+msgid "Send comment email notifications"
+msgstr "Send comment email notifications"
+
+msgid "Send discussion metadata"
+msgstr "Send discussion metadata"
+
+msgid "Sending reset email…"
+msgstr "Sending reset email…"
+
+msgid "Sending verification email…"
+msgstr "Sending verification email…"
+
+msgid "Separate keywords with commas."
+msgstr "Separate keywords with commas."
+
+msgid "Server URL"
+msgstr "Server URL"
+
+msgid "Show Hitokoto author"
+msgstr "Show Hitokoto author"
+
+msgid "Show ICP registration"
+msgstr "Show ICP registration"
+
+msgid "Show article copyright notice"
+msgstr "Show article copyright notice"
+
+msgid "Show article image captions"
+msgstr "Show article image captions"
+
+msgid "Show article statistics"
+msgstr "Show article statistics"
+
+msgid "Show article views"
+msgstr "Show article views"
+
+msgid "Show article word count"
+msgstr "Show article word count"
+
+msgid "Show author level"
+msgstr "Show author level"
+
+msgid "Show categories on article cards"
+msgstr "Show categories on article cards"
+
+msgid "Show code copy button"
+msgstr "Show code copy button"
+
+msgid "Show estimated reading time"
+msgstr "Show estimated reading time"
+
+msgid "Show external-link icons"
+msgstr "Show external-link icons"
+
+msgid "Show footer content statistics"
+msgstr "Show footer content statistics"
+
+msgid "Show navigation search"
+msgstr "Show navigation search"
+
+msgid "Show reading percentage"
+msgstr "Show reading percentage"
+
+msgid "Show reading progress bar"
+msgstr "Show reading progress bar"
+
+msgid "Show sidebar on mobile"
+msgstr "Show sidebar on mobile"
+
+msgid "Show site uptime"
+msgstr "Show site uptime"
+
+msgid "Show social links"
+msgstr "Show social links"
+
+msgid "Show tags on article cards"
+msgstr "Show tags on article cards"
+
+msgid "Show total page views"
+msgstr "Show total page views"
+
+msgid "Show unique visitors"
+msgstr "Show unique visitors"
+
+msgid "Sidebar announcement"
+msgstr "Sidebar announcement"
+
+msgid "Sidebar position"
+msgstr "Sidebar position"
+
+msgid "Simple"
+msgstr "Simple"
+
+msgid "Site author"
+msgstr "Site author"
+
+msgid "Site avatar"
+msgstr "Site avatar"
+
+msgid "Site configuration"
+msgstr "Site configuration"
+
+msgid "Site configurations"
+msgstr "Site configurations"
+
+msgid "Site description"
+msgstr "Site description"
+
+msgid "Site favicon"
+msgstr "Site favicon"
+
+msgid "Site identity"
+msgstr "Site identity"
+
+msgid "Site launch date"
+msgstr "Site launch date"
+
+msgid "Site logo"
+msgstr "Site logo"
+
+msgid "Site name"
+msgstr "Site name"
+
+msgid "Site overview"
+msgstr "Site overview"
+
+msgid "Site subtitle"
+msgstr "Site subtitle"
+
+msgid ""
+"Skipped %(count)d duplicate selection because only one comment can be pinned"
+" per article."
+msgstr ""
+"Skipped %(count)d duplicate selection because only one comment can be pinned"
+" per article."
+
+msgid ""
+"Skipped %(count)d duplicate selections because only one comment can be "
+"pinned per article."
+msgstr ""
+"Skipped %(count)d duplicate selections because only one comment can be "
+"pinned per article."
+
+msgid "Social link layout"
+msgstr "Social link layout"
+
+msgid "Standalone pages"
+msgstr "Standalone pages"
+
+msgid "Static"
+msgstr "Static"
+
+msgid "Subtitle text list"
+msgstr "Subtitle text list"
+
+msgid "Tag cloud"
+msgstr "Tag cloud"
+
+msgid "Tag limit on article cards"
+msgstr "Tag limit on article cards"
+
+msgid "Tag page style"
+msgstr "Tag page style"
+
+msgid ""
+"The active configuration cannot be deleted, and at least one configuration "
+"must remain."
+msgstr ""
+"The active configuration cannot be deleted, and at least one configuration "
+"must remain."
+
+msgid "The navigation gradient is independent of the primary colour."
+msgstr "The navigation gradient is independent of the primary colour."
+
+msgid "The selected configuration is now active."
+msgstr "The selected configuration is now active."
+
+msgid "This field is required for the selected comment provider."
+msgstr "This field is required for the selected comment provider."
+
+msgid "This username is already in use."
+msgstr "This username is already in use."
+
+msgid "This value must be a JSON %(type)s."
+msgstr "This value must be a JSON %(type)s."
+
+msgid "This value must be a JSON array."
+msgstr "This value must be a JSON array."
+
+msgid "Top"
+msgstr "Top"
+
+msgid "Turnstile site key"
+msgstr "Turnstile site key"
+
+msgid "Typing speed"
+msgstr "Typing speed"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "Unblock selected addresses"
+msgstr "Unblock selected addresses"
+
+msgid "Unpin selected comments"
+msgstr "Unpin selected comments"
+
+msgid "Use Hitokoto quotes"
+msgstr "Use Hitokoto quotes"
+
+msgid "Use as the active configuration"
+msgstr "Use as the active configuration"
+
+msgid "Use auto, relative, or a Moment.js-style date format."
+msgstr "Use auto, relative, or a Moment.js-style date format."
+
+msgid "Use badge or primary colour"
+msgstr "Use badge or primary colour"
+
+msgid "Use selected configuration"
+msgstr "Use selected configuration"
+
+msgid "Use smart backspace"
+msgstr "Use smart backspace"
+
+msgid "Use strict matching"
+msgstr "Use strict matching"
+
+msgid "Use the Waline service root, not its /ui administration path."
+msgstr "Use the Waline service root, not its /ui administration path."
+
+msgid "Used by links, buttons, pagination, and status indicators."
+msgstr "Used by links, buttons, pagination, and status indicators."
+
+msgid ""
+"Used by links, buttons, pagination, and status indicators. Configure the "
+"navigation gradient separately below."
+msgstr ""
+"Used by links, buttons, pagination, and status indicators. Configure the "
+"navigation gradient separately below."
+
+msgid "User profile"
+msgstr "User profile"
+
+msgid "User profiles"
+msgstr "User profiles"
+
+msgid "Verify your email"
+msgstr "Verify your email"
+
+msgid "Verifying…"
+msgstr "Verifying…"
+
+msgid "View site"
+msgstr "View site"
+
+msgid "Visit record"
+msgstr "Visit record"
+
+msgid "Visit records"
+msgstr "Visit records"
+
+msgid "Visit the site"
+msgstr "Visit the site"
+
+msgid "Visits today"
+msgstr "Visits today"
+
+msgid "We could not send a new verification email. Please try again later."
+msgstr "We could not send a new verification email. Please try again later."
+
+msgid "Welcome — your account is ready"
+msgstr "Welcome — your account is ready"
+
+msgid "Your display name links to this address when it is set."
+msgstr "Your display name links to this address when it is set."
+
+msgid "Your username cannot be changed after registration."
+msgstr "Your username cannot be changed after registration."
+
+msgid "array"
+msgstr "array"
+
+msgid "macOS window"
+msgstr "macOS window"
+
+msgid "object"
+msgstr "object"
+
+msgid "pending personal website"
+msgstr "pending personal website"
+
+msgid "personal website"
+msgstr "personal website"
+
+msgid "reCAPTCHA v3 site key"
+msgstr "reCAPTCHA v3 site key"

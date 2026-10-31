@@ -2135,6 +2135,21 @@ html.is-animating .transition-navbar {
   border-color: var(--second-background-color);
   transform: scale(1.02);
 }
+.bookmark-nav-item {
+  transition: none;
+}
+.bookmarks-page .bookmark-card {
+  transition: transform 300ms ease, box-shadow 300ms ease;
+}
+.bookmarks-page .bookmark-card-image {
+  transition: transform 300ms ease;
+}
+.bookmarks-page .bookmark-card-title {
+  transition: color 300ms ease;
+}
+.bookmarks-page .bookmark-card-arrow {
+  transition: opacity 300ms ease, transform 300ms ease;
+}
 @media (hover: hover) {
   .bookmarks-page .bookmark-card-link:hover .bookmark-card {
     transform: translateY(-0.25rem);

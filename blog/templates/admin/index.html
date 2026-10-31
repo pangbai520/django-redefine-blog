@@ -11,16 +11,16 @@
 {% block content %}
 {% admin_dashboard_stats as stats %}
 <div class="redefine-dashboard-heading">
-    <h1>Administration</h1>
-    <a href="{{ site_url|default:'/' }}" target="_blank" rel="noopener">View site</a>
+    <h1>{% translate "Administration" %}</h1>
+    <a href="{{ site_url|default:'/' }}" target="_blank" rel="noopener">{% translate "View site" %}</a>
 </div>
 
-<div class="redefine-dashboard-summary" aria-label="Site overview">
-    <a href="{% url 'admin:blog_articlemodel_changelist' %}?is_published__exact=1">Published <strong>{{ stats.published_articles }}</strong></a>
-    <a href="{% url 'admin:blog_articlemodel_changelist' %}?is_published__exact=0">Drafts <strong>{{ stats.draft_articles }}</strong></a>
-    <a href="{% url 'admin:blog_comment_changelist' %}?is_approved__exact=0">Pending <strong>{{ stats.pending_comments }}</strong></a>
-    <a href="{% url 'admin:blog_trafficmodel_changelist' %}">Visits today <strong>{{ stats.visits_today }}</strong></a>
-    <span class="redefine-dashboard-config">Active configuration: <a href="{% url 'admin:blog_siteconfiguration_changelist' %}">{{ stats.active_config }}</a></span>
+<div class="redefine-dashboard-summary" aria-label="{% translate 'Site overview' %}">
+    <a href="{% url 'admin:blog_articlemodel_changelist' %}?is_published__exact=1">{% translate "Published" %} <strong>{{ stats.published_articles }}</strong></a>
+    <a href="{% url 'admin:blog_articlemodel_changelist' %}?is_published__exact=0">{% translate "Drafts" %} <strong>{{ stats.draft_articles }}</strong></a>
+    <a href="{% url 'admin:blog_comment_changelist' %}?is_approved__exact=0">{% translate "Pending review" %} <strong>{{ stats.pending_comments }}</strong></a>
+    <a href="{% url 'admin:blog_trafficmodel_changelist' %}">{% translate "Visits today" %} <strong>{{ stats.visits_today }}</strong></a>
+    <span class="redefine-dashboard-config">{% translate "Active configuration" %}: <a href="{% url 'admin:blog_siteconfiguration_changelist' %}">{{ stats.active_config }}</a></span>
 </div>
 
 <div id="content-main" class="app-list redefine-app-list">
@@ -32,10 +32,10 @@
 <div id="content-related">
     {% if perms.blog.add_articlemodel or perms.blog.change_comment or perms.blog.change_siteconfiguration %}
     <div class="module redefine-quick-actions">
-        <h2>Quick actions</h2>
-        {% if perms.blog.add_articlemodel %}<a href="{% url 'admin:blog_articlemodel_add' %}">Add article</a>{% endif %}
-        {% if perms.blog.change_comment %}<a href="{% url 'admin:blog_comment_changelist' %}?is_approved__exact=0">Review comments</a>{% endif %}
-        {% if perms.blog.change_siteconfiguration %}<a href="{% url 'admin:blog_siteconfiguration_changelist' %}">Site configuration</a>{% endif %}
+        <h2>{% translate "Quick actions" %}</h2>
+        {% if perms.blog.add_articlemodel %}<a href="{% url 'admin:blog_articlemodel_add' %}">{% translate "Add article" %}</a>{% endif %}
+        {% if perms.blog.change_comment %}<a href="{% url 'admin:blog_comment_changelist' %}?is_approved__exact=0">{% translate "Review comments" %}</a>{% endif %}
+        {% if perms.blog.change_siteconfiguration %}<a href="{% url 'admin:blog_siteconfiguration_changelist' %}">{% translate "Site configuration" %}</a>{% endif %}
     </div>
     {% endif %}
     <div class="module" id="recent-actions-module">

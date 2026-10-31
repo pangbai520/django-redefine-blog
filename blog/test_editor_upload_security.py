@@ -1,5 +1,6 @@
 import tempfile
 from io import BytesIO
+from pathlib import Path
 
 from PIL import Image
 from django.conf import settings
@@ -73,6 +74,7 @@ class EditorUploadSecurityTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["success"], 1)
         self.assertTrue(response.json()["url"].endswith(".png"))
+        self.assertEqual(response.headers["X-Frame-Options"], "SAMEORIGIN")
 
     def test_fake_image_bytes_are_rejected(self):
         user = User.objects.create_superuser(
@@ -97,3 +99,27 @@ class EditorUploadSecurityTests(TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["success"], 0)
+
+    def test_identical_article_images_reuse_the_same_file(self):
+        user = User.objects.create_superuser(
+            "dedupe-editor",
+            email="editor@example.com",
+            password="A-strong-password-123",
+        )
+        self.client.force_login(user)
+        token = self._csrf_token()
+
+        with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as media_root, override_settings(MEDIA_ROOT=media_root):
+            first = self.client.post(
+                reverse("mdeditor_upload"),
+                {"editormd-image-file": valid_png()},
+                HTTP_X_CSRFTOKEN=token,
+            )
+            second = self.client.post(
+                reverse("mdeditor_upload"),
+                {"editormd-image-file": valid_png()},
+                HTTP_X_CSRFTOKEN=token,
+            )
+
+            self.assertEqual(first.json()["url"], second.json()["url"])
+            self.assertEqual(len(list(Path(media_root, "editor").glob("*.png"))), 1)
