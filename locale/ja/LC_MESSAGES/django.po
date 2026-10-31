@@ -847,3 +847,31 @@ msgstr "ズーム"
 
 msgid "Use this crop"
 msgstr "この切り抜きを使用"
+
+msgid "Verify your comment account"
+msgstr "コメントアカウントを確認"
+
+msgid "Confirm that you want to activate this account."
+msgstr "このアカウントを有効にすることを確認してください。"
+
+msgid "Verify email"
+msgstr "メールアドレスを確認"
+
+msgid "Email already verified"
+msgstr "メールアドレスは確認済みです"
+
+msgid "This account is already active. You can sign in and comment."
+msgstr "このアカウントはすでに有効です。ログインしてコメントできます。"
+
+msgid "Thanks for registering. Click the button below to activate your account."
+msgstr "ご登録ありがとうございます。下のボタンを押してアカウントを有効にしてください。"
+
+msgid "If you did not create this account, you can safely ignore this email."
+msgstr "このアカウントを作成していない場合は、このメールを無視してください。"
+
+#, python-format
+msgid "Verify your account on %(site_name)s"
+msgstr "%(site_name)s のアカウントを確認"
+
+msgid "Thanks for registering. Open the link below, then confirm activation on the website:"
+msgstr "ご登録ありがとうございます。以下のリンクを開き、サイト上で有効化を確認してください："

@@ -39,6 +39,7 @@ SITE_DEFAULTS = {
     "show_word_counter": False,
     "codeblock_dark": "github-dark",
     "footer_sitestart": datetime(2022, 8, 17, 3, 45, tzinfo=datetime_timezone.utc),
+    "friends_enabled": True,
     "friends_page_columns": 3,
 }
 

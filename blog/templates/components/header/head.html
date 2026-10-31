@@ -192,9 +192,14 @@
 
     <!-- emit one metadata set here, so page templates cannot create conflicting SEO tags -->
 
-    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    {% if request.path|slice:":10" != "/comments/" %}<link rel="canonical" href="{{ request.build_absolute_uri }}">{% endif %}
+    {% if request.path|slice:":10" == "/comments/" %}
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="googlebot" content="noindex,nofollow">
+    {% else %}
     <meta name="robots" content="index,follow">
     <meta name="googlebot" content="index,follow">
+    {% endif %}
     <meta name="revisit-after" content="1 days">
 
     {% with url_name=request.resolver_match.url_name %}

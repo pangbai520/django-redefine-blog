@@ -2135,6 +2135,22 @@ html.is-animating .transition-navbar {
   border-color: var(--second-background-color);
   transform: scale(1.02);
 }
+@media (hover: hover) {
+  .bookmarks-page .bookmark-card-link:hover .bookmark-card {
+    transform: translateY(-0.25rem);
+    box-shadow: var(--redefine-box-shadow);
+  }
+  .bookmarks-page .bookmark-card-link:hover .bookmark-card-image {
+    transform: scale(1.05);
+  }
+  .bookmarks-page .bookmark-card-link:hover .bookmark-card-title {
+    color: var(--primary-color);
+  }
+  .bookmarks-page .bookmark-card-link:hover .bookmark-card-arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 .page-template-container .page-template-content h1:first-child,
 .page-template-container .page-template-content h2:first-child,
 .page-template-container .page-template-content h3:first-child,

@@ -875,3 +875,31 @@ msgstr "Zoom"
 
 msgid "Use this crop"
 msgstr "Usar este recorte"
+
+msgid "Verify your comment account"
+msgstr "Verifica tu cuenta de comentarios"
+
+msgid "Confirm that you want to activate this account."
+msgstr "Confirma que quieres activar esta cuenta."
+
+msgid "Verify email"
+msgstr "Verificar correo"
+
+msgid "Email already verified"
+msgstr "Correo ya verificado"
+
+msgid "This account is already active. You can sign in and comment."
+msgstr "Esta cuenta ya está activa. Puedes iniciar sesión y comentar."
+
+msgid "Thanks for registering. Click the button below to activate your account."
+msgstr "Gracias por registrarte. Pulsa el botón para activar tu cuenta."
+
+msgid "If you did not create this account, you can safely ignore this email."
+msgstr "Si no creaste esta cuenta, puedes ignorar este correo."
+
+#, python-format
+msgid "Verify your account on %(site_name)s"
+msgstr "Verifica tu cuenta en %(site_name)s"
+
+msgid "Thanks for registering. Open the link below, then confirm activation on the website:"
+msgstr "Gracias por registrarte. Abre el enlace y confirma la activación en el sitio web:"

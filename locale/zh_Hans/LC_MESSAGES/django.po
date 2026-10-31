@@ -847,3 +847,31 @@ msgstr "缩放"
 
 msgid "Use this crop"
 msgstr "使用此裁剪"
+
+msgid "Verify your comment account"
+msgstr "验证您的评论账号"
+
+msgid "Confirm that you want to activate this account."
+msgstr "确认您要激活此账号。"
+
+msgid "Verify email"
+msgstr "验证邮箱"
+
+msgid "Email already verified"
+msgstr "邮箱已验证"
+
+msgid "This account is already active. You can sign in and comment."
+msgstr "此账号已激活。您现在可以登录并发表评论。"
+
+msgid "Thanks for registering. Click the button below to activate your account."
+msgstr "感谢注册。点击下方按钮激活您的账号。"
+
+msgid "If you did not create this account, you can safely ignore this email."
+msgstr "如果您未创建此账号，可以放心忽略此邮件。"
+
+#, python-format
+msgid "Verify your account on %(site_name)s"
+msgstr "在 %(site_name)s 验证您的账号"
+
+msgid "Thanks for registering. Open the link below, then confirm activation on the website:"
+msgstr "感谢注册。请打开下方链接，然后在网站上确认激活："

@@ -19,6 +19,7 @@ sitemaps = {
 
 urlpatterns = [
     path("health/", health, name="health"),
+    path("robots.txt", views.robots_txt, name="robots_txt"),
     path("", views.index, name="index"),
     path("search.json", views.search_data, name="search_data"),
     path(

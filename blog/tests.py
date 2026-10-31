@@ -929,6 +929,10 @@ class InternalCommentTests(TestCase):
         verify_response = self.client.get(reverse("comment_verify", args=[uid, token]))
         self.assertEqual(verify_response.status_code, 200)
         user.refresh_from_db()
+        self.assertFalse(user.is_active)
+        verify_response = self.client.post(reverse("comment_verify", args=[uid, token]))
+        self.assertEqual(verify_response.status_code, 200)
+        user.refresh_from_db()
         self.assertTrue(user.is_active)
 
 

@@ -13,6 +13,77 @@ from .models import TrafficModel
 
 logger = logging.getLogger(__name__)
 
+TRAFFIC_EXCLUDED_PREFIXES = (
+    "/static/",
+    "/resources/",
+    "/admin/",
+    "/api/",
+    "/comments/",
+    "/favicon.ico",
+)
+
+TRAFFIC_BOTS = (
+    "googlebot", "bingbot", "baiduspider", "yandexbot", "sosospider",
+    "sogou", "360spider", "duckduckgo", "ia_archiver", "slurp",
+    "facebookexternalhit", "twitterbot", "linkedinbot", "whatsapp",
+    "telegrambot", "slackbot", "discordbot", "redditbot",
+    "curl", "wget", "python", "httpclient", "urllib", "requests",
+    "aiohttp", "java", "go-http-client", "node-fetch", "axios", "php",
+    "lighthouse", "gtmetrix", "pingdom", "sentry", "updown",
+    "statuscake", "newrelic", "headless", "chrome-lighthouse",
+    "bot", "spider", "crawler", "scrap", "scan", "audit", "monitor",
+    "semrushbot", "ahrefsbot", "dotbot", "rogerbot", "exabot",
+)
+
+
+def _is_browser_navigation(request):
+    """Reject background probes in production without excluding old browsers in development."""
+    if not getattr(settings, "TRAFFIC_REQUIRE_BROWSER_NAVIGATION", False):
+        return True
+    return (
+        request.headers.get("Sec-Fetch-Dest", "").lower() == "document"
+        and request.headers.get("Sec-Fetch-Mode", "").lower() == "navigate"
+    )
+
+
+def record_request_traffic(request):
+    """Record a human-looking page navigation once per address and path each hour."""
+    path = request.path_info or request.path or "/"
+    if request.method != "GET" or path.startswith(TRAFFIC_EXCLUDED_PREFIXES):
+        return False
+    if not _is_browser_navigation(request):
+        return False
+
+    ua = request.META.get("HTTP_USER_AGENT", "").lower()
+    client_ip = get_client_ip(request)
+    if not client_ip or not ua or any(bot in ua for bot in TRAFFIC_BOTS):
+        return False
+
+    digest = hashlib.sha256(f"{client_ip}\0{path}".encode("utf-8")).hexdigest()
+    dedupe_key = f"blog:traffic:hour:{digest}"
+    try:
+        if not cache.add(dedupe_key, True, 60 * 60):
+            return False
+        TrafficModel.objects.create(path=path, ip=client_ip, user_agent=ua[:255])
+        cleanup_key = "blog:traffic:retention-cleanup"
+        if cache.add(cleanup_key, True, 60 * 60):
+            retention_days = max(int(settings.TRAFFIC_RETENTION_DAYS), 1)
+            cutoff = timezone.now() - timedelta(days=retention_days)
+            expired_ids = list(
+                TrafficModel.objects.filter(created_at__lt=cutoff)
+                .order_by("created_at")
+                .values_list("pk", flat=True)[:1000]
+            )
+            if expired_ids:
+                TrafficModel.objects.filter(pk__in=expired_ids).delete()
+            if len(expired_ids) < 1000:
+                cache.set(cleanup_key, True, 24 * 60 * 60)
+        return True
+    except Exception:
+        cache.delete(dedupe_key)
+        logger.exception("Failed to record traffic for %s", path)
+        return False
+
 
 class RegionLocaleMiddleware(LocaleMiddleware):
     """Choose a regional default while preserving the reader's own choice."""
@@ -69,29 +140,6 @@ def get_client_ip(request):
 
 
 class TrafficModelMiddleware:
-    EXCLUDED_PREFIXES = ("/static/", "/resources/", "/admin/", "/api/", "/favicon.ico")
-    BOTS = (
-        # exclude search crawlers, so indexing does not inflate reader traffic
-        'googlebot', 'bingbot', 'baiduspider', 'yandexbot', 'sosospider',
-        'sogou', '360spider', 'duckduckgo', 'ia_archiver', 'slurp',
-
-        # exclude social previews, because link unfurling is not a human visit
-        'facebookexternalhit', 'twitterbot', 'linkedinbot', 'whatsapp',
-        'telegrambot', 'slackbot', 'discordbot', 'redditbot',
-
-        # exclude scripted clients, so development and integration probes stay out of analytics
-        'curl', 'wget', 'python', 'httpclient', 'urllib', 'requests',
-        'aiohttp', 'java', 'go-http-client', 'node-fetch', 'axios', 'php',
-
-        # exclude monitoring tools, because health checks would distort page views
-        'lighthouse', 'gtmetrix', 'pingdom', 'sentry', 'updown',
-        'statuscake', 'newrelic', 'headless', 'chrome-lighthouse',
-
-        # keep generic markers last, so uncommon bots are still filtered conservatively
-        'bot', 'spider', 'crawler', 'scrap', 'scan', 'audit', 'monitor',
-        'semrushbot', 'ahrefsbot', 'dotbot', 'rogerbot', 'exabot'
-    )
-
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -99,36 +147,7 @@ class TrafficModelMiddleware:
         response = self.get_response(request)
         content_type = response.get("Content-Type", "").lower()
         if (request.method == "GET" and response.status_code == 200
-            and content_type.startswith("text/html")
-            and not request.path.startswith(self.EXCLUDED_PREFIXES)):
-            ua = request.META.get("HTTP_USER_AGENT", "").lower()
-            client_ip = get_client_ip(request)
-            if client_ip and ua and not any(bot in ua for bot in self.BOTS):
-                self._record_traffic(request.path, client_ip, ua[:255])
+            and content_type.startswith("text/html")):
+            record_request_traffic(request)
 
         return response
-
-    def _record_traffic(self, path, ip, ua):
-        """Record at most one visit per address and path each hour."""
-        digest = hashlib.sha256(f"{ip}\0{path}".encode("utf-8")).hexdigest()
-        dedupe_key = f"blog:traffic:hour:{digest}"
-        try:
-            if not cache.add(dedupe_key, True, 60 * 60):
-                return
-            TrafficModel.objects.create(path=path, ip=ip, user_agent=ua)
-            cleanup_key = "blog:traffic:retention-cleanup"
-            if cache.add(cleanup_key, True, 60 * 60):
-                retention_days = max(int(settings.TRAFFIC_RETENTION_DAYS), 1)
-                cutoff = timezone.now() - timedelta(days=retention_days)
-                expired_ids = list(
-                    TrafficModel.objects.filter(created_at__lt=cutoff)
-                    .order_by("created_at")
-                    .values_list("pk", flat=True)[:1000]
-                )
-                if expired_ids:
-                    TrafficModel.objects.filter(pk__in=expired_ids).delete()
-                if len(expired_ids) < 1000:
-                    cache.set(cleanup_key, True, 24 * 60 * 60)
-        except Exception:
-            # Analytics must never turn a successful page response into a 500.
-            logger.exception("Failed to record traffic for %s", path)

@@ -1,5 +1,13 @@
 <style id="site-theme-overrides">
     :root {
+        --primary-color: {{ site.colour_primary|default:'#A31F34' }};
+        /* Keep Tailwind's standard radius scale aligned with the bundled
+           Redefine build; named theme radii remain separate variables. */
+        --radius-xs: .125rem;
+        --radius-md: .375rem;
+        --radius-lg: .5rem;
+        --radius-xl: .75rem;
+        --radius-2xl: 1rem;
         --site-content-max-width: {{ SITE_CONTENT_MAXWIDTH|default:1000 }}px;
         --site-toc-sidebar-width: {{ SITE_SIDEBAR_WIDTH|default:210 }}px;
         --site-navbar-width-home: {{ NAVBAR_WIDTH.home|default:1200 }}px;
@@ -7,6 +15,14 @@
         --site-article-font-size: {{ ARTICLE_FONT_SIZE|default:16 }}px;
         --site-article-line-height: {{ ARTICLE_LINE_HEIGHT|default:1.5 }};
         --site-article-image-radius: {{ ARTICLE_IMG_BORDER_RADIUS|default:14 }}px;
+    }
+
+    /* The compiled stylesheet repeats its default accent on each mode. */
+    :root.light-mode,
+    :root.dark-mode,
+    body.light-mode,
+    body.dark-mode {
+        --primary-color: {{ site.colour_primary|default:'#A31F34' }};
     }
 
     :root[data-theme="light"] { --home-banner-text-color: {{ site.hb_light_text|default:'#fff' }}; }
@@ -110,7 +126,7 @@
     html, body { font-family: "{{ site.font_settings.global.family|escapejs }}", sans-serif; }
     {% else %}
     body {
-        font-family:{% if site.font_settings.english %} "{{ site.font_settings.english.family|escapejs }}",{% endif %}{% if site.font_settings.chinese %} "{{ site.font_settings.chinese.family|escapejs }}",{% endif %} 'Geist Variable', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        font-family:{% if site.font_settings.english %} "{{ site.font_settings.english.family|escapejs }}",{% endif %}{% if site.font_settings.chinese %} "{{ site.font_settings.chinese.family|escapejs }}",{% endif %} 'Geist Variable', 'Noto Sans SC', -apple-system, system-ui, 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial;
     }
     {% endif %}
     {% if site.font_settings.title %}

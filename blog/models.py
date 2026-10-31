@@ -374,6 +374,7 @@ class SiteConfiguration(models.Model):
     bookmarks_enabled = models.BooleanField(default=False)
     essays_enabled = models.BooleanField(default=False)
     masonry_enabled = models.BooleanField(default=False)
+    friends_enabled = models.BooleanField(default=True)
     friends_page_columns = models.PositiveIntegerField(choices=[(2, "2 Column"), (3, "3 Column"),], default=2)
     tags_page_style = models.CharField(
         max_length=20, choices=[("blur", "Blur"), ("cloud", "Cloud")], default="blur"

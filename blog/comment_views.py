@@ -38,7 +38,7 @@ from django.utils.html import escape
 from django.utils.translation import gettext as _
 from markdown import Markdown
 from PIL import Image, UnidentifiedImageError
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from core.markdown.blocks.code_block import render_highlighted_code
 
@@ -442,18 +442,24 @@ def _send_verification_email(request, user):
     verify_url = request.build_absolute_uri(
         reverse("comment_verify", kwargs={"uidb64": uid, "token": token})
     )
+    site = _site()
+    context = {
+        "language_code": getattr(request, "LANGUAGE_CODE", settings.LANGUAGE_CODE),
+        "site": site,
+        "user": user,
+        "verify_url": verify_url,
+    }
+    subject = render_to_string(
+        "emails/verify_account_subject.txt", context, request=request
+    ).strip()
     message = EmailMultiAlternatives(
-        "Verify your comment account",
-        f"Open this link to activate your account:\n\n{verify_url}",
+        subject,
+        render_to_string("emails/verify_account.txt", context, request=request),
         settings.DEFAULT_FROM_EMAIL,
         [user.email],
     )
     message.attach_alternative(
-        render_to_string(
-            "emails/verify_account.html",
-            {"verify_url": verify_url},
-            request=request,
-        ),
+        render_to_string("emails/verify_account.html", context, request=request),
         "text/html",
     )
     if message.send() != 1:
@@ -553,12 +559,27 @@ def register(request):
     return render(request, "comments/register.html", {"form": form})
 
 
+@require_http_methods(["GET", "POST"])
 def verify(request, uidb64, token):
     try:
         user = User.objects.get(pk=force_str(urlsafe_base64_decode(uidb64)))
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
-    if user and default_token_generator.check_token(user, token):
+    token_valid = bool(
+        user and not user.is_active and default_token_generator.check_token(user, token)
+    )
+    if request.method == "GET":
+        return render(
+            request,
+            "comments/verify_done.html",
+            {
+                "already_verified": bool(user and user.is_active),
+                "token_valid": token_valid,
+            },
+            status=200 if token_valid or (user and user.is_active) else 400,
+        )
+
+    if token_valid:
         user.is_active = True
         user.save(update_fields=("is_active",))
         login(
@@ -567,7 +588,12 @@ def verify(request, uidb64, token):
             backend="django.contrib.auth.backends.ModelBackend",
         )
         return render(request, "comments/verify_done.html", {"verified": True})
-    return render(request, "comments/verify_done.html", {"verified": False}, status=400)
+    return render(
+        request,
+        "comments/verify_done.html",
+        {"already_verified": bool(user and user.is_active)},
+        status=200 if user and user.is_active else 400,
+    )
 
 
 def login_view(request):

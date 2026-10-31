@@ -9,6 +9,9 @@ from .settings import *  # noqa: F403
 
 
 DEBUG = False
+TRAFFIC_REQUIRE_BROWSER_NAVIGATION = env_bool(
+    "TRAFFIC_REQUIRE_BROWSER_NAVIGATION", True
+)
 
 if SECRET_KEY == "dev-only-insecure-change-me" or len(SECRET_KEY) < 32:  # noqa: F405
     raise ImproperlyConfigured("DJANGO_SECRET_KEY must contain a strong production secret.")

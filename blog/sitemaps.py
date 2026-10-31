@@ -1,7 +1,7 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
-from .models import ArticleModel
+from .models import ArticleModel, SiteConfiguration
 
 
 class ArticleSitemap(Sitemap):
@@ -20,7 +20,17 @@ class StaticPageSitemap(Sitemap):
     priority = 0.5
 
     def items(self):
-        return ("index", "archives", "categories", "tags", "friends")
+        site = SiteConfiguration.get_config()
+        pages = ["index", "archives", "categories", "tags"]
+        if site.friends_enabled:
+            pages.append("friends")
+        if site.bookmarks_enabled:
+            pages.append("bookmarks")
+        if site.essays_enabled:
+            pages.append("essays")
+        if site.masonry_enabled:
+            pages.append("masonry")
+        return pages
 
     def location(self, name):
         return reverse(name)

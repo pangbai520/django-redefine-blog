@@ -1,3 +1,27 @@
 {% extends "base.html" %}
 {% load static i18n %}
-{% block page_content %}<link rel="stylesheet" href="{% static 'css/internal-comments.css' %}"><div class="page-template-container"><div class="page-template-content markdown-body">{% if verified %}<h1>{% translate "Email verified" %}</h1><p>{% translate "Your account is active. You can now comment." %}</p>{% else %}<h1>{% translate "Invalid link" %}</h1><p>{% translate "This verification link is invalid or has expired." %}</p>{% endif %}<p><a class="wl-btn primary" href="/">{% translate "Back to site" %}</a></p></div></div>{% endblock %}
+{% block page_content %}
+<link rel="stylesheet" href="{% static 'css/internal-comments.css' %}">
+<div class="page-template-container">
+  <div class="page-template-content markdown-body">
+    {% if verified %}
+      <h1>{% translate "Email verified" %}</h1>
+      <p>{% translate "Your account is active. You can now comment." %}</p>
+    {% elif token_valid %}
+      <h1>{% translate "Verify your comment account" %}</h1>
+      <p>{% translate "Confirm that you want to activate this account." %}</p>
+      <form method="post">
+        {% csrf_token %}
+        <button class="wl-btn primary" type="submit"><i class="fa-solid fa-envelope-circle-check fa-fw"></i> {% translate "Verify email" %}</button>
+      </form>
+    {% elif already_verified %}
+      <h1>{% translate "Email already verified" %}</h1>
+      <p>{% translate "This account is already active. You can sign in and comment." %}</p>
+    {% else %}
+      <h1>{% translate "Invalid link" %}</h1>
+      <p>{% translate "This verification link is invalid or has expired." %}</p>
+    {% endif %}
+    <p><a class="wl-btn primary" href="/">{% translate "Back to site" %}</a></p>
+  </div>
+</div>
+{% endblock %}

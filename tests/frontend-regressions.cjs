@@ -73,6 +73,26 @@ test('article avatars use the generated non-shrinking utility from upstream', ()
   assert.match(tailwind, /\.shrink-0\{flex-shrink:0\}/);
 });
 
+test('bookmarks retain upstream radii, hover motion, and Chinese font fallback', () => {
+  const bookmarks = readFileSync(
+    path.join(blogRoot, 'templates/pages/bookmarks/bookmarks.html'),
+    'utf8',
+  );
+  const styles = readFileSync(path.join(blogRoot, 'static/css/style.css'), 'utf8');
+  const overrides = readFileSync(
+    path.join(blogRoot, 'templates/components/header/theme-overrides.html'),
+    'utf8',
+  );
+  assert.match(bookmarks, /bookmark-card-link/);
+  assert.match(bookmarks, /bookmark-card-image/);
+  assert.match(overrides, /--radius-lg: \.5rem;/);
+  assert.match(overrides, /--radius-xl: \.75rem;/);
+  assert.match(overrides, /--radius-2xl: 1rem;/);
+  assert.match(styles, /\.bookmark-card-link:hover \.bookmark-card \{[\s\S]*?transform: translateY\(-0\.25rem\);/);
+  assert.match(styles, /\.bookmark-card-link:hover \.bookmark-card-image \{[\s\S]*?transform: scale\(1\.05\);/);
+  assert.match(overrides, /'Geist Variable', 'Noto Sans SC', -apple-system, system-ui/);
+});
+
 test('the empty home page uses a spacious standalone state instead of an article card', () => {
   const home = readFileSync(
     path.join(blogRoot, 'templates/pages/home/home-content.html'),

@@ -576,6 +576,13 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
                 'Set the player mode with {"type": "fixed"} or {"type": "mini"}; '
                 "other APlayer options may be added as JSON."
             )
+        elif db_field.name == "colour_primary":
+            field.help_text = (
+                "站点强调色，用于分页、按钮、链接及状态元素。"
+                "导航栏渐变请在“导航栏与侧边栏”中单独设置。"
+            )
+        elif db_field.name in {"navbar_lcolor", "navbar_rcolor"}:
+            field.help_text = "导航栏渐变色；它与站点强调色相互独立。"
         return field
 
     fieldsets = (
@@ -776,7 +783,7 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
             'classes': ('collapse',),
                 'fields': (
                 ('bookmarks_enabled', 'essays_enabled', 'masonry_enabled'),
-                'friends_page_columns',
+                ('friends_enabled', 'friends_page_columns'),
                 'tags_page_style',
             )
         }),

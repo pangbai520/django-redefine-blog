@@ -1,6 +1,6 @@
 from urllib.parse import unquote
 from django.shortcuts import render, get_object_or_404
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
@@ -23,6 +23,7 @@ from django.utils.translation import gettext as _
 import re
 
 from .cache_utils import versioned_cache_page
+from .middleware import record_request_traffic
 from .recommendations import related_articles
 from .search import search_articles
 
@@ -81,6 +82,9 @@ def article(request, slug):
     article = get_object_or_404(ArticleModel.objects.published(), slug=slug)
     site = SiteConfiguration.get_config()
     article_path = reverse('article', args=[article.slug])
+    # Record before rendering so the first real visit is visible immediately.
+    # The middleware sees the same cache key afterwards and does not double count.
+    record_request_traffic(request)
     article_pv = (TrafficModel.objects.filter(path=article_path).count())
     post_count = ArticleModel.objects.published().count()
     prev_article = (
@@ -118,6 +122,24 @@ def article(request, slug):
         "is_postpage": True,
     }
     return render(request, "pages/post/article.html", context)
+
+
+def robots_txt(request):
+    """Advertise public content while keeping account and API routes out of indexes."""
+    sitemap_url = request.build_absolute_uri(
+        reverse("django.contrib.sitemaps.views.sitemap")
+    )
+    body = "\n".join((
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /admin/",
+        "Disallow: /api/",
+        "Disallow: /comments/",
+        "Disallow: /mdeditor/",
+        f"Sitemap: {sitemap_url}",
+        "",
+    ))
+    return HttpResponse(body, content_type="text/plain; charset=utf-8")
 
 @versioned_cache_page("content", timeout=10 * 60)
 def archives(request):
@@ -344,6 +366,9 @@ def masonry(request):
 
 
 def friends(request):
+    site = SiteConfiguration.get_config()
+    if not site.friends_enabled:
+        raise Http404
     categories = FriendCategory.objects.prefetch_related("links")
     return render(request, "pages/friends/friends.html", {
         "page_title": _("Friends"),
