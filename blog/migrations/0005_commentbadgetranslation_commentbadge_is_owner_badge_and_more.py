@@ -47,7 +47,7 @@ def add_owner_badge_translations(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('blog', '0005_articlemodel_view_count'),
+        ('blog', '0004_articlemodel_view_count'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
