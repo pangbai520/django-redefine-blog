@@ -97,6 +97,24 @@ class StandalonePageTests(TestCase):
         response = self.client.get(reverse("friends"))
         self.assertContains(response, "<strong>Friend introduction</strong>", html=True)
 
+    def test_builtin_page_admin_change_form_renders_readonly_slug(self):
+        admin_user = get_user_model().objects.create_superuser(
+            username="page-admin",
+            email="page-admin@example.com",
+            password="A-strong-password-123",
+        )
+        self.client.force_login(admin_user)
+        page = StandalonePage.objects.get(
+            config=self.site, page_type=StandalonePage.ARCHIVES
+        )
+
+        response = self.client.get(
+            reverse("admin:blog_standalonepage_change", args=(page.pk,))
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, page.slug)
+
     def test_custom_page_supports_internal_comments(self):
         self.site.comment_enabled = True
         self.site.comment_system = "internal"

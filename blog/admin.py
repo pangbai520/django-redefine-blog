@@ -1044,6 +1044,11 @@ class StandalonePageAdmin(admin.ModelAdmin):
             return ("page_type",)
         return ("page_type", "slug")
 
+    def get_prepopulated_fields(self, request, obj=None):
+        if obj is not None and obj.page_type != StandalonePage.CUSTOM:
+            return {}
+        return super().get_prepopulated_fields(request, obj)
+
     def save_model(self, request, obj, form, change):
         if not obj.config_id:
             obj.config = SiteConfiguration.get_config()
