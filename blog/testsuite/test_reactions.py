@@ -218,7 +218,7 @@ class IpDatabaseTests(SimpleTestCase):
         self.assertEqual(Path(settings.IP2REGION_DB_V6).name, "ip2region_v6.xdb")
         self.assertEqual(len(DATABASES[6]["sha256"]), 64)
 
-    def test_ip_version_option(self):
+    def test_ip_version(self):
         parser = InstallIpGeoCommand().create_parser(
             "manage.py", "install_ip_geolocation"
         )
