@@ -12,6 +12,7 @@ from blog.models import (
     BookmarkCategory,
     Category,
     Essay,
+    EditorImage,
     FriendCategory,
     FriendLink,
     MasonryImage,
@@ -144,6 +145,78 @@ class ArticleAdmin(admin.ModelAdmin):
     def disable_reactions(self, request, queryset):
         queryset.update(show_reaction=False)
         self.message_user(request, _("Disabled"))
+
+
+@admin.register(EditorImage)
+class EditorImageAdmin(admin.ModelAdmin):
+    list_display = (
+        "preview",
+        "original_name",
+        "uploader",
+        "dimensions",
+        "file_size",
+        "usage_count",
+        "created_at",
+    )
+    search_fields = ("original_name", "digest", "uploader__username")
+    list_filter = ("created_at",)
+    readonly_fields = (
+        "preview",
+        "image",
+        "digest",
+        "original_name",
+        "uploader",
+        "size",
+        "width",
+        "height",
+        "usage_count",
+        "created_at",
+    )
+    fields = readonly_fields
+    ordering = ("-created_at",)
+    list_per_page = 48
+    actions = None
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("uploader").annotate(
+            admin_ref_count=models.Count("refs")
+        )
+
+    @admin.display(description=_("preview"))
+    def preview(self, obj):
+        if not obj or not obj.image:
+            return "—"
+        return format_html(
+            '<a href="{}" target="_blank" rel="noopener">'
+            '<img src="{}" alt="" style="width:72px;height:54px;object-fit:cover;'
+            'border-radius:6px"></a>',
+            obj.image.url,
+            obj.image.url,
+        )
+
+    @admin.display(description=_("dimensions"))
+    def dimensions(self, obj):
+        return f"{obj.width} × {obj.height}" if obj.width and obj.height else "—"
+
+    @admin.display(description=_("file size"))
+    def file_size(self, obj):
+        if not obj.size:
+            return "—"
+        return f"{obj.size / 1024:.1f} KB"
+
+    @admin.display(description=_("references"), ordering="admin_ref_count")
+    def usage_count(self, obj):
+        return getattr(obj, "admin_ref_count", obj.refs.count())
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        if obj is None:
+            return False
+        from blog.services.editor_images import image_used
+
+        return super().has_delete_permission(request, obj) and not image_used(obj)
 
 
 @admin.register(ArticleReactionVote)

@@ -3,11 +3,12 @@ from datetime import timedelta
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from blog.models import CommentImage
+from blog.models import CommentImage, EditorImage
+from blog.services.editor_images import image_used, rebuild_refs
 
 
 class Command(BaseCommand):
-    help = "Delete comment images that were uploaded but never attached to a comment."
+    help = "Delete unreferenced comment and article-editor images after a grace period."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -30,15 +31,32 @@ class Command(BaseCommand):
             )
             return
         cutoff = timezone.now() - timedelta(hours=hours)
+        rebuild_refs()
         uploads = CommentImage.objects.filter(
             comment__isnull=True, created_at__lt=cutoff
         )
-        count = uploads.count()
+        comment_count = uploads.count()
+        editor_images = [
+            image
+            for image in EditorImage.objects.filter(
+                refs__isnull=True, created_at__lt=cutoff
+            ).iterator()
+            if not image_used(image)
+        ]
+        editor_count = len(editor_images)
         if options["dry_run"]:
-            self.stdout.write(f"{count} orphaned comment image(s) would be deleted.")
+            self.stdout.write(
+                f"{comment_count} comment image(s) and {editor_count} article "
+                "image(s) would be deleted."
+            )
             return
         for upload in uploads.iterator():
             upload.delete()
+        for image in editor_images:
+            image.delete()
         self.stdout.write(
-            self.style.SUCCESS(f"Deleted {count} orphaned comment image(s).")
+            self.style.SUCCESS(
+                f"Deleted {comment_count} comment image(s) and "
+                f"{editor_count} article image(s)."
+            )
         )

@@ -19,6 +19,37 @@
 {% block extrahead %}
 {{ block.super }}
 <script src="{% static 'js/admin/redefine-admin.js' %}" defer></script>
+{% translate "Upload image" as editor_upload %}
+{% translate "Image library" as editor_library %}
+{% translate "Paste or drop images into the editor." as editor_hint %}
+{% translate "Uploading…" as editor_uploading %}
+{% translate "Upload failed" as editor_failed %}
+{% translate "No article images have been uploaded yet." as editor_empty %}
+{% translate "Insert image" as editor_insert %}
+{% translate "Delete image" as editor_delete %}
+{% translate "Close" as editor_close %}
+{% translate "Load more" as editor_more %}
+{% translate "This image is used %(count)s time(s)." as editor_used %}
+<script>
+window.redefineEditorImages = {
+    uploadUrl: "{% url 'mdeditor_upload' %}",
+    listUrl: "{% url 'mdeditor_image_list' %}",
+    labels: {
+        upload: "{{ editor_upload|escapejs }}",
+        library: "{{ editor_library|escapejs }}",
+        hint: "{{ editor_hint|escapejs }}",
+        uploading: "{{ editor_uploading|escapejs }}",
+        failed: "{{ editor_failed|escapejs }}",
+        empty: "{{ editor_empty|escapejs }}",
+        insert: "{{ editor_insert|escapejs }}",
+        delete: "{{ editor_delete|escapejs }}",
+        close: "{{ editor_close|escapejs }}",
+        more: "{{ editor_more|escapejs }}",
+        used: "{{ editor_used|escapejs }}"
+    }
+};
+</script>
+<script src="{% static 'js/admin/article-images.js' %}" defer></script>
 {% endblock %}
 
 {% block branding %}

@@ -15,6 +15,8 @@ from .models import (
     CommentBadgeTranslation,
     CommentBadgeAssignment,
     Font,
+    EditorImage,
+    EditorImageRef,
     MenuLink,
     MenuLinkTranslation,
     SiteConfiguration,
@@ -52,6 +54,21 @@ def delete_image(sender, instance, **kwargs):
     transaction.on_commit(delete_if_unreferenced)
 
 
+@receiver(post_delete, sender=EditorImage)
+def delete_editor_image(sender, instance, **kwargs):
+    if not instance.image or not instance.image.name:
+        return
+    storage = instance.image.storage
+    name = instance.image.name
+    from django.db import transaction
+
+    def delete_file():
+        if not EditorImage.objects.filter(image=name).exists():
+            storage.delete(name)
+
+    transaction.on_commit(delete_file)
+
+
 @receiver(pre_save, sender=ArticleModel)
 def remember_state(sender, instance, **kwargs):
     if not instance.pk:
@@ -69,8 +86,10 @@ def refresh_article_derivatives(sender, instance, **kwargs):
     from .extension_signals import article_published, article_unpublished
     from .cache_utils import invalidate_content_caches
     from .services.search import index_article
+    from .services.editor_images import sync_refs
 
     index_article(instance)
+    sync_refs(EditorImageRef.ARTICLE, instance.pk, instance.content)
     invalidate_content_caches()
     was_published = bool(getattr(instance, "_was_published", False))
     if instance.is_published and not was_published:
@@ -88,8 +107,10 @@ def remove_article_derivatives(sender, instance, **kwargs):
     from .extension_signals import article_deleted
     from .cache_utils import invalidate_content_caches
     from .services.search import remove_article
+    from .services.editor_images import drop_refs
 
     remove_article(instance.pk)
+    drop_refs(EditorImageRef.ARTICLE, instance.pk)
     invalidate_content_caches()
     article_deleted.send(sender=sender, instance=instance)
 
@@ -150,6 +171,34 @@ def invalidate_pages(sender, instance, **kwargs):
         config_id = instance.page.config_id
     cache.delete(f"standalone-page-types:{config_id}")
     invalidate_content_caches()
+
+
+@receiver(post_save, sender=StandalonePage)
+@receiver(post_save, sender=StandalonePageTranslation)
+def sync_page_images(sender, instance, **kwargs):
+    if kwargs.get("raw"):
+        return
+    from .services.editor_images import sync_refs
+
+    target = (
+        EditorImageRef.PAGE
+        if isinstance(instance, StandalonePage)
+        else EditorImageRef.TRANSLATION
+    )
+    sync_refs(target, instance.pk, instance.content)
+
+
+@receiver(post_delete, sender=StandalonePage)
+@receiver(post_delete, sender=StandalonePageTranslation)
+def drop_page_images(sender, instance, **kwargs):
+    from .services.editor_images import drop_refs
+
+    target = (
+        EditorImageRef.PAGE
+        if isinstance(instance, StandalonePage)
+        else EditorImageRef.TRANSLATION
+    )
+    drop_refs(target, instance.pk)
 
 
 @receiver([post_save, post_delete], sender=MenuLink)

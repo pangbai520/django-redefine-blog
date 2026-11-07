@@ -110,6 +110,22 @@ test("standalone-page translation editors initialize existing and newly added in
   assert.equal(calls[1].id, "id_translations-1-content-wmd-wrapper");
 });
 
+test("article editors support paste, drop, upload, and reusable image library", () => {
+  const editorImages = source("admin/article-images.js");
+  const adminTemplate = readFileSync(
+    path.join(blogRoot, "templates/admin/base_site.html"),
+    "utf8",
+  );
+
+  assert.match(editorImages, /addEventListener\("paste"/);
+  assert.match(editorImages, /addEventListener\("drop"/);
+  assert.match(editorImages, /editormd-image-file/);
+  assert.match(editorImages, /openLibrary\(editor\)/);
+  assert.match(editorImages, /image\.delete_url/);
+  assert.match(adminTemplate, /redefineEditorImages/);
+  assert.match(adminTemplate, /mdeditor_image_list/);
+});
+
 test("custom TOC widths only override the desktop layout", () => {
   const overrides = readFileSync(
     path.join(blogRoot, "templates/components/header/theme-overrides.html"),

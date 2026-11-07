@@ -2343,3 +2343,109 @@ msgstr "Les fichiers audio ne doivent pas dépasser %(size)s Mo."
 
 msgid "Audio data does not match its filename extension."
 msgstr "Les données audio ne correspondent pas à l’extension du fichier."
+
+msgid "article image"
+msgstr "image d’article"
+
+msgid "article images"
+msgstr "images d’article"
+
+msgid "list thumbnail"
+msgstr "miniature de liste"
+
+msgid "Shown on article cards and article lists."
+msgstr "Affichée sur les cartes et dans les listes d’articles."
+
+msgid "article cover"
+msgstr "couverture de l’article"
+
+msgid "Shown above the article title on the article page."
+msgstr "Affichée au-dessus du titre sur la page de l’article."
+
+msgid "fallback banner"
+msgstr "bannière de remplacement"
+
+msgid "Used when the article has no cover or thumbnail."
+msgstr "Utilisée lorsque l’article n’a ni couverture ni miniature."
+
+msgid "Image library"
+msgstr "Bibliothèque d’images"
+
+msgid "Paste or drop images into the editor."
+msgstr "Collez ou déposez des images dans l’éditeur."
+
+msgid "Uploading…"
+msgstr "Téléversement…"
+
+msgid "No article images have been uploaded yet."
+msgstr "Aucune image d’article n’a encore été téléversée."
+
+msgid "Insert image"
+msgstr "Insérer l’image"
+
+msgid "Delete image"
+msgstr "Supprimer l’image"
+
+msgid "Load more"
+msgstr "Charger plus"
+
+#, python-format
+msgid "This image is used %(count)s time(s)."
+msgstr "Cette image est utilisée %(count)s fois."
+
+msgid "This image is still used by published content."
+msgstr "Cette image est encore utilisée par un contenu publié."
+
+msgid "Image not found."
+msgstr "Image introuvable."
+
+msgid "dimensions"
+msgstr "dimensions"
+
+msgid "references"
+msgstr "références"
+
+msgid "file hash"
+msgstr "empreinte du fichier"
+
+msgid "original filename"
+msgstr "nom du fichier d’origine"
+
+msgid "uploader"
+msgstr "auteur du téléversement"
+
+msgid "file size"
+msgstr "taille du fichier"
+
+msgid "width"
+msgstr "largeur"
+
+msgid "height"
+msgstr "hauteur"
+
+msgid "article image reference"
+msgstr "référence d’image d’article"
+
+msgid "article image references"
+msgstr "références d’image d’article"
+
+msgid "reference type"
+msgstr "type de référence"
+
+msgid "referenced object"
+msgstr "objet référencé"
+
+msgid "Permission denied."
+msgstr "Permission refusée."
+
+msgid "article"
+msgstr "article"
+
+msgid "image"
+msgstr "image"
+
+msgid "preview"
+msgstr "aperçu"
+
+msgid "standalone page"
+msgstr "page autonome"

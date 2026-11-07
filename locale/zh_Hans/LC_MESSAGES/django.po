@@ -2296,3 +2296,109 @@ msgstr "音频文件大小不能超过 %(size)s MB。"
 
 msgid "Audio data does not match its filename extension."
 msgstr "音频数据与文件扩展名不匹配。"
+
+msgid "article image"
+msgstr "文章图片"
+
+msgid "article images"
+msgstr "文章图片"
+
+msgid "list thumbnail"
+msgstr "列表缩略图"
+
+msgid "Shown on article cards and article lists."
+msgstr "显示在文章卡片和文章列表中。"
+
+msgid "article cover"
+msgstr "文章封面"
+
+msgid "Shown above the article title on the article page."
+msgstr "显示在文章详情页标题上方。"
+
+msgid "fallback banner"
+msgstr "备用横幅"
+
+msgid "Used when the article has no cover or thumbnail."
+msgstr "文章没有封面或缩略图时使用。"
+
+msgid "Image library"
+msgstr "图片库"
+
+msgid "Paste or drop images into the editor."
+msgstr "将图片粘贴或拖放到编辑器中。"
+
+msgid "Uploading…"
+msgstr "正在上传…"
+
+msgid "No article images have been uploaded yet."
+msgstr "尚未上传文章图片。"
+
+msgid "Insert image"
+msgstr "插入图片"
+
+msgid "Delete image"
+msgstr "删除图片"
+
+msgid "Load more"
+msgstr "加载更多"
+
+#, python-format
+msgid "This image is used %(count)s time(s)."
+msgstr "该图片被引用 %(count)s 次。"
+
+msgid "This image is still used by published content."
+msgstr "该图片仍被已发布内容引用。"
+
+msgid "Image not found."
+msgstr "未找到图片。"
+
+msgid "dimensions"
+msgstr "尺寸"
+
+msgid "references"
+msgstr "引用"
+
+msgid "file hash"
+msgstr "文件哈希"
+
+msgid "original filename"
+msgstr "原始文件名"
+
+msgid "uploader"
+msgstr "上传者"
+
+msgid "file size"
+msgstr "文件大小"
+
+msgid "width"
+msgstr "宽度"
+
+msgid "height"
+msgstr "高度"
+
+msgid "article image reference"
+msgstr "文章图片引用"
+
+msgid "article image references"
+msgstr "文章图片引用"
+
+msgid "reference type"
+msgstr "引用类型"
+
+msgid "referenced object"
+msgstr "引用对象"
+
+msgid "Permission denied."
+msgstr "权限不足。"
+
+msgid "article"
+msgstr "文章"
+
+msgid "image"
+msgstr "图片"
+
+msgid "preview"
+msgstr "预览"
+
+msgid "standalone page"
+msgstr "独立页面"

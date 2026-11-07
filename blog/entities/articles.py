@@ -111,22 +111,28 @@ class ArticleModel(models.Model):
         validators=[validate_theme_image],
     )
     thumbnail = models.FileField(
+        _("list thumbnail"),
         upload_to="thumbnails/",
         blank=True,
         null=True,
         validators=[validate_theme_image],
+        help_text=_("Shown on article cards and article lists."),
     )
     cover = models.FileField(
+        _("article cover"),
         upload_to="cover/",
         blank=True,
         null=True,
         validators=[validate_theme_image],
+        help_text=_("Shown above the article title on the article page."),
     )
     banner = models.FileField(
+        _("fallback banner"),
         upload_to="banner/",
         blank=True,
         null=True,
         validators=[validate_theme_image],
+        help_text=_("Used when the article has no cover or thumbnail."),
     )
     category = models.ManyToManyField(
         "Category", blank=True, verbose_name=_("category")

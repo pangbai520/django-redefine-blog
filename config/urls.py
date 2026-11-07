@@ -18,7 +18,11 @@ Including another URLconf
 from django.contrib import admin
 from django.conf import settings
 from django.urls import path, include
-from blog.editor_views import editor_image_upload
+from blog.editor_views import (
+    editor_image_delete,
+    editor_image_list,
+    editor_image_upload,
+)
 
 handler404 = "blog.views.page_not_found"
 
@@ -27,6 +31,12 @@ urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     path("", include("blog.urls")),
     path("mdeditor/uploads/", editor_image_upload, name="mdeditor_upload"),
+    path("mdeditor/images/", editor_image_list, name="mdeditor_image_list"),
+    path(
+        "mdeditor/images/<int:image_id>/delete/",
+        editor_image_delete,
+        name="mdeditor_image_delete",
+    ),
 ]
 
 if settings.GITHUB_OAUTH_ENABLED:

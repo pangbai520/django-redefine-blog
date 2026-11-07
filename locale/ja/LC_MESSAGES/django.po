@@ -2298,3 +2298,109 @@ msgstr "音声ファイルは %(size)s MB 以下にしてください。"
 
 msgid "Audio data does not match its filename extension."
 msgstr "音声データとファイル拡張子が一致しません。"
+
+msgid "article image"
+msgstr "記事画像"
+
+msgid "article images"
+msgstr "記事画像"
+
+msgid "list thumbnail"
+msgstr "一覧サムネイル"
+
+msgid "Shown on article cards and article lists."
+msgstr "記事カードと記事一覧に表示されます。"
+
+msgid "article cover"
+msgstr "記事カバー"
+
+msgid "Shown above the article title on the article page."
+msgstr "記事ページのタイトル上部に表示されます。"
+
+msgid "fallback banner"
+msgstr "代替バナー"
+
+msgid "Used when the article has no cover or thumbnail."
+msgstr "記事にカバーやサムネイルがない場合に使用されます。"
+
+msgid "Image library"
+msgstr "画像ライブラリ"
+
+msgid "Paste or drop images into the editor."
+msgstr "画像をエディターに貼り付けるかドロップできます。"
+
+msgid "Uploading…"
+msgstr "アップロード中…"
+
+msgid "No article images have been uploaded yet."
+msgstr "記事画像はまだアップロードされていません。"
+
+msgid "Insert image"
+msgstr "画像を挿入"
+
+msgid "Delete image"
+msgstr "画像を削除"
+
+msgid "Load more"
+msgstr "さらに読み込む"
+
+#, python-format
+msgid "This image is used %(count)s time(s)."
+msgstr "この画像は %(count)s 件で使用されています。"
+
+msgid "This image is still used by published content."
+msgstr "この画像は公開済みコンテンツで使用されています。"
+
+msgid "Image not found."
+msgstr "画像が見つかりません。"
+
+msgid "dimensions"
+msgstr "サイズ"
+
+msgid "references"
+msgstr "参照"
+
+msgid "file hash"
+msgstr "ファイルハッシュ"
+
+msgid "original filename"
+msgstr "元のファイル名"
+
+msgid "uploader"
+msgstr "アップロードしたユーザー"
+
+msgid "file size"
+msgstr "ファイルサイズ"
+
+msgid "width"
+msgstr "幅"
+
+msgid "height"
+msgstr "高さ"
+
+msgid "article image reference"
+msgstr "記事画像の参照"
+
+msgid "article image references"
+msgstr "記事画像の参照"
+
+msgid "reference type"
+msgstr "参照タイプ"
+
+msgid "referenced object"
+msgstr "参照先オブジェクト"
+
+msgid "Permission denied."
+msgstr "権限がありません。"
+
+msgid "article"
+msgstr "記事"
+
+msgid "image"
+msgstr "画像"
+
+msgid "preview"
+msgstr "プレビュー"
+
+msgid "standalone page"
+msgstr "独立ページ"
