@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class EditorImage(models.Model):
-    image = models.ImageField(_("image"), upload_to="editor/")
+    image = models.ImageField(_("image"), upload_to="content-images/")
     digest = models.CharField(_("file hash"), max_length=64, unique=True)
     original_name = models.CharField(_("original filename"), max_length=255, blank=True)
     uploader = models.ForeignKey(
@@ -27,6 +27,30 @@ class EditorImage(models.Model):
 
     def __str__(self):
         return self.original_name or self.image.name
+
+
+class EditorImageLease(models.Model):
+    image = models.ForeignKey(
+        EditorImage,
+        on_delete=models.CASCADE,
+        related_name="leases",
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="editor_image_leases",
+    )
+    draft_id = models.UUIDField()
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("image", "owner", "draft_id"),
+                name="unique_editor_image_lease",
+            )
+        ]
+        indexes = [models.Index(fields=("owner", "draft_id"))]
 
 
 class EditorImageRef(models.Model):

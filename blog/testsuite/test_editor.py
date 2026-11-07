@@ -1,18 +1,23 @@
+import importlib
 import tempfile
+import uuid
 from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
 
 from PIL import Image
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.core.management import call_command
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from blog.models import ArticleModel, EditorImage, EditorImageRef
+from blog.models import ArticleModel, EditorImage, EditorImageLease, EditorImageRef
 
 User = get_user_model()
 
@@ -83,6 +88,7 @@ class EditorUploadSecurityTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["success"], 1)
+        self.assertIn("/content-images/", response.json()["url"])
         self.assertTrue(response.json()["url"].endswith(".png"))
         self.assertTrue(response.json()["id"])
         self.assertEqual(EditorImage.objects.count(), 1)
@@ -136,8 +142,92 @@ class EditorUploadSecurityTests(TestCase):
             )
 
             self.assertEqual(first.json()["url"], second.json()["url"])
-            self.assertEqual(len(list(Path(media_root, "editor").glob("*.png"))), 1)
+            self.assertEqual(
+                len(list(Path(media_root, "content-images").glob("*.png"))), 1
+            )
             self.assertEqual(EditorImage.objects.count(), 1)
+
+    def test_draft_cleanup(self):
+        user = User.objects.create_superuser(
+            "draft-editor",
+            email="draft@example.com",
+            password="A-strong-password-123",
+        )
+        self.client.force_login(user)
+        token = self._csrf_token()
+        first_draft = uuid.uuid4()
+        second_draft = uuid.uuid4()
+
+        with tempfile.TemporaryDirectory(
+            dir=settings.BASE_DIR
+        ) as media_root, override_settings(MEDIA_ROOT=media_root):
+            for draft_id in (first_draft, second_draft):
+                response = self.client.post(
+                    reverse("mdeditor_upload"),
+                    {
+                        "editormd-image-file": valid_png(),
+                        "draft_id": str(draft_id),
+                    },
+                    HTTP_X_CSRFTOKEN=token,
+                )
+                self.assertEqual(response.status_code, 200)
+
+            image = EditorImage.objects.get()
+            self.assertEqual(EditorImageLease.objects.filter(image=image).count(), 2)
+            with self.captureOnCommitCallbacks(execute=True):
+                self.client.post(
+                    reverse("mdeditor_image_abandon"),
+                    {"draft_id": str(first_draft)},
+                    HTTP_X_CSRFTOKEN=token,
+                )
+            self.assertTrue(EditorImage.objects.filter(pk=image.pk).exists())
+
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    reverse("mdeditor_image_abandon"),
+                    {"draft_id": str(second_draft)},
+                    HTTP_X_CSRFTOKEN=token,
+                )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json()["deleted"], 1)
+            self.assertFalse(EditorImage.objects.filter(pk=image.pk).exists())
+            self.assertFalse(Path(media_root, image.image.name).exists())
+
+    def test_saved_image(self):
+        user = User.objects.create_superuser(
+            "saved-draft-editor",
+            email="saved-draft@example.com",
+            password="A-strong-password-123",
+        )
+        self.client.force_login(user)
+        token = self._csrf_token()
+        draft_id = uuid.uuid4()
+
+        with tempfile.TemporaryDirectory(
+            dir=settings.BASE_DIR
+        ) as media_root, override_settings(MEDIA_ROOT=media_root):
+            uploaded = self.client.post(
+                reverse("mdeditor_upload"),
+                {
+                    "editormd-image-file": valid_png(),
+                    "draft_id": str(draft_id),
+                },
+                HTTP_X_CSRFTOKEN=token,
+            )
+            image = EditorImage.objects.get()
+            ArticleModel.objects.create(
+                title="Saved article image",
+                content=f"![Saved]({uploaded.json()['url']})",
+            )
+            response = self.client.post(
+                reverse("mdeditor_image_abandon"),
+                {"draft_id": str(draft_id)},
+                HTTP_X_CSRFTOKEN=token,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json()["deleted"], 0)
+            self.assertTrue(EditorImage.objects.filter(pk=image.pk).exists())
+            self.assertFalse(EditorImageLease.objects.filter(image=image).exists())
 
     def test_library_reuse(self):
         user = User.objects.create_superuser(
@@ -203,14 +293,21 @@ class EditorUploadSecurityTests(TestCase):
         with tempfile.TemporaryDirectory(
             dir=settings.BASE_DIR
         ) as media_root, override_settings(MEDIA_ROOT=media_root):
+            draft_id = uuid.uuid4()
             self.client.post(
                 reverse("mdeditor_upload"),
-                {"editormd-image-file": valid_png()},
+                {
+                    "editormd-image-file": valid_png(),
+                    "draft_id": str(draft_id),
+                },
                 HTTP_X_CSRFTOKEN=token,
             )
             image = EditorImage.objects.get()
             path = Path(media_root, image.image.name)
             EditorImage.objects.filter(pk=image.pk).update(
+                created_at=timezone.now() - timedelta(days=2)
+            )
+            EditorImageLease.objects.filter(image=image).update(
                 created_at=timezone.now() - timedelta(days=2)
             )
             with self.captureOnCommitCallbacks(execute=True):
@@ -229,3 +326,41 @@ class EditorUploadSecurityTests(TestCase):
             self.client.get(reverse("mdeditor_image_list")).status_code,
             403,
         )
+
+
+class ContentImageMigrationTests(TestCase):
+    def test_path_migration(self):
+        migration = importlib.import_module(
+            "blog.migrations.0013_content_image_paths"
+        )
+        digest = "a" * 64
+        old_name = f"editor/{digest}.png"
+        new_name = f"content-images/{digest}.png"
+
+        with tempfile.TemporaryDirectory(
+            dir=settings.BASE_DIR
+        ) as media_root, override_settings(MEDIA_ROOT=media_root):
+            default_storage.save(old_name, ContentFile(b"stored image"))
+            image = EditorImage.objects.create(image=old_name, digest=digest)
+            article = ArticleModel.objects.create(
+                title="Legacy image path",
+                content=f"![Legacy](/resources/{old_name})",
+            )
+
+            with self.captureOnCommitCallbacks(execute=True):
+                migration.move_forward(apps, None)
+            image.refresh_from_db()
+            article.refresh_from_db()
+            self.assertEqual(image.image.name, new_name)
+            self.assertIn(f"/resources/{new_name}", article.content)
+            self.assertTrue(default_storage.exists(new_name))
+            self.assertFalse(default_storage.exists(old_name))
+
+            with self.captureOnCommitCallbacks(execute=True):
+                migration.move_backward(apps, None)
+            image.refresh_from_db()
+            article.refresh_from_db()
+            self.assertEqual(image.image.name, old_name)
+            self.assertIn(f"/resources/{old_name}", article.content)
+            self.assertTrue(default_storage.exists(old_name))
+            self.assertFalse(default_storage.exists(new_name))

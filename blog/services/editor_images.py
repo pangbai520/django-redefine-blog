@@ -8,13 +8,14 @@ from PIL import Image, UnidentifiedImageError
 from blog.models import (
     ArticleModel,
     EditorImage,
+    EditorImageLease,
     EditorImageRef,
     StandalonePage,
     StandalonePageTranslation,
 )
 
 IMAGE_RE = re.compile(
-    r"(?P<path>editor/(?P<digest>[0-9a-f]{64})\.(?:jpe?g|png|gif|webp))",
+    r"(?P<path>(?:content-images|editor)/(?P<digest>[0-9a-f]{64})\.(?:jpe?g|png|gif|webp))",
     re.IGNORECASE,
 )
 
@@ -59,7 +60,7 @@ def _register_path(digest, path):
 
 
 def store_image(upload, digest, extension, user, width, height):
-    path = f"editor/{digest}.{extension}"
+    path = f"content-images/{digest}.{extension}"
     image = EditorImage.objects.filter(digest=digest).first()
     if image and default_storage.exists(image.image.name):
         return image
@@ -135,17 +136,18 @@ def drop_refs(target_type, target_id):
 
 
 def index_files():
-    try:
-        _dirs, names = default_storage.listdir("editor")
-    except (FileNotFoundError, NotImplementedError, OSError):
-        return 0
     count = 0
-    for name in names:
-        match = IMAGE_RE.fullmatch(f"editor/{name}")
-        if not match:
+    for folder in ("content-images", "editor"):
+        try:
+            _dirs, names = default_storage.listdir(folder)
+        except (FileNotFoundError, NotImplementedError, OSError):
             continue
-        if _register_path(match.group("digest").lower(), match.group("path")):
-            count += 1
+        for name in names:
+            match = IMAGE_RE.fullmatch(f"{folder}/{name}")
+            if not match:
+                continue
+            if _register_path(match.group("digest").lower(), match.group("path")):
+                count += 1
     return count
 
 
@@ -179,7 +181,7 @@ def rebuild_refs():
 
 
 def image_used(image):
-    if image.refs.exists():
+    if image.refs.exists() or image.leases.exists():
         return True
     digest = image.digest
     return (
@@ -187,3 +189,32 @@ def image_used(image):
         or StandalonePage.objects.filter(content__contains=digest).exists()
         or StandalonePageTranslation.objects.filter(content__contains=digest).exists()
     )
+
+
+def lease_image(image, user, draft_id):
+    with transaction.atomic():
+        image = EditorImage.objects.select_for_update().get(pk=image.pk)
+        EditorImageLease.objects.get_or_create(
+            image=image,
+            owner=user,
+            draft_id=draft_id,
+        )
+
+
+def release_draft(user, draft_id):
+    with transaction.atomic():
+        image_ids = list(
+            EditorImageLease.objects.filter(
+                owner=user, draft_id=draft_id
+            ).values_list("image_id", flat=True)
+        )
+        images = list(
+            EditorImage.objects.select_for_update().filter(pk__in=image_ids)
+        )
+        EditorImageLease.objects.filter(owner=user, draft_id=draft_id).delete()
+        deleted = 0
+        for image in images:
+            if not image_used(image):
+                image.delete()
+                deleted += 1
+    return deleted

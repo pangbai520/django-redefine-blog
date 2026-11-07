@@ -2449,3 +2449,6 @@ msgstr "aperçu"
 
 msgid "standalone page"
 msgstr "page autonome"
+
+msgid "Invalid editor draft."
+msgstr "Brouillon de l’éditeur invalide."

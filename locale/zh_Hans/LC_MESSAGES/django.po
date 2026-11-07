@@ -2402,3 +2402,6 @@ msgstr "预览"
 
 msgid "standalone page"
 msgstr "独立页面"
+
+msgid "Invalid editor draft."
+msgstr "无效的编辑草稿。"

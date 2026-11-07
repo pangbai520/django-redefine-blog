@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.conf import settings
 from django.urls import path, include
 from blog.editor_views import (
+    editor_image_abandon,
     editor_image_delete,
     editor_image_list,
     editor_image_upload,
@@ -32,6 +33,11 @@ urlpatterns = [
     path("", include("blog.urls")),
     path("mdeditor/uploads/", editor_image_upload, name="mdeditor_upload"),
     path("mdeditor/images/", editor_image_list, name="mdeditor_image_list"),
+    path(
+        "mdeditor/images/abandon/",
+        editor_image_abandon,
+        name="mdeditor_image_abandon",
+    ),
     path(
         "mdeditor/images/<int:image_id>/delete/",
         editor_image_delete,

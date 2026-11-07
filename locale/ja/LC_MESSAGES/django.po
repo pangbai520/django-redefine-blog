@@ -2404,3 +2404,6 @@ msgstr "プレビュー"
 
 msgid "standalone page"
 msgstr "独立ページ"
+
+msgid "Invalid editor draft."
+msgstr "編集用下書きが無効です。"

@@ -119,6 +119,9 @@ test("article editors support paste, drop, upload, and reusable image library", 
 
   assert.match(editorImages, /addEventListener\("paste"/);
   assert.match(editorImages, /addEventListener\("drop"/);
+  assert.match(editorImages, /addEventListener\("pagehide", abandonDraft\)/);
+  assert.match(editorImages, /navigator\.sendBeacon/);
+  assert.match(editorImages, /data\.append\("draft_id", draftId\)/);
   assert.match(editorImages, /editormd-image-file/);
   assert.match(editorImages, /openLibrary\(editor\)/);
   assert.match(editorImages, /image\.delete_url/);

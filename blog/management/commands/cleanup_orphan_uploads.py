@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from blog.models import CommentImage, EditorImage
+from blog.models import CommentImage, EditorImage, EditorImageLease
 from blog.services.editor_images import image_used, rebuild_refs
 
 
@@ -31,6 +31,7 @@ class Command(BaseCommand):
             )
             return
         cutoff = timezone.now() - timedelta(hours=hours)
+        EditorImageLease.objects.filter(created_at__lt=cutoff).delete()
         rebuild_refs()
         uploads = CommentImage.objects.filter(
             comment__isnull=True, created_at__lt=cutoff

@@ -10,6 +10,20 @@
   var grid = null;
   var moreButton = null;
   var nextPage = 1;
+  var draftId = createDraftId();
+  var uploadedInDraft = false;
+  var submitting = false;
+
+  function createDraftId() {
+    if (window.crypto && typeof window.crypto.randomUUID === "function") {
+      return window.crypto.randomUUID();
+    }
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (char) {
+      var value = Math.floor(Math.random() * 16);
+      var digit = char === "x" ? value : (value & 3) | 8;
+      return digit.toString(16);
+    });
+  }
 
   function csrfToken() {
     var input = document.querySelector('input[name="csrfmiddlewaretoken"]');
@@ -54,6 +68,7 @@
   async function uploadFile(file, editor, tools) {
     var data = new FormData();
     data.append("editormd-image-file", file, file.name || "pasted-image.png");
+    data.append("draft_id", draftId);
     setStatus(tools, labels.uploading || "Uploading…", false);
     var response = await fetch(config.uploadUrl, {
       method: "POST",
@@ -66,6 +81,7 @@
       throw new Error(payload.message || payload.detail || labels.failed || "Upload failed");
     }
     insertImage(editor, file.name, payload.url);
+    uploadedInDraft = true;
     setStatus(tools, "", false);
   }
 
@@ -204,9 +220,9 @@
       closeLibrary();
     });
     card.append(insert);
-    if (image.ref_count) {
+    if (!image.deletable) {
       var used = document.createElement("small");
-      used.textContent = usedText(image.ref_count);
+      if (image.ref_count) used.textContent = usedText(image.ref_count);
       card.append(used);
     } else {
       var remove = makeButton(labels.delete || "Delete image", "button editor-image-delete");
@@ -282,9 +298,28 @@
     addFilePreviews();
   }
 
+  function abandonDraft() {
+    if (!uploadedInDraft || submitting || !config.abandonUrl) return;
+    var data = new FormData();
+    data.append("csrfmiddlewaretoken", csrfToken());
+    data.append("draft_id", draftId);
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(config.abandonUrl, data);
+      return;
+    }
+    fetch(config.abandonUrl, {
+      method: "POST",
+      credentials: "same-origin",
+      body: data,
+      keepalive: true,
+    });
+  }
+
   var observer = new MutationObserver(discoverEditors);
   observer.observe(document.documentElement, { childList: true, subtree: true });
   document.addEventListener("DOMContentLoaded", discoverEditors);
+  document.addEventListener("submit", function () { submitting = true; }, true);
+  window.addEventListener("pagehide", abandonDraft);
   window.setTimeout(discoverEditors, 100);
   window.setTimeout(discoverEditors, 500);
 })();

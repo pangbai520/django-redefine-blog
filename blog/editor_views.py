@@ -1,4 +1,5 @@
 import hashlib
+import uuid
 import warnings
 from pathlib import Path
 
@@ -13,7 +14,12 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from PIL import Image, UnidentifiedImageError
 
 from blog.models import EditorImage
-from blog.services.editor_images import image_used, store_image
+from blog.services.editor_images import (
+    image_used,
+    lease_image,
+    release_draft,
+    store_image,
+)
 
 
 def _upload_error(message, status=400):
@@ -45,6 +51,13 @@ def editor_image_upload(request):
         return _upload_error(
             _("You do not have permission to upload article images."), 403
         )
+    draft_id = request.POST.get("draft_id", "").strip()
+    draft_uuid = None
+    if draft_id:
+        try:
+            draft_uuid = uuid.UUID(draft_id)
+        except ValueError:
+            return _upload_error(_("Invalid editor draft."))
 
     upload = request.FILES.get("editormd-image-file")
     max_bytes = settings.EDITOR_UPLOAD_MAX_BYTES
@@ -110,6 +123,8 @@ def editor_image_upload(request):
             width,
             height,
         )
+        if draft_uuid:
+            lease_image(image, user, draft_uuid)
     except Exception:
         return _upload_error(_("Image upload failed. Please try again later."), 500)
     return JsonResponse(
@@ -136,7 +151,10 @@ def editor_image_list(request):
     offset = (page - 1) * page_size
     queryset = (
         EditorImage.objects.select_related("uploader")
-        .annotate(ref_count=Count("refs"))
+        .annotate(
+            ref_count=Count("refs", distinct=True),
+            lease_count=Count("leases", distinct=True),
+        )
         .order_by("-created_at", "-pk")
     )
     total = queryset.count()
@@ -152,6 +170,7 @@ def editor_image_list(request):
                 "size": image.size,
                 "created": image.created_at.isoformat(),
                 "ref_count": image.ref_count,
+                "deletable": image.ref_count == 0 and image.lease_count == 0,
                 "delete_url": reverse("mdeditor_image_delete", args=(image.pk,)),
             }
         )
@@ -178,3 +197,15 @@ def editor_image_delete(request, image_id):
         )
     image.delete()
     return JsonResponse({"deleted": True})
+
+
+@require_POST
+def editor_image_abandon(request):
+    if not _can_edit(request.user):
+        return JsonResponse({"detail": str(_("Permission denied."))}, status=403)
+    try:
+        draft_id = uuid.UUID(request.POST.get("draft_id", ""))
+    except (TypeError, ValueError):
+        return JsonResponse({"detail": str(_("Invalid editor draft."))}, status=400)
+    deleted = release_draft(request.user, draft_id)
+    return JsonResponse({"deleted": deleted})

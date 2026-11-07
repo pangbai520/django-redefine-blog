@@ -2404,3 +2404,6 @@ msgstr "預覽"
 
 msgid "standalone page"
 msgstr "獨立頁面"
+
+msgid "Invalid editor draft."
+msgstr "無效的編輯草稿。"

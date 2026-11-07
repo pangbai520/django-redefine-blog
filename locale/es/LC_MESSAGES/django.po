@@ -2442,3 +2442,6 @@ msgstr "vista previa"
 
 msgid "standalone page"
 msgstr "página independiente"
+
+msgid "Invalid editor draft."
+msgstr "Borrador del editor no válido."
