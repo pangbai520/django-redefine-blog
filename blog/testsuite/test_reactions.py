@@ -8,7 +8,10 @@ from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
 from django.utils import translation
 
-from blog.management.commands.install_ip_geolocation import DATABASES
+from blog.management.commands.install_ip_geolocation import (
+    DATABASES,
+    Command as InstallIpGeoCommand,
+)
 from blog.models import (
     ArticleModel,
     ArticleReactionVote,
@@ -214,6 +217,13 @@ class IpDatabaseTests(SimpleTestCase):
     def test_ipv6_database(self):
         self.assertEqual(Path(settings.IP2REGION_DB_V6).name, "ip2region_v6.xdb")
         self.assertEqual(len(DATABASES[6]["sha256"]), 64)
+
+    def test_ip_version_option(self):
+        parser = InstallIpGeoCommand().create_parser(
+            "manage.py", "install_ip_geolocation"
+        )
+
+        self.assertEqual(parser.parse_args(["--ip-version", "6"]).ip_version, "6")
 
     def test_ipv6_searcher(self):
         searcher = type(

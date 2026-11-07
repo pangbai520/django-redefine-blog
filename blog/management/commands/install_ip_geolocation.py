@@ -34,14 +34,14 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--force", action="store_true")
         parser.add_argument(
-            "--version",
+            "--ip-version",
             choices=("all", "4", "6"),
             default="all",
             help="Install both databases or only one address family.",
         )
 
     def handle(self, *args, **options):
-        selected = options["version"]
+        selected = options["ip_version"]
         versions = (4, 6) if selected == "all" else (int(selected),)
         for version in versions:
             self._install(version, force=options["force"])
