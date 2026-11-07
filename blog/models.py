@@ -35,7 +35,12 @@ from .entities.comments import (
     TrafficModel,
 )
 from .entities.navigation import Font, MenuLink, MenuLinkTranslation
-from .entities.media import EditorImage, EditorImageLease, EditorImageRef
+from .entities.media import (
+    EditorImage,
+    EditorImageFolder,
+    EditorImageLease,
+    EditorImageRef,
+)
 from .entities.pages import StandalonePage, StandalonePageTranslation
 from .entities.reactions import ArticleReactionVote
 from .entities.site import SiteConfiguration

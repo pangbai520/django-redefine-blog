@@ -1,6 +1,34 @@
 from django.conf import settings
 from django.db import models
+from django.db.models.functions import Lower
 from django.utils.translation import gettext_lazy as _
+
+
+class EditorImageFolder(models.Model):
+    name = models.CharField(_("name"), max_length=100)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="editor_image_folders",
+        verbose_name=_("created by"),
+    )
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+
+    class Meta:
+        ordering = ("name", "pk")
+        constraints = [
+            models.UniqueConstraint(
+                Lower("name"),
+                name="unique_editor_image_folder_name",
+            )
+        ]
+        verbose_name = _("article image folder")
+        verbose_name_plural = _("article image folders")
+
+    def __str__(self):
+        return self.name
 
 
 class EditorImage(models.Model):
@@ -14,6 +42,14 @@ class EditorImage(models.Model):
         blank=True,
         related_name="editor_images",
         verbose_name=_("uploader"),
+    )
+    folder = models.ForeignKey(
+        EditorImageFolder,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="images",
+        verbose_name=_("folder"),
     )
     size = models.PositiveBigIntegerField(_("file size"), default=0)
     width = models.PositiveIntegerField(_("width"), default=0)

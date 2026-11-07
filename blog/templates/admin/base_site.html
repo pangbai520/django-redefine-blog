@@ -30,11 +30,27 @@
 {% translate "Close" as editor_close %}
 {% translate "Load more" as editor_more %}
 {% translate "This image is used %(count)s time(s)." as editor_used %}
+{% translate "Folder" as editor_folder %}
+{% translate "Folders" as editor_folders %}
+{% translate "All images" as editor_all_images %}
+{% translate "Uncategorized" as editor_uncategorized %}
+{% translate "New folder" as editor_new_folder %}
+{% translate "Rename folder" as editor_rename_folder %}
+{% translate "Delete folder" as editor_delete_folder %}
+{% translate "Folder name" as editor_folder_name %}
+{% translate "Search images" as editor_search %}
+{% translate "Search" as editor_search_button %}
+{% translate "Move to folder" as editor_move_folder %}
+{% translate "Used by an open draft" as editor_in_draft %}
+{% translate "Delete this folder? Its images will remain uncategorized." as editor_delete_folder_confirm %}
 <script>
 window.redefineEditorImages = {
     uploadUrl: "{% url 'mdeditor_upload' %}",
     listUrl: "{% url 'mdeditor_image_list' %}",
     abandonUrl: "{% url 'mdeditor_image_abandon' %}",
+    folderCreateUrl: "{% url 'mdeditor_image_folder_create' %}",
+    folderRenameUrl: "{% url 'mdeditor_image_folder_rename' 0 %}",
+    folderDeleteUrl: "{% url 'mdeditor_image_folder_delete' 0 %}",
     labels: {
         upload: "{{ editor_upload|escapejs }}",
         library: "{{ editor_library|escapejs }}",
@@ -46,7 +62,20 @@ window.redefineEditorImages = {
         delete: "{{ editor_delete|escapejs }}",
         close: "{{ editor_close|escapejs }}",
         more: "{{ editor_more|escapejs }}",
-        used: "{{ editor_used|escapejs }}"
+        used: "{{ editor_used|escapejs }}",
+        folder: "{{ editor_folder|escapejs }}",
+        folders: "{{ editor_folders|escapejs }}",
+        allImages: "{{ editor_all_images|escapejs }}",
+        uncategorized: "{{ editor_uncategorized|escapejs }}",
+        newFolder: "{{ editor_new_folder|escapejs }}",
+        renameFolder: "{{ editor_rename_folder|escapejs }}",
+        deleteFolder: "{{ editor_delete_folder|escapejs }}",
+        folderName: "{{ editor_folder_name|escapejs }}",
+        search: "{{ editor_search|escapejs }}",
+        searchButton: "{{ editor_search_button|escapejs }}",
+        moveToFolder: "{{ editor_move_folder|escapejs }}",
+        inDraft: "{{ editor_in_draft|escapejs }}",
+        deleteFolderConfirm: "{{ editor_delete_folder_confirm|escapejs }}"
     }
 };
 </script>

@@ -122,11 +122,17 @@ test("article editors support paste, drop, upload, and reusable image library", 
   assert.match(editorImages, /addEventListener\("pagehide", abandonDraft\)/);
   assert.match(editorImages, /navigator\.sendBeacon/);
   assert.match(editorImages, /data\.append\("draft_id", draftId\)/);
+  assert.match(editorImages, /data\.append\("folder_id"/);
   assert.match(editorImages, /editormd-image-file/);
   assert.match(editorImages, /openLibrary\(editor\)/);
+  assert.match(editorImages, /createFolder/);
+  assert.match(editorImages, /renameFolder/);
+  assert.match(editorImages, /editor-image-folders/);
+  assert.match(editorImages, /image\.move_url/);
   assert.match(editorImages, /image\.delete_url/);
   assert.match(adminTemplate, /redefineEditorImages/);
   assert.match(adminTemplate, /mdeditor_image_list/);
+  assert.match(adminTemplate, /mdeditor_image_folder_create/);
 });
 
 test("custom TOC widths only override the desktop layout", () => {

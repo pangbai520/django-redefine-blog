@@ -4,6 +4,7 @@ import uuid
 from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
+from unittest.mock import patch
 
 from PIL import Image
 from django.apps import apps
@@ -17,7 +18,13 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from blog.models import ArticleModel, EditorImage, EditorImageLease, EditorImageRef
+from blog.models import (
+    ArticleModel,
+    EditorImage,
+    EditorImageFolder,
+    EditorImageLease,
+    EditorImageRef,
+)
 
 User = get_user_model()
 
@@ -93,6 +100,94 @@ class EditorUploadSecurityTests(TestCase):
         self.assertTrue(response.json()["id"])
         self.assertEqual(EditorImage.objects.count(), 1)
         self.assertEqual(response.headers["X-Frame-Options"], "SAMEORIGIN")
+
+    def test_storage_log(self):
+        user = User.objects.create_superuser(
+            "storage-error-editor",
+            email="storage-error@example.com",
+            password="A-strong-password-123",
+        )
+        self.client.force_login(user)
+        token = self._csrf_token()
+
+        with patch(
+            "blog.editor_views.store_image",
+            side_effect=PermissionError("media is read-only"),
+        ), self.assertLogs("blog.editor_views", level="ERROR") as logs:
+            response = self.client.post(
+                reverse("mdeditor_upload"),
+                {"editormd-image-file": valid_png()},
+                HTTP_X_CSRFTOKEN=token,
+            )
+
+        self.assertEqual(response.status_code, 500)
+        self.assertIn("Failed to store editor image", logs.output[0])
+
+    def test_image_folders(self):
+        user = User.objects.create_superuser(
+            "folder-editor",
+            email="folder-editor@example.com",
+            password="A-strong-password-123",
+        )
+        self.client.force_login(user)
+        token = self._csrf_token()
+
+        created = self.client.post(
+            reverse("mdeditor_image_folder_create"),
+            {"name": "Article covers"},
+            HTTP_X_CSRFTOKEN=token,
+        )
+        self.assertEqual(created.status_code, 201)
+        folder_id = created.json()["id"]
+
+        with tempfile.TemporaryDirectory(
+            dir=settings.BASE_DIR
+        ) as media_root, override_settings(MEDIA_ROOT=media_root):
+            uploaded = self.client.post(
+                reverse("mdeditor_upload"),
+                {
+                    "editormd-image-file": valid_png(),
+                    "folder_id": str(folder_id),
+                },
+                HTTP_X_CSRFTOKEN=token,
+            )
+            self.assertEqual(uploaded.status_code, 200)
+            image = EditorImage.objects.get()
+            self.assertEqual(image.folder_id, folder_id)
+
+            listed = self.client.get(
+                reverse("mdeditor_image_list"),
+                {"folder": folder_id},
+            )
+            self.assertEqual(listed.status_code, 200)
+            self.assertEqual(listed.json()["images"][0]["id"], image.pk)
+
+            renamed = self.client.post(
+                reverse("mdeditor_image_folder_rename", args=(folder_id,)),
+                {"name": "Screenshots"},
+                HTTP_X_CSRFTOKEN=token,
+            )
+            self.assertEqual(renamed.status_code, 200)
+            self.assertEqual(
+                EditorImageFolder.objects.get(pk=folder_id).name,
+                "Screenshots",
+            )
+
+            moved = self.client.post(
+                reverse("mdeditor_image_move", args=(image.pk,)),
+                {"folder_id": ""},
+                HTTP_X_CSRFTOKEN=token,
+            )
+            self.assertEqual(moved.status_code, 200)
+            image.refresh_from_db()
+            self.assertIsNone(image.folder_id)
+
+            deleted = self.client.post(
+                reverse("mdeditor_image_folder_delete", args=(folder_id,)),
+                HTTP_X_CSRFTOKEN=token,
+            )
+            self.assertEqual(deleted.status_code, 200)
+            self.assertTrue(EditorImage.objects.filter(pk=image.pk).exists())
 
     def test_fake_rejected(self):
         user = User.objects.create_superuser(

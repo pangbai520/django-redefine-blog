@@ -10,7 +10,7 @@ from ..admin import (
     SiteConfigurationAdmin,
     SiteConfigurationForm,
 )
-from ..models import SiteConfiguration
+from ..models import Category, EditorImage, SiteConfiguration, Tag
 
 User = get_user_model()
 
@@ -95,6 +95,40 @@ class AdminExperienceTests(TestCase):
             ("is_published", "created_at", "category", "tags"),
         )
         self.assertEqual(FriendCategoryAdmin.list_filter, ())
+
+    def test_taxonomy_slugs(self):
+        category = Category.objects.create(name="编程语言")
+        tag = Tag.objects.create(name="Python Tricks")
+
+        self.assertEqual(category.slug, "编程语言")
+        self.assertEqual(tag.slug, "python-tricks")
+
+    def test_article_taxonomy(self):
+        response = self.client.get(reverse("admin:blog_articlemodel_add"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="selectfilter"', count=2)
+        self.assertNotContains(response, 'type="checkbox" name="category"')
+        self.assertNotContains(response, 'type="checkbox" name="tags"')
+
+    def test_image_delete(self):
+        image = EditorImage.objects.create(
+            image="content-images/test.png",
+            digest="a" * 64,
+            original_name="test.png",
+        )
+
+        response = self.client.get(reverse("admin:blog_editorimage_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            reverse("admin:blog_editorimage_delete", args=(image.pk,)),
+        )
+        delete_page = self.client.get(
+            reverse("admin:blog_editorimage_delete", args=(image.pk,))
+        )
+        self.assertEqual(delete_page.status_code, 200)
 
     def test_admin_default(self):
         response = self.client.get(reverse("admin:blog_siteconfiguration_changelist"))

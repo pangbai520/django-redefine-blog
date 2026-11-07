@@ -32,7 +32,15 @@ from .site import SiteConfiguration
 
 class Category(models.Model):
     name = models.CharField(_("name"), max_length=100, unique=True)
-    slug = models.SlugField(_("slug"), max_length=100, unique=True)
+    slug = autoslug.AutoSlugField(
+        _("slug"),
+        populate_from="name",
+        max_length=100,
+        unique=True,
+        blank=True,
+        always_update=False,
+        slugify=unicode_slugify,
+    )
     parent = models.ForeignKey(
         "self",
         on_delete=models.SET_NULL,
@@ -65,7 +73,15 @@ class Category(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(_("name"), max_length=100, unique=True)
-    slug = models.SlugField(_("slug"), max_length=100, unique=True)
+    slug = autoslug.AutoSlugField(
+        _("slug"),
+        populate_from="name",
+        max_length=100,
+        unique=True,
+        blank=True,
+        always_update=False,
+        slugify=unicode_slugify,
+    )
 
     def __str__(self):
         return self.name

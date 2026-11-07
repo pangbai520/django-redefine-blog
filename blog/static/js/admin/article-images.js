@@ -9,6 +9,16 @@
   var modal = null;
   var grid = null;
   var moreButton = null;
+  var folderList = null;
+  var searchInput = null;
+  var renameFolderButton = null;
+  var deleteFolderButton = null;
+  var folders = [];
+  var folderSelects = [];
+  var activeFolder = "all";
+  var searchTerm = "";
+  var foldersReady = false;
+  var folderRequest = null;
   var nextPage = 1;
   var draftId = createDraftId();
   var uploadedInDraft = false;
@@ -30,6 +40,24 @@
     if (input && input.value) return input.value;
     var match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
     return match ? decodeURIComponent(match[1]) : "";
+  }
+
+  async function postForm(url, values) {
+    var data = new FormData();
+    Object.keys(values || {}).forEach(function (key) {
+      data.append(key, values[key]);
+    });
+    var response = await fetch(url, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "X-CSRFToken": csrfToken(), Accept: "application/json" },
+      body: data,
+    });
+    var payload = await response.json().catch(function () { return {}; });
+    if (!response.ok) {
+      throw new Error(payload.detail || labels.failed || "Request failed");
+    }
+    return payload;
   }
 
   function imageFiles(fileList) {
@@ -69,6 +97,8 @@
     var data = new FormData();
     data.append("editormd-image-file", file, file.name || "pasted-image.png");
     data.append("draft_id", draftId);
+    var folderSelect = tools.querySelector(".editor-image-folder-select");
+    data.append("folder_id", folderSelect ? folderSelect.value : "");
     setStatus(tools, labels.uploading || "Uploading…", false);
     var response = await fetch(config.uploadUrl, {
       method: "POST",
@@ -106,6 +136,31 @@
     return button;
   }
 
+  function fillFolderSelect(select, selected) {
+    var value = selected == null ? "" : String(selected);
+    select.replaceChildren();
+    var uncategorized = document.createElement("option");
+    uncategorized.value = "";
+    uncategorized.textContent = labels.uncategorized || "Uncategorized";
+    select.append(uncategorized);
+    folders.forEach(function (folder) {
+      var option = document.createElement("option");
+      option.value = String(folder.id);
+      option.textContent = folder.name;
+      select.append(option);
+    });
+    select.value = value;
+  }
+
+  function refreshFolderSelects() {
+    folderSelects = folderSelects.filter(function (select) {
+      return select.isConnected;
+    });
+    folderSelects.forEach(function (select) {
+      fillFolderSelect(select, select.value);
+    });
+  }
+
   function attachTools(wrapper) {
     if (wrapper.dataset.imageToolsReady === "true") return;
     var editor = editorFor(wrapper);
@@ -116,6 +171,11 @@
     tools.className = "editor-image-tools";
     var upload = makeButton(labels.upload || "Upload image", "button editor-image-upload");
     var library = makeButton(labels.library || "Image library", "button editor-image-library");
+    var folderSelect = document.createElement("select");
+    folderSelect.className = "editor-image-folder-select";
+    folderSelect.setAttribute("aria-label", labels.folder || "Folder");
+    fillFolderSelect(folderSelect, "");
+    folderSelects.push(folderSelect);
     var input = document.createElement("input");
     input.type = "file";
     input.accept = "image/jpeg,image/png,image/gif,image/webp";
@@ -126,7 +186,7 @@
     hint.textContent = labels.hint || "Paste or drop images into the editor.";
     var status = document.createElement("span");
     status.className = "editor-image-status";
-    tools.append(upload, library, input, hint, status);
+    tools.append(upload, library, folderSelect, input, hint, status);
     wrapper.before(tools);
 
     upload.addEventListener("click", function () { input.click(); });
@@ -181,10 +241,31 @@
     title.textContent = labels.library || "Image library";
     var close = makeButton(labels.close || "Close", "button editor-image-close");
     header.append(title, close);
+    var toolbar = document.createElement("form");
+    toolbar.className = "editor-image-library-toolbar";
+    searchInput = document.createElement("input");
+    searchInput.type = "search";
+    searchInput.placeholder = labels.search || "Search images";
+    searchInput.setAttribute("aria-label", labels.search || "Search images");
+    var search = makeButton(labels.searchButton || "Search", "button");
+    search.type = "submit";
+    var newFolder = makeButton(labels.newFolder || "New folder", "button");
+    renameFolderButton = makeButton(labels.renameFolder || "Rename", "button");
+    deleteFolderButton = makeButton(labels.deleteFolder || "Delete folder", "button editor-folder-delete");
+    toolbar.append(searchInput, search, newFolder, renameFolderButton, deleteFolderButton);
+    var layout = document.createElement("div");
+    layout.className = "editor-image-library-layout";
+    folderList = document.createElement("nav");
+    folderList.className = "editor-image-folders";
+    folderList.setAttribute("aria-label", labels.folders || "Folders");
+    var content = document.createElement("section");
+    content.className = "editor-image-library-content";
     grid = document.createElement("div");
     grid.className = "editor-image-grid";
     moreButton = makeButton(labels.more || "Load more", "button editor-image-more");
-    dialog.append(header, grid, moreButton);
+    content.append(grid, moreButton);
+    layout.append(folderList, content);
+    dialog.append(header, toolbar, layout);
     modal.append(dialog);
     document.body.append(modal);
     close.addEventListener("click", closeLibrary);
@@ -192,6 +273,14 @@
       if (event.target === modal) closeLibrary();
     });
     moreButton.addEventListener("click", function () { loadImages(nextPage, true); });
+    toolbar.addEventListener("submit", function (event) {
+      event.preventDefault();
+      searchTerm = searchInput.value.trim();
+      loadImages(1, false);
+    });
+    newFolder.addEventListener("click", createFolder);
+    renameFolderButton.addEventListener("click", renameFolder);
+    deleteFolderButton.addEventListener("click", deleteFolder);
   }
 
   function closeLibrary() {
@@ -201,6 +290,119 @@
   function usedText(count) {
     return (labels.used || "This image is used %(count)s time(s).")
       .replace("%(count)s", String(count));
+  }
+
+  function formatBytes(bytes) {
+    var size = Number(bytes || 0);
+    if (size < 1024) return size + " B";
+    if (size < 1024 * 1024) return (size / 1024).toFixed(1) + " KB";
+    return (size / (1024 * 1024)).toFixed(1) + " MB";
+  }
+
+  function applyFolderData(payload) {
+    folders = payload.folders || [];
+    config.allImageCount = payload.all_count || 0;
+    config.uncategorizedCount = payload.uncategorized_count || 0;
+    foldersReady = true;
+    refreshFolderSelects();
+    renderFolders();
+  }
+
+  async function loadFolderMetadata() {
+    if (foldersReady) return;
+    if (folderRequest) return folderRequest;
+    folderRequest = fetch(config.listUrl + "?page=1", {
+      credentials: "same-origin",
+      headers: { Accept: "application/json" },
+    }).then(async function (response) {
+      if (response.ok) applyFolderData(await response.json());
+    }).finally(function () {
+      folderRequest = null;
+    });
+    return folderRequest;
+  }
+
+  function folderUrl(template, folderId) {
+    return template.replace(/\/0\//, "/" + folderId + "/");
+  }
+
+  function selectedFolder() {
+    return folders.find(function (folder) {
+      return String(folder.id) === String(activeFolder);
+    });
+  }
+
+  function folderButton(value, text, count) {
+    var button = makeButton("", "editor-image-folder");
+    button.classList.toggle("is-active", String(activeFolder) === String(value));
+    var label = document.createElement("span");
+    label.textContent = text;
+    var badge = document.createElement("small");
+    badge.textContent = String(count || 0);
+    button.append(label, badge);
+    button.addEventListener("click", function () {
+      activeFolder = String(value);
+      renderFolders();
+      loadImages(1, false);
+    });
+    return button;
+  }
+
+  function renderFolders() {
+    if (!folderList) return;
+    folderList.replaceChildren(
+      folderButton("all", labels.allImages || "All images", config.allImageCount || 0),
+      folderButton(
+        "uncategorized",
+        labels.uncategorized || "Uncategorized",
+        config.uncategorizedCount || 0
+      )
+    );
+    folders.forEach(function (folder) {
+      folderList.append(folderButton(folder.id, folder.name, folder.count));
+    });
+    var hasFolder = Boolean(selectedFolder());
+    renameFolderButton.disabled = !hasFolder;
+    deleteFolderButton.disabled = !hasFolder;
+  }
+
+  async function createFolder() {
+    var name = window.prompt(labels.folderName || "Folder name");
+    if (!name || !name.trim()) return;
+    try {
+      var folder = await postForm(config.folderCreateUrl, { name: name });
+      activeFolder = String(folder.id);
+      await loadImages(1, false);
+    } catch (error) {
+      window.alert(error.message);
+    }
+  }
+
+  async function renameFolder() {
+    var folder = selectedFolder();
+    if (!folder) return;
+    var name = window.prompt(labels.folderName || "Folder name", folder.name);
+    if (!name || !name.trim() || name.trim() === folder.name) return;
+    try {
+      await postForm(folderUrl(config.folderRenameUrl, folder.id), { name: name });
+      await loadImages(1, false);
+    } catch (error) {
+      window.alert(error.message);
+    }
+  }
+
+  async function deleteFolder() {
+    var folder = selectedFolder();
+    if (!folder) return;
+    var message = labels.deleteFolderConfirm || "Delete this folder? Its images will remain uncategorized.";
+    if (!window.confirm(message)) return;
+    try {
+      await postForm(folderUrl(config.folderDeleteUrl, folder.id), {});
+      activeFolder = "uncategorized";
+      await loadImages(1, false);
+    } catch (error) {
+      window.alert(error.message);
+    }
   }
 
   function renderImage(image) {
@@ -219,35 +421,58 @@
       insertImage(activeEditor, image.name, image.url);
       closeLibrary();
     });
-    card.append(insert);
+    var meta = document.createElement("small");
+    meta.className = "editor-image-meta";
+    meta.textContent = (image.width && image.height ? image.width + " × " + image.height + " · " : "") + formatBytes(image.size);
+    var move = document.createElement("select");
+    move.className = "editor-image-move";
+    move.setAttribute("aria-label", labels.moveToFolder || "Move to folder");
+    fillFolderSelect(move, image.folder_id);
+    move.addEventListener("change", async function () {
+      move.disabled = true;
+      try {
+        await postForm(image.move_url, { folder_id: move.value });
+        await loadImages(1, false);
+      } catch (error) {
+        window.alert(error.message);
+        move.disabled = false;
+      }
+    });
+    var actions = document.createElement("div");
+    actions.className = "editor-image-card-actions";
+    actions.append(move);
+    card.append(insert, meta, actions);
     if (!image.deletable) {
       var used = document.createElement("small");
-      if (image.ref_count) used.textContent = usedText(image.ref_count);
+      used.textContent = image.ref_count
+        ? usedText(image.ref_count)
+        : (labels.inDraft || "Used by an open draft");
+      used.className = "editor-image-usage";
       card.append(used);
     } else {
       var remove = makeButton(labels.delete || "Delete image", "button editor-image-delete");
       remove.addEventListener("click", async function () {
         if (!window.confirm(labels.delete || "Delete image")) return;
-        var response = await fetch(image.delete_url, {
-          method: "POST",
-          credentials: "same-origin",
-          headers: { "X-CSRFToken": csrfToken(), Accept: "application/json" },
-        });
-        var payload = await response.json().catch(function () { return {}; });
-        if (!response.ok) {
-          window.alert(payload.detail || labels.failed || "Delete failed");
-          return;
+        try {
+          await postForm(image.delete_url, {});
+          await loadImages(1, false);
+        } catch (error) {
+          window.alert(error.message);
         }
-        card.remove();
       });
-      card.append(remove);
+      actions.append(remove);
     }
     grid.append(card);
   }
 
   async function loadImages(page, append) {
     moreButton.disabled = true;
-    var response = await fetch(config.listUrl + "?page=" + page, {
+    var params = new URLSearchParams({
+      page: String(page),
+      folder: String(activeFolder),
+    });
+    if (searchTerm) params.set("q", searchTerm);
+    var response = await fetch(config.listUrl + "?" + params.toString(), {
       credentials: "same-origin",
       headers: { Accept: "application/json" },
     });
@@ -257,6 +482,7 @@
       moreButton.hidden = true;
       return;
     }
+    applyFolderData(payload);
     if (!append) grid.replaceChildren();
     (payload.images || []).forEach(renderImage);
     if (!grid.children.length) grid.textContent = labels.empty || "No article images have been uploaded yet.";
@@ -296,6 +522,7 @@
   function discoverEditors() {
     document.querySelectorAll(".wmd-wrapper").forEach(attachTools);
     addFilePreviews();
+    loadFolderMetadata();
   }
 
   function abandonDraft() {

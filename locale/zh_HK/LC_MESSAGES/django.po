@@ -2224,7 +2224,9 @@ msgstr "此頁面已關閉留言。"
 msgid "Page"
 msgstr "頁面"
 
-msgid "Skipped %(count)d duplicate selection because only one comment can be pinned per page."
+msgid ""
+"Skipped %(count)d duplicate selection because only one comment can be pinned"
+" per page."
 msgstr "已略過 %(count)d 個重複選擇，因為每個頁面只可置頂一則留言。"
 
 msgid "Article reaction emoji pack"
@@ -2233,10 +2235,14 @@ msgstr "文章反應表情包"
 msgid "Article reaction count"
 msgstr "文章反應數量"
 
-msgid "Choose an existing comment emoji pack, such as Bilibili. Leave empty to use Waline's default Tieba reactions."
+msgid ""
+"Choose an existing comment emoji pack, such as Bilibili. Leave empty to use "
+"Waline's default Tieba reactions."
 msgstr "選擇現有的留言表情包，例如 Bilibili；留空則使用 Waline 預設的貼吧表情。"
 
-msgid "Use the first 1 to 9 emoji in the selected pack, following its configured order."
+msgid ""
+"Use the first 1 to 9 emoji in the selected pack, following its configured "
+"order."
 msgstr "依照表情包的設定次序，使用首 1 至 9 個表情。"
 
 msgid "Reaction"
@@ -2258,7 +2264,9 @@ msgstr "你認為這篇文章怎麼樣？"
 msgid "Enable article reactions"
 msgstr "啟用文章反應"
 
-msgid "Show Waline-style reactions below articles. Individual articles can disable them."
+msgid ""
+"Show Waline-style reactions below articles. Individual articles can disable "
+"them."
 msgstr "在文章下方顯示 Waline 風格的反應；可為個別文章關閉。"
 
 msgid "Article reaction vote"
@@ -2273,7 +2281,9 @@ msgstr "為所選文章啟用反應"
 msgid "Disable reactions on selected articles"
 msgstr "為所選文章關閉反應"
 
-msgid "Skipped %(count)d duplicate selections because only one comment can be pinned per page."
+msgid ""
+"Skipped %(count)d duplicate selections because only one comment can be "
+"pinned per page."
 msgstr "已略過 %(count)d 個重複選擇，因為每個頁面只可置頂一則留言。"
 
 msgid "Toggle table of contents"
@@ -2285,8 +2295,12 @@ msgstr "文章反應位置"
 msgid "Set a unique slot from 1 to 9, or leave empty to hide it."
 msgstr "填寫不重複的 1 至 9；留空則不會在文章反應中顯示。"
 
-msgid "Choose an existing comment emoji pack, such as Bilibili. Then assign slots 1 to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's default Tieba reactions."
-msgstr "選擇已有的留言表情包（例如 Bilibili），再到「留言表情」為需要的表情分配 1 至 9 的位置。留空則使用 Waline 預設的貼吧反應。"
+msgid ""
+"Choose an existing comment emoji pack, such as Bilibili. Then assign slots 1"
+" to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's "
+"default Tieba reactions."
+msgstr ""
+"選擇已有的留言表情包（例如 Bilibili），再到「留言表情」為需要的表情分配 1 至 9 的位置。留空則使用 Waline 預設的貼吧反應。"
 
 #, python-format
 msgid "Images must be no larger than %(size)s MB."
@@ -2407,3 +2421,69 @@ msgstr "獨立頁面"
 
 msgid "Invalid editor draft."
 msgstr "無效的編輯草稿。"
+
+msgid "created by"
+msgstr "建立者"
+
+msgid "article image folder"
+msgstr "文章圖片資料夾"
+
+msgid "article image folders"
+msgstr "文章圖片資料夾"
+
+msgid "folder"
+msgstr "資料夾"
+
+msgid "Image folder not found."
+msgstr "搵唔到圖片資料夾。"
+
+msgid "Enter a folder name up to 100 characters."
+msgstr "請輸入不多於 100 個字元的資料夾名稱。"
+
+msgid "A folder with this name already exists."
+msgstr "已有同名資料夾。"
+
+msgid "Folder"
+msgstr "資料夾"
+
+msgid "Folders"
+msgstr "資料夾"
+
+msgid "All images"
+msgstr "全部圖片"
+
+msgid "Uncategorized"
+msgstr "未分類"
+
+msgid "New folder"
+msgstr "新增資料夾"
+
+msgid "Rename folder"
+msgstr "重新命名資料夾"
+
+msgid "Delete folder"
+msgstr "刪除資料夾"
+
+msgid "Folder name"
+msgstr "資料夾名稱"
+
+msgid "Search images"
+msgstr "搜尋圖片"
+
+msgid "Search"
+msgstr "搜尋"
+
+msgid "Move to folder"
+msgstr "移至資料夾"
+
+msgid "Used by an open draft"
+msgstr "正由未儲存的草稿使用"
+
+msgid "Delete this folder? Its images will remain uncategorized."
+msgstr "刪除此資料夾？當中的圖片會保留並移至「未分類」。"
+
+msgid "In use"
+msgstr "使用中"
+
+msgid "images"
+msgstr "圖片"

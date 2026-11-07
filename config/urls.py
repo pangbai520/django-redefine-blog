@@ -21,7 +21,11 @@ from django.urls import path, include
 from blog.editor_views import (
     editor_image_abandon,
     editor_image_delete,
+    image_folder_create,
+    image_folder_delete,
+    image_folder_rename,
     editor_image_list,
+    editor_image_move,
     editor_image_upload,
 )
 
@@ -34,9 +38,29 @@ urlpatterns = [
     path("mdeditor/uploads/", editor_image_upload, name="mdeditor_upload"),
     path("mdeditor/images/", editor_image_list, name="mdeditor_image_list"),
     path(
+        "mdeditor/images/folders/create/",
+        image_folder_create,
+        name="mdeditor_image_folder_create",
+    ),
+    path(
+        "mdeditor/images/folders/<int:folder_id>/rename/",
+        image_folder_rename,
+        name="mdeditor_image_folder_rename",
+    ),
+    path(
+        "mdeditor/images/folders/<int:folder_id>/delete/",
+        image_folder_delete,
+        name="mdeditor_image_folder_delete",
+    ),
+    path(
         "mdeditor/images/abandon/",
         editor_image_abandon,
         name="mdeditor_image_abandon",
+    ),
+    path(
+        "mdeditor/images/<int:image_id>/move/",
+        editor_image_move,
+        name="mdeditor_image_move",
     ),
     path(
         "mdeditor/images/<int:image_id>/delete/",

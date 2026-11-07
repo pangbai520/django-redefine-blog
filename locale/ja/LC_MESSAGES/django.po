@@ -2224,7 +2224,9 @@ msgstr "このページではコメントが無効です。"
 msgid "Page"
 msgstr "ページ"
 
-msgid "Skipped %(count)d duplicate selection because only one comment can be pinned per page."
+msgid ""
+"Skipped %(count)d duplicate selection because only one comment can be pinned"
+" per page."
 msgstr "各ページで固定できるコメントは一件だけのため、重複した %(count)d 件を除外しました。"
 
 msgid "Article reaction emoji pack"
@@ -2233,10 +2235,14 @@ msgstr "記事リアクション絵文字パック"
 msgid "Article reaction count"
 msgstr "記事リアクション数"
 
-msgid "Choose an existing comment emoji pack, such as Bilibili. Leave empty to use Waline's default Tieba reactions."
+msgid ""
+"Choose an existing comment emoji pack, such as Bilibili. Leave empty to use "
+"Waline's default Tieba reactions."
 msgstr "Bilibili など既存のコメント絵文字パックを選択します。空欄の場合は Waline 既定の Tieba リアクションを使用します。"
 
-msgid "Use the first 1 to 9 emoji in the selected pack, following its configured order."
+msgid ""
+"Use the first 1 to 9 emoji in the selected pack, following its configured "
+"order."
 msgstr "設定された順序に従い、選択したパックの先頭 1～9 個の絵文字を使用します。"
 
 msgid "Reaction"
@@ -2258,7 +2264,9 @@ msgstr "この記事をどう思いますか？"
 msgid "Enable article reactions"
 msgstr "記事リアクションを有効にする"
 
-msgid "Show Waline-style reactions below articles. Individual articles can disable them."
+msgid ""
+"Show Waline-style reactions below articles. Individual articles can disable "
+"them."
 msgstr "記事の下に Waline 形式のリアクションを表示します。記事ごとに無効にできます。"
 
 msgid "Article reaction vote"
@@ -2273,7 +2281,9 @@ msgstr "選択した記事のリアクションを有効にする"
 msgid "Disable reactions on selected articles"
 msgstr "選択した記事のリアクションを無効にする"
 
-msgid "Skipped %(count)d duplicate selections because only one comment can be pinned per page."
+msgid ""
+"Skipped %(count)d duplicate selections because only one comment can be "
+"pinned per page."
 msgstr "各ページで固定できるコメントは一件だけのため、重複した %(count)d 件を除外しました。"
 
 msgid "Toggle table of contents"
@@ -2285,8 +2295,13 @@ msgstr "記事リアクションの表示順"
 msgid "Set a unique slot from 1 to 9, or leave empty to hide it."
 msgstr "1〜9 の重複しない番号を設定してください。空欄にすると表示されません。"
 
-msgid "Choose an existing comment emoji pack, such as Bilibili. Then assign slots 1 to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's default Tieba reactions."
-msgstr "Bilibili などの絵文字パックを選び、使用する絵文字に 1〜9 の表示順を設定します。空欄の場合は Waline 標準の Tieba リアクションを使用します。"
+msgid ""
+"Choose an existing comment emoji pack, such as Bilibili. Then assign slots 1"
+" to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's "
+"default Tieba reactions."
+msgstr ""
+"Bilibili などの絵文字パックを選び、使用する絵文字に 1〜9 の表示順を設定します。空欄の場合は Waline 標準の Tieba "
+"リアクションを使用します。"
 
 #, python-format
 msgid "Images must be no larger than %(size)s MB."
@@ -2407,3 +2422,69 @@ msgstr "独立ページ"
 
 msgid "Invalid editor draft."
 msgstr "編集用下書きが無効です。"
+
+msgid "created by"
+msgstr "作成者"
+
+msgid "article image folder"
+msgstr "記事画像フォルダー"
+
+msgid "article image folders"
+msgstr "記事画像フォルダー"
+
+msgid "folder"
+msgstr "フォルダー"
+
+msgid "Image folder not found."
+msgstr "画像フォルダーが見つかりません。"
+
+msgid "Enter a folder name up to 100 characters."
+msgstr "100文字以内でフォルダー名を入力してください。"
+
+msgid "A folder with this name already exists."
+msgstr "同じ名前のフォルダーが既に存在します。"
+
+msgid "Folder"
+msgstr "フォルダー"
+
+msgid "Folders"
+msgstr "フォルダー"
+
+msgid "All images"
+msgstr "すべての画像"
+
+msgid "Uncategorized"
+msgstr "未分類"
+
+msgid "New folder"
+msgstr "新しいフォルダー"
+
+msgid "Rename folder"
+msgstr "フォルダー名を変更"
+
+msgid "Delete folder"
+msgstr "フォルダーを削除"
+
+msgid "Folder name"
+msgstr "フォルダー名"
+
+msgid "Search images"
+msgstr "画像を検索"
+
+msgid "Search"
+msgstr "検索"
+
+msgid "Move to folder"
+msgstr "フォルダーへ移動"
+
+msgid "Used by an open draft"
+msgstr "編集中の下書きで使用中"
+
+msgid "Delete this folder? Its images will remain uncategorized."
+msgstr "このフォルダーを削除しますか？画像は未分類として残ります。"
+
+msgid "In use"
+msgstr "使用中"
+
+msgid "images"
+msgstr "画像"

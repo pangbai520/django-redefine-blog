@@ -1,6 +1,6 @@
-from django import forms
 from django.contrib import admin
 from django.db import models
+from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _, ngettext
 
@@ -13,6 +13,7 @@ from blog.models import (
     Category,
     Essay,
     EditorImage,
+    EditorImageFolder,
     FriendCategory,
     FriendLink,
     MasonryImage,
@@ -25,9 +26,6 @@ from blog.services.geo import get_ip_location
 
 @admin.register(ArticleModel)
 class ArticleAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        models.ManyToManyField: {"widget": forms.CheckboxSelectMultiple},
-    }
     list_display = (
         "title",
         "publication_state",
@@ -153,13 +151,15 @@ class EditorImageAdmin(admin.ModelAdmin):
         "preview",
         "original_name",
         "uploader",
+        "folder",
         "dimensions",
         "file_size",
         "usage_count",
         "created_at",
+        "delete_button",
     )
     search_fields = ("original_name", "digest", "uploader__username")
-    list_filter = ("created_at",)
+    list_filter = ("folder", "created_at")
     readonly_fields = (
         "preview",
         "image",
@@ -172,14 +172,29 @@ class EditorImageAdmin(admin.ModelAdmin):
         "usage_count",
         "created_at",
     )
-    fields = readonly_fields
+    fields = (
+        "preview",
+        "image",
+        "digest",
+        "original_name",
+        "uploader",
+        "folder",
+        "size",
+        "width",
+        "height",
+        "usage_count",
+        "created_at",
+    )
     ordering = ("-created_at",)
     list_per_page = 48
     actions = None
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("uploader").annotate(
-            admin_ref_count=models.Count("refs")
+        return super().get_queryset(request).select_related(
+            "uploader", "folder"
+        ).annotate(
+            admin_ref_count=models.Count("refs", distinct=True),
+            admin_lease_count=models.Count("leases", distinct=True),
         )
 
     @admin.display(description=_("preview"))
@@ -208,6 +223,18 @@ class EditorImageAdmin(admin.ModelAdmin):
     def usage_count(self, obj):
         return getattr(obj, "admin_ref_count", obj.refs.count())
 
+    @admin.display(description=_("Delete"))
+    def delete_button(self, obj):
+        if getattr(obj, "admin_ref_count", 0) or getattr(
+            obj, "admin_lease_count", 0
+        ):
+            return _("In use")
+        return format_html(
+            '<a class="button deletelink" href="{}">{}</a>',
+            reverse("admin:blog_editorimage_delete", args=(obj.pk,)),
+            _("Delete"),
+        )
+
     def has_add_permission(self, request):
         return False
 
@@ -217,6 +244,28 @@ class EditorImageAdmin(admin.ModelAdmin):
         from blog.services.editor_images import image_used
 
         return super().has_delete_permission(request, obj) and not image_used(obj)
+
+
+@admin.register(EditorImageFolder)
+class EditorImageFolderAdmin(admin.ModelAdmin):
+    list_display = ("name", "image_count", "created_by", "created_at")
+    search_fields = ("name",)
+    readonly_fields = ("created_by", "created_at")
+    ordering = ("name",)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("created_by").annotate(
+            admin_image_count=models.Count("images")
+        )
+
+    @admin.display(description=_("images"), ordering="admin_image_count")
+    def image_count(self, obj):
+        return obj.admin_image_count
+
+    def save_model(self, request, obj, form, change):
+        if not obj.created_by_id:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(ArticleReactionVote)

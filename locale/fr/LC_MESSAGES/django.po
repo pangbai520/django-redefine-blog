@@ -2269,11 +2269,19 @@ msgstr "Les commentaires sont désactivés sur cette page."
 msgid "Page"
 msgstr "Page"
 
-msgid "Skipped %(count)d duplicate selection because only one comment can be pinned per page."
-msgstr "%(count)d sélection en double a été ignorée, car un seul commentaire peut être épinglé par page."
+msgid ""
+"Skipped %(count)d duplicate selection because only one comment can be pinned"
+" per page."
+msgstr ""
+"%(count)d sélection en double a été ignorée, car un seul commentaire peut "
+"être épinglé par page."
 
-msgid "Skipped %(count)d duplicate selections because only one comment can be pinned per page."
-msgstr "%(count)d sélections en double ont été ignorées, car un seul commentaire peut être épinglé par page."
+msgid ""
+"Skipped %(count)d duplicate selections because only one comment can be "
+"pinned per page."
+msgstr ""
+"%(count)d sélections en double ont été ignorées, car un seul commentaire "
+"peut être épinglé par page."
 
 msgid "What do you think?"
 msgstr "Qu’en pensez-vous ?"
@@ -2281,8 +2289,12 @@ msgstr "Qu’en pensez-vous ?"
 msgid "Enable article reactions"
 msgstr "Activer les réactions aux articles"
 
-msgid "Show Waline-style reactions below articles. Individual articles can disable them."
-msgstr "Afficher les réactions de style Waline sous les articles. Elles peuvent être désactivées article par article."
+msgid ""
+"Show Waline-style reactions below articles. Individual articles can disable "
+"them."
+msgstr ""
+"Afficher les réactions de style Waline sous les articles. Elles peuvent être"
+" désactivées article par article."
 
 msgid "Article reaction vote"
 msgstr "Vote de réaction à l’article"
@@ -2302,11 +2314,19 @@ msgstr "Pack d’émojis pour les réactions"
 msgid "Article reaction count"
 msgstr "Nombre de réactions"
 
-msgid "Choose an existing comment emoji pack, such as Bilibili. Leave empty to use Waline's default Tieba reactions."
-msgstr "Choisissez un pack d’émojis existant, par exemple Bilibili. Laissez vide pour utiliser les réactions Tieba par défaut de Waline."
+msgid ""
+"Choose an existing comment emoji pack, such as Bilibili. Leave empty to use "
+"Waline's default Tieba reactions."
+msgstr ""
+"Choisissez un pack d’émojis existant, par exemple Bilibili. Laissez vide "
+"pour utiliser les réactions Tieba par défaut de Waline."
 
-msgid "Use the first 1 to 9 emoji in the selected pack, following its configured order."
-msgstr "Utilise les 1 à 9 premiers émojis du pack sélectionné selon l’ordre configuré."
+msgid ""
+"Use the first 1 to 9 emoji in the selected pack, following its configured "
+"order."
+msgstr ""
+"Utilise les 1 à 9 premiers émojis du pack sélectionné selon l’ordre "
+"configuré."
 
 msgid "Reaction"
 msgstr "Réaction"
@@ -2328,10 +2348,17 @@ msgid "Article reaction slot"
 msgstr "Emplacement de réaction de l’article"
 
 msgid "Set a unique slot from 1 to 9, or leave empty to hide it."
-msgstr "Attribuez un emplacement unique de 1 à 9, ou laissez vide pour le masquer."
+msgstr ""
+"Attribuez un emplacement unique de 1 à 9, ou laissez vide pour le masquer."
 
-msgid "Choose an existing comment emoji pack, such as Bilibili. Then assign slots 1 to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's default Tieba reactions."
-msgstr "Choisissez un pack d’émojis, comme Bilibili, puis attribuez les emplacements 1 à 9 aux émojis voulus. Laissez vide pour utiliser les réactions Tieba par défaut de Waline."
+msgid ""
+"Choose an existing comment emoji pack, such as Bilibili. Then assign slots 1"
+" to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's "
+"default Tieba reactions."
+msgstr ""
+"Choisissez un pack d’émojis, comme Bilibili, puis attribuez les emplacements"
+" 1 à 9 aux émojis voulus. Laissez vide pour utiliser les réactions Tieba par"
+" défaut de Waline."
 
 #, python-format
 msgid "Images must be no larger than %(size)s MB."
@@ -2452,3 +2479,69 @@ msgstr "page autonome"
 
 msgid "Invalid editor draft."
 msgstr "Brouillon de l’éditeur invalide."
+
+msgid "created by"
+msgstr "créé par"
+
+msgid "article image folder"
+msgstr "dossier d’images d’articles"
+
+msgid "article image folders"
+msgstr "dossiers d’images d’articles"
+
+msgid "folder"
+msgstr "dossier"
+
+msgid "Image folder not found."
+msgstr "Dossier d’images introuvable."
+
+msgid "Enter a folder name up to 100 characters."
+msgstr "Saisissez un nom de dossier de 100 caractères maximum."
+
+msgid "A folder with this name already exists."
+msgstr "Un dossier portant ce nom existe déjà."
+
+msgid "Folder"
+msgstr "Dossier"
+
+msgid "Folders"
+msgstr "Dossiers"
+
+msgid "All images"
+msgstr "Toutes les images"
+
+msgid "Uncategorized"
+msgstr "Non classées"
+
+msgid "New folder"
+msgstr "Nouveau dossier"
+
+msgid "Rename folder"
+msgstr "Renommer le dossier"
+
+msgid "Delete folder"
+msgstr "Supprimer le dossier"
+
+msgid "Folder name"
+msgstr "Nom du dossier"
+
+msgid "Search images"
+msgstr "Rechercher des images"
+
+msgid "Search"
+msgstr "Rechercher"
+
+msgid "Move to folder"
+msgstr "Déplacer vers le dossier"
+
+msgid "Used by an open draft"
+msgstr "Utilisée par un brouillon ouvert"
+
+msgid "Delete this folder? Its images will remain uncategorized."
+msgstr "Supprimer ce dossier ? Ses images resteront non classées."
+
+msgid "In use"
+msgstr "Utilisée"
+
+msgid "images"
+msgstr "images"
