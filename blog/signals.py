@@ -19,6 +19,7 @@ from .models import (
     EditorImageRef,
     MenuLink,
     MenuLinkTranslation,
+    PendingRegistration,
     SiteConfiguration,
     StandalonePage,
     StandalonePageTranslation,
@@ -278,6 +279,11 @@ def sync_owner_badges():
 
 @receiver(post_save, sender=get_user_model())
 def sync_user(sender, instance, **kwargs):
+    # Saving an existing inactive account is an administrative suspension (or
+    # another explicit account update), not a new registration. Revoke any
+    # outstanding public activation grant, including for an unverified user.
+    if not kwargs.get("raw") and not kwargs.get("created") and not instance.is_active:
+        PendingRegistration.objects.filter(user=instance).delete()
     if instance.is_active:
         try:
             UserProfile.objects.get_or_create(user=instance)

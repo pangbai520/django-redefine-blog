@@ -6,7 +6,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
-from django.contrib.auth.tokens import default_token_generator
+from blog.services.tokens import registration_token_generator
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.template.loader import render_to_string
@@ -25,6 +25,7 @@ from ..models import (
     CommentEmojiPack,
     CommentGifSource,
     CommentImage,
+    PendingRegistration,
     SiteConfiguration,
 )
 
@@ -630,9 +631,10 @@ class InternalCommentTests(TestCase):
         )
 
     def test_unverified_verification(self):
-        User.objects.create_user(
+        user = User.objects.create_user(
             "pending", password="A-strong-password-123", is_active=False
         )
+        PendingRegistration.objects.create(user=user)
         response = self.client.post(
             reverse("comment_login"),
             {"username": "pending", "password": "A-strong-password-123"},
@@ -899,7 +901,7 @@ class InternalCommentTests(TestCase):
         user = User.objects.get(username="new-reader")
         self.assertFalse(user.is_active)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
+        token = registration_token_generator.make_token(user)
         verify_response = self.client.get(reverse("comment_verify", args=[uid, token]))
         self.assertEqual(verify_response.status_code, 200)
         user.refresh_from_db()
