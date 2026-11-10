@@ -19,6 +19,13 @@ class CodeStyleTests(SimpleTestCase):
                     continue
                 if node.name.startswith("__") and node.name.endswith("__"):
                     continue
+                # Django requires this exact hook name when customizing its
+                # token generator. Keep the naming rule for project-owned APIs.
+                if (
+                    path.relative_to(BLOG_DIR).as_posix() == "services/tokens.py"
+                    and node.name == "_make_hash_value"
+                ):
+                    continue
                 if node.name.count("_") > 2:
                     relative = path.relative_to(BLOG_DIR.parent)
                     failures.append(f"{relative}:{node.lineno} {node.name}")

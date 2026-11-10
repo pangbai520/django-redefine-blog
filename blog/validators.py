@@ -1,3 +1,4 @@
+import warnings
 from pathlib import Path
 
 from django.conf import settings
@@ -125,24 +126,29 @@ def validate_profile_avatar(upload):
     position = upload.tell()
     try:
         upload.seek(0)
-        image = Image.open(upload)
-        image_format = (image.format or "").upper()
-        width, height = image.size
-        frames = max(int(getattr(image, "n_frames", 1) or 1), 1)
-        if image_format not in expected_formats.get(suffix, set()):
-            raise ValidationError(
-                _("Avatar image data does not match its filename extension.")
-            )
-        if max(width, height) > getattr(settings, "PROFILE_AVATAR_MAX_DIMENSION", 4096):
-            raise ValidationError(_("Avatar dimensions are too large."))
-        if width * height * frames > getattr(
-            settings, "PROFILE_AVATAR_MAX_PIXELS", 16_000_000
-        ):
-            raise ValidationError(
-                _("Avatar contains too many pixels or animation frames.")
-            )
-        image.verify()
-    except (UnidentifiedImageError, OSError, SyntaxError) as exc:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            with Image.open(upload, formats=("JPEG", "PNG", "GIF", "WEBP")) as image:
+                image_format = (image.format or "").upper()
+                width, height = image.size
+                if image_format not in expected_formats.get(suffix, set()):
+                    raise ValidationError(
+                        _("Avatar image data does not match its filename extension.")
+                    )
+                if max(width, height) > getattr(settings, "PROFILE_AVATAR_MAX_DIMENSION", 4096):
+                    raise ValidationError(_("Avatar dimensions are too large."))
+                frames = max(int(getattr(image, "n_frames", 1) or 1), 1)
+                if width * height * frames > getattr(
+                    settings, "PROFILE_AVATAR_MAX_PIXELS", 16_000_000
+                ):
+                    raise ValidationError(
+                        _("Avatar contains too many pixels or animation frames.")
+                    )
+                image.verify()
+    except (
+        UnidentifiedImageError, OSError, SyntaxError, ValueError,
+        Image.DecompressionBombWarning, Image.DecompressionBombError,
+    ) as exc:
         raise ValidationError(_("Upload a valid avatar image.")) from exc
     finally:
         upload.seek(position)

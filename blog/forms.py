@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 from .models import UserProfile
+from .validators import validate_profile_avatar
 
 User = get_user_model()
 
@@ -118,6 +119,13 @@ class UserProfileForm(forms.ModelForm):
 
     def clean_display_name(self):
         return self.cleaned_data["display_name"].strip()
+
+    def clean_avatar(self):
+        upload = self.cleaned_data.get("avatar")
+        if upload:
+            # Validate the original before clean() decodes or replaces it.
+            validate_profile_avatar(upload)
+        return upload
 
     def clean(self):
         cleaned = super().clean()

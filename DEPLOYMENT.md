@@ -19,6 +19,8 @@ DB_NAME=django_blog
 DB_USER=django_blog
 DB_PASSWORD=change-me
 DB_HOST=127.0.0.1
+CACHE_BACKEND=redis
+CACHE_URL=redis://127.0.0.1:6379/1
 ```
 
 Django does not read this file on its own. The supplied systemd unit loads it
@@ -37,8 +39,15 @@ production requirements:
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
-python -m pip install -r requirements-production.txt
+python -m pip install -r requirements-production.txt -r requirements-redis.txt
 ```
+
+Run Redis as a private service reachable by the application. Login limits are
+shared across the admin, HTML and AJAX login routes, by client IP and account
+(10 requests per 15 minutes). All application workers must use the same cache
+and key prefix; process-local memory does not coordinate limits across workers.
+The included Docker Compose stack already selects Redis. Trust forwarded client
+addresses only when the proxy replaces the header, as in the supplied examples.
 
 Load the environment in the deployment shell, then prepare Django:
 

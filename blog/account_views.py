@@ -15,7 +15,6 @@ from django.contrib.auth.forms import (
     PasswordChangeForm,
     SetPasswordForm,
 )
-from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import PasswordResetView
 from django.core import signing
 from django.db import transaction
@@ -38,6 +37,7 @@ from .models import CommentImage, PendingRegistration, SiteConfiguration, UserPr
 from .services.accounts import maybe_clean_unverified
 from .services.mail import send_email_change, send_verify, send_welcome
 from .services.throttle import rate_limited as _rate_limited
+from .services.tokens import registration_token_generator
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -126,13 +126,18 @@ def _create_user(request, form, site):
 
 
 def _resend_verify(request, username, password):
-    """Resend only when the submitted password proves account ownership."""
-    user = User.objects.filter(username=username, is_active=False).first()
+    """Resend only for an existing, unfinished public registration."""
+    user = User.objects.filter(
+        username=username,
+        is_active=False,
+        is_staff=False,
+        is_superuser=False,
+        pending_registration__isnull=False,
+    ).first()
     if not user or not user.check_password(password):
         return None
     if _rate_limited(request, "verification-resend", limit=3, period=60 * 60):
         return False
-    PendingRegistration.objects.get_or_create(user=user)
     try:
         send_verify(request, user)
     except Exception:
@@ -190,13 +195,16 @@ def register(request):
 
 
 @require_http_methods(["GET", "POST"])
+@transaction.atomic
 def verify(request, uidb64, token):
     try:
-        user = User.objects.get(pk=force_str(urlsafe_base64_decode(uidb64)))
+        user = User.objects.select_for_update().get(
+            pk=force_str(urlsafe_base64_decode(uidb64))
+        )
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
     token_valid = bool(
-        user and not user.is_active and default_token_generator.check_token(user, token)
+        user and registration_token_generator.check_token(user, token)
     )
     if request.method == "GET":
         return render(
@@ -233,15 +241,9 @@ def verify(request, uidb64, token):
 
 
 def login_view(request):
-    login_limited = False
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
-        if _rate_limited(request, "login", limit=10, period=15 * 60):
-            login_limited = True
-            form.add_error(
-                None, _("Too many sign-in attempts. Please try again later.")
-            )
-        elif form.is_valid():
+        if form.is_valid():
             login(request, form.get_user())
             if request.GET.get("modal") == "1":
                 return render(request, "comments/login_modal_done.html")
@@ -249,7 +251,7 @@ def login_view(request):
             return redirect(_safe_next(request, next_url))
     else:
         form = AuthenticationForm(request)
-    if request.method == "POST" and not login_limited and not form.is_valid():
+    if request.method == "POST" and not form.is_valid():
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "")
         resend_result = _resend_verify(request, username, password)
@@ -276,8 +278,6 @@ def login_view(request):
 
 @require_POST
 def login_ajax(request):
-    if _rate_limited(request, "login", limit=10, period=15 * 60):
-        return _json_error(_("Too many sign-in attempts. Please try again later."), 429)
     username = request.POST.get("username", "")
     password = request.POST.get("password", "")
     user = authenticate(request, username=username, password=password)

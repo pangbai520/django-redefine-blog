@@ -727,6 +727,8 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         """Control whether the delete button is available."""
+        if not super().has_delete_permission(request, obj):
+            return False
         if SiteConfiguration.objects.count() <= 1:
             return False
         if obj and obj.is_active:

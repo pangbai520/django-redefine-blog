@@ -663,7 +663,8 @@
       var endpoint = editId ? "/api/comments/" + editId + "/edit/" : commentsApiBase + encodeURIComponent(slug) + "/create/";
       fetch(endpoint, { method: "POST", body: data, headers: { "X-CSRFToken": csrf(), Accept: "application/json" }, credentials: "same-origin" })
         .then(function (response) { return parseJsonResponse(response, message("UnableSubmit", "Unable to submit comment")); })
-        .then(function () {
+        .then(function (body) {
+          if (body.pending) showToast(message("PendingReview", "Pending review"));
           node.dataset.uploadIds = "";
           if (node === composer) { var mainEditor = node.querySelector(".wl-editor"); if (mainEditor) { mainEditor.value = ""; mainEditor.dispatchEvent(new Event("input")); } }
           if (node === replyComposer) { replyComposer.remove(); replyComposer = null; replyTarget = null; }

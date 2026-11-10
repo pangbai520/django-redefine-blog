@@ -494,12 +494,21 @@ def edit_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
     if comment.author_id != request.user.id:
         return _json_error(_("You cannot edit this comment."), 403)
+    site = _site()
+    if not _comments_enabled(site, article=comment.article, page=comment.page):
+        return _json_error(_("Comments are disabled for this page."), 403)
+    if _rate_limited(request, "edit", limit=30, period=60):
+        return _json_error(_("Too many requests."), 429)
     content = (request.POST.get("content") or "").strip()
     if not content or len(content) > 5000:
         return _json_error(_("Comment length must be between 1 and 5000 characters."))
     comment.content = content
-    comment.save(update_fields=("content", "updated_at"))
+    if not site.comment_auto_approve:
+        comment.is_approved = False
+    comment.save(update_fields=("content", "is_approved", "updated_at"))
     _sync_images(comment, request.user, request.POST.getlist("image_ids"))
+    if not comment.is_approved:
+        return JsonResponse({"ok": True, "pending": True})
     return JsonResponse({"ok": True, "comment": _comment_payload(comment, request)})
 
 
