@@ -92,6 +92,15 @@ class PublicCoreFeatureTests(TestCase):
         bad_link.url = "https://user:password@example.com/"
         self.assertEqual(bad_link.href, "#")
 
+        email_link = MenuLink(
+            config=self.site,
+            link_location="social",
+            name="fa-solid fa-at",
+            url="mailto:owner@示例.测试",
+        )
+        email_link.full_clean()
+        self.assertEqual(email_link.href, "mailto:owner@示例.测试")
+
     def test_comment_secrets(self):
         self.site.comment_system = "gitalk"
         self.site.comment_config = {

@@ -215,8 +215,9 @@ class MenuLink(models.Model):
         if any(ord(char) < 32 or ord(char) == 127 for char in value):
             raise ValidationError({"url": _("Enter a valid website URL.")})
 
-        if allow_email and self.link_type == "email":
-            address = value[7:] if value.lower().startswith("mailto:") else value
+        is_mailto = value.lower().startswith("mailto:")
+        if allow_email and (is_mailto or self.link_type == "email"):
+            address = value[7:] if is_mailto else value
             try:
                 validate_email(address)
             except ValidationError as exc:
