@@ -1,8 +1,12 @@
 import json
+from datetime import timedelta
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.forms.models import model_to_dict
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 
 from ..admin import (
     ArticleAdmin,
@@ -10,7 +14,7 @@ from ..admin import (
     SiteConfigurationAdmin,
     SiteConfigurationForm,
 )
-from ..models import Category, EditorImage, SiteConfiguration, Tag
+from ..models import ArticleModel, Category, EditorImage, SiteConfiguration, Tag
 
 User = get_user_model()
 
@@ -110,6 +114,35 @@ class AdminExperienceTests(TestCase):
         self.assertContains(response, 'class="selectfilter"', count=2)
         self.assertNotContains(response, 'type="checkbox" name="category"')
         self.assertNotContains(response, 'type="checkbox" name="tags"')
+
+    def test_article_controls(self):
+        manual_time = timezone.now() - timedelta(days=7)
+        article = ArticleModel.objects.create(
+            title="Article controls",
+            content="This excerpt must stay hidden.",
+            is_published=True,
+            show_excerpt=False,
+            updated_at=manual_time,
+        )
+        article.refresh_from_db()
+        self.assertLess(abs((article.updated_at - manual_time).total_seconds()), 1)
+
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = "zh-hans"
+        response = self.client.get(
+            reverse("admin:blog_articlemodel_change", args=(article.pk,))
+        )
+        self.assertContains(response, 'name="updated_at_0"')
+        for label in (
+            "显示摘要",
+            "启用文章版权覆盖",
+            "文章版权类型",
+            "显示评论",
+            "显示文章反应",
+        ):
+            self.assertContains(response, label)
+
+        home = self.client.get(reverse("index"))
+        self.assertNotContains(home, "This excerpt must stay hidden.")
 
     def test_image_delete(self):
         image = EditorImage.objects.create(

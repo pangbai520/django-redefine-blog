@@ -25,9 +25,11 @@
                     </a>
                 </h3>
 
-                <div class="home-article-content markdown-body">
-                    {{ post.auto_excerpt|safe }}
-                </div>
+                {% if post.show_excerpt %}
+                    <div class="home-article-content markdown-body">
+                        {{ post.auto_excerpt|safe }}
+                    </div>
+                {% endif %}
 
                 {% include 'pages/home/home-article.html' with post=post %}
             </div>

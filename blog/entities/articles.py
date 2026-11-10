@@ -111,6 +111,7 @@ class ArticleModel(models.Model):
         slugify=unicode_slugify,
     )
     excerpt = models.TextField(_("excerpt"), max_length=500, blank=True)
+    show_excerpt = models.BooleanField(_("show excerpt"), default=True)
     content = MDTextField(_("content"))
 
     is_published = models.BooleanField(_("is published"), default=False, db_index=True)
@@ -118,9 +119,10 @@ class ArticleModel(models.Model):
     created_at = models.DateTimeField(
         _("created at"), default=timezone.now, db_index=True
     )
-    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
-    sticky = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(_("updated at"), default=timezone.now)
+    sticky = models.PositiveIntegerField(_("sticky priority"), default=0)
     writer_avatar = models.FileField(
+        _("writer avatar"),
         upload_to="writer_avatar/",
         blank=True,
         null=True,
@@ -156,21 +158,30 @@ class ArticleModel(models.Model):
     tags = models.ManyToManyField("Tag", blank=True, verbose_name=_("tags"))
 
     # allow a per-article license override without changing the site default
-    copyright_override_enabled = models.BooleanField(default=False)
+    copyright_override_enabled = models.BooleanField(
+        _("copyright override enabled"), default=False
+    )
     copyright_override_type = models.CharField(
+        _("copyright override type"),
         max_length=50,
         choices=SiteConfiguration.COPYRIGHT_CHOICES,
         blank=True,
         null=True,
     )
     # override the site comment switch only for this article
-    show_comment = models.BooleanField(default=True)
-    show_reaction = models.BooleanField(default=True)
+    show_comment = models.BooleanField(_("show comment"), default=True)
+    show_reaction = models.BooleanField(_("show reaction"), default=True)
 
     # cache counters; archive and footer pages should not render every article body
-    word_counter = models.PositiveIntegerField(default=0, editable=False)
-    reading_time = models.PositiveIntegerField(default=0, editable=False)
-    view_count = models.PositiveBigIntegerField(default=0, editable=False)
+    word_counter = models.PositiveIntegerField(
+        _("word count"), default=0, editable=False
+    )
+    reading_time = models.PositiveIntegerField(
+        _("reading time"), default=0, editable=False
+    )
+    view_count = models.PositiveBigIntegerField(
+        _("view count"), default=0, editable=False
+    )
 
     def _categories_meta(self, site, *, limited):
         categories_display = []

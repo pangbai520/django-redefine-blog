@@ -2545,3 +2545,33 @@ msgstr "Utilisée"
 
 msgid "images"
 msgstr "images"
+
+msgid "show excerpt"
+msgstr "Afficher l’extrait"
+
+msgid "copyright override enabled"
+msgstr "Activer les droits d’auteur personnalisés"
+
+msgid "copyright override type"
+msgstr "Type de droits d’auteur personnalisé"
+
+msgid "show comment"
+msgstr "Afficher les commentaires"
+
+msgid "show reaction"
+msgstr "Afficher les réactions"
+
+msgid "sticky priority"
+msgstr "Priorité d’épinglage"
+
+msgid "writer avatar"
+msgstr "Avatar de l’auteur"
+
+msgid "word count"
+msgstr "Nombre de mots"
+
+msgid "reading time"
+msgstr "Temps de lecture"
+
+msgid "view count"
+msgstr "Nombre de vues"

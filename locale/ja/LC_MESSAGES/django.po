@@ -2488,3 +2488,33 @@ msgstr "使用中"
 
 msgid "images"
 msgstr "画像"
+
+msgid "show excerpt"
+msgstr "抜粋を表示"
+
+msgid "copyright override enabled"
+msgstr "著作権設定を上書き"
+
+msgid "copyright override type"
+msgstr "上書きする著作権の種類"
+
+msgid "show comment"
+msgstr "コメントを表示"
+
+msgid "show reaction"
+msgstr "リアクションを表示"
+
+msgid "sticky priority"
+msgstr "固定表示の優先度"
+
+msgid "writer avatar"
+msgstr "著者のアバター"
+
+msgid "word count"
+msgstr "文字数"
+
+msgid "reading time"
+msgstr "読了時間"
+
+msgid "view count"
+msgstr "閲覧数"

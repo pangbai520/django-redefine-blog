@@ -2484,3 +2484,33 @@ msgstr "使用中"
 
 msgid "images"
 msgstr "图片"
+
+msgid "show excerpt"
+msgstr "显示摘要"
+
+msgid "copyright override enabled"
+msgstr "启用文章版权覆盖"
+
+msgid "copyright override type"
+msgstr "文章版权类型"
+
+msgid "show comment"
+msgstr "显示评论"
+
+msgid "show reaction"
+msgstr "显示文章反应"
+
+msgid "sticky priority"
+msgstr "置顶优先级"
+
+msgid "writer avatar"
+msgstr "作者头像"
+
+msgid "word count"
+msgstr "字数"
+
+msgid "reading time"
+msgstr "阅读时间"
+
+msgid "view count"
+msgstr "阅读量"

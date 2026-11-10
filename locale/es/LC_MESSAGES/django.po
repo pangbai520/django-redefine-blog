@@ -2537,3 +2537,33 @@ msgstr "En uso"
 
 msgid "images"
 msgstr "imágenes"
+
+msgid "show excerpt"
+msgstr "Mostrar extracto"
+
+msgid "copyright override enabled"
+msgstr "Activar derechos de autor personalizados"
+
+msgid "copyright override type"
+msgstr "Tipo de derechos de autor personalizado"
+
+msgid "show comment"
+msgstr "Mostrar comentarios"
+
+msgid "show reaction"
+msgstr "Mostrar reacciones"
+
+msgid "sticky priority"
+msgstr "Prioridad de fijación"
+
+msgid "writer avatar"
+msgstr "Avatar del autor"
+
+msgid "word count"
+msgstr "Recuento de palabras"
+
+msgid "reading time"
+msgstr "Tiempo de lectura"
+
+msgid "view count"
+msgstr "Número de vistas"

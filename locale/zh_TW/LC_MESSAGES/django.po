@@ -2487,3 +2487,33 @@ msgstr "使用中"
 
 msgid "images"
 msgstr "圖片"
+
+msgid "show excerpt"
+msgstr "顯示摘要"
+
+msgid "copyright override enabled"
+msgstr "啟用文章版權覆寫"
+
+msgid "copyright override type"
+msgstr "文章版權類型"
+
+msgid "show comment"
+msgstr "顯示留言"
+
+msgid "show reaction"
+msgstr "顯示文章反應"
+
+msgid "sticky priority"
+msgstr "置頂優先順序"
+
+msgid "writer avatar"
+msgstr "作者頭像"
+
+msgid "word count"
+msgstr "字數"
+
+msgid "reading time"
+msgstr "閱讀時間"
+
+msgid "view count"
+msgstr "瀏覽量"

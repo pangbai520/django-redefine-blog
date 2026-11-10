@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _, ngettext
 
@@ -47,7 +48,6 @@ class ArticleAdmin(admin.ModelAdmin):
         "word_counter",
         "reading_time",
         "view_count",
-        "updated_at",
     )
     date_hierarchy = "created_at"
     ordering = ("-sticky", "-created_at")
@@ -61,6 +61,11 @@ class ArticleAdmin(admin.ModelAdmin):
         "enable_reactions",
         "disable_reactions",
     )
+
+    def save_model(self, request, obj, form, change):
+        if change and "updated_at" not in form.changed_data:
+            obj.updated_at = timezone.now()
+        super().save_model(request, obj, form, change)
 
     @admin.display(description=_("Publication status"), ordering="is_published")
     def publication_state(self, obj):
