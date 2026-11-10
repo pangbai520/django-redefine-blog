@@ -2514,3 +2514,45 @@ msgstr "阅读时间"
 
 msgid "view count"
 msgstr "阅读量"
+
+msgid "Article rating"
+msgstr "文章评价"
+
+msgid "Article ratings"
+msgstr "文章评价"
+
+msgid "Enable article ratings"
+msgstr "启用文章评价"
+
+msgid "Article rating emoji pack"
+msgstr "文章评价表情包"
+
+msgid "Show Waline-style ratings below articles. Individual articles can disable them."
+msgstr "在文章下方显示 Waline 风格的评价；每篇文章可单独关闭。"
+
+msgid "Choose an existing comment emoji pack, such as Bilibili. Then assign rating slots 1 to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's default Tieba rating icons."
+msgstr "选择已有的评论表情包（例如哔哩哔哩），再为要使用的表情指定 1 至 9 的评价位置。留空则使用 Waline 默认贴吧评价图标。"
+
+msgid "Enable ratings on selected articles"
+msgstr "为所选文章启用评价"
+
+msgid "Disable ratings on selected articles"
+msgstr "为所选文章关闭评价"
+
+msgid "Rating"
+msgstr "评价"
+
+msgid "Article rating slot"
+msgstr "文章评价位置"
+
+msgid "show rating"
+msgstr "显示评价"
+
+msgid "Rate this article"
+msgstr "评价这篇文章"
+
+msgid "Rating options (JSON array)"
+msgstr "评价选项（JSON 数组）"
+
+msgid "Enable discussion feedback"
+msgstr "启用讨论反馈"

@@ -2567,3 +2567,45 @@ msgstr "Tiempo de lectura"
 
 msgid "view count"
 msgstr "Número de vistas"
+
+msgid "Article rating"
+msgstr "Valoración del artículo"
+
+msgid "Article ratings"
+msgstr "Valoraciones de artículos"
+
+msgid "Enable article ratings"
+msgstr "Activar valoraciones de artículos"
+
+msgid "Article rating emoji pack"
+msgstr "Paquete de emojis para valoraciones"
+
+msgid "Show Waline-style ratings below articles. Individual articles can disable them."
+msgstr "Mostrar valoraciones al estilo de Waline debajo de los artículos. Cada artículo puede desactivarlas."
+
+msgid "Choose an existing comment emoji pack, such as Bilibili. Then assign rating slots 1 to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's default Tieba rating icons."
+msgstr "Elige un paquete de emojis existente, como Bilibili. Asigna las posiciones de valoración del 1 al 9 a los emojis exactos. Déjalo vacío para usar los iconos predeterminados de Waline Tieba."
+
+msgid "Enable ratings on selected articles"
+msgstr "Activar valoraciones en los artículos seleccionados"
+
+msgid "Disable ratings on selected articles"
+msgstr "Desactivar valoraciones en los artículos seleccionados"
+
+msgid "Rating"
+msgstr "Valoración"
+
+msgid "Article rating slot"
+msgstr "Posición de valoración del artículo"
+
+msgid "show rating"
+msgstr "mostrar valoración"
+
+msgid "Rate this article"
+msgstr "Valora este artículo"
+
+msgid "Rating options (JSON array)"
+msgstr "Opciones de valoración (matriz JSON)"
+
+msgid "Enable discussion feedback"
+msgstr "Activar comentarios de la discusión"

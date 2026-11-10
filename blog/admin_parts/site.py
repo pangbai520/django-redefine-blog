@@ -79,7 +79,7 @@ class SiteConfigurationForm(forms.ModelForm):
     waline_reaction = forms.CharField(
         required=False,
         widget=forms.Textarea,
-        label=_("Reactions (JSON array)"),
+        label=_("Rating options (JSON array)"),
     )
     waline_recaptcha_v3_key = forms.CharField(
         required=False, label=_("reCAPTCHA v3 site key")
@@ -125,7 +125,7 @@ class SiteConfigurationForm(forms.ModelForm):
     giscus_reactions_enabled = forms.ChoiceField(
         required=False,
         choices=[("0", _("Disabled")), ("1", _("Enabled"))],
-        label=_("Enable reactions"),
+        label=_("Enable discussion feedback"),
     )
     giscus_emit_metadata = forms.ChoiceField(
         required=False,

@@ -27,8 +27,8 @@ class ArticleReactionVote(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = _("Article reaction vote")
-        verbose_name_plural = _("Article reaction votes")
+        verbose_name = _("Article rating")
+        verbose_name_plural = _("Article ratings")
         constraints = [
             models.UniqueConstraint(
                 fields=("article", "visitor"),

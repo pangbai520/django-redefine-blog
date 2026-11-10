@@ -192,7 +192,7 @@
     var status = document.createElement("span");
     status.className = "editor-image-status";
     tools.append(upload, library, folderField, input, hint, status);
-    wrapper.before(tools);
+    wrapper.prepend(tools);
 
     upload.addEventListener("click", function () { input.click(); });
     input.addEventListener("change", function () {

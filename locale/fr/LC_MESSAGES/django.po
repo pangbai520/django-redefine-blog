@@ -2575,3 +2575,45 @@ msgstr "Temps de lecture"
 
 msgid "view count"
 msgstr "Nombre de vues"
+
+msgid "Article rating"
+msgstr "Évaluation de l’article"
+
+msgid "Article ratings"
+msgstr "Évaluations des articles"
+
+msgid "Enable article ratings"
+msgstr "Activer les évaluations d’articles"
+
+msgid "Article rating emoji pack"
+msgstr "Pack d’émojis d’évaluation"
+
+msgid "Show Waline-style ratings below articles. Individual articles can disable them."
+msgstr "Afficher les évaluations de style Waline sous les articles. Chaque article peut les désactiver."
+
+msgid "Choose an existing comment emoji pack, such as Bilibili. Then assign rating slots 1 to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's default Tieba rating icons."
+msgstr "Choisissez un pack d’émojis existant, tel que Bilibili. Attribuez les positions 1 à 9 aux émojis voulus. Laissez vide pour utiliser les icônes Tieba par défaut de Waline."
+
+msgid "Enable ratings on selected articles"
+msgstr "Activer les évaluations sur les articles sélectionnés"
+
+msgid "Disable ratings on selected articles"
+msgstr "Désactiver les évaluations sur les articles sélectionnés"
+
+msgid "Rating"
+msgstr "Évaluation"
+
+msgid "Article rating slot"
+msgstr "Position d’évaluation de l’article"
+
+msgid "show rating"
+msgstr "afficher l’évaluation"
+
+msgid "Rate this article"
+msgstr "Évaluer cet article"
+
+msgid "Rating options (JSON array)"
+msgstr "Options d’évaluation (tableau JSON)"
+
+msgid "Enable discussion feedback"
+msgstr "Activer les retours de discussion"

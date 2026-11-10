@@ -42,7 +42,7 @@ class ArticleAdmin(admin.ModelAdmin):
     )
     list_filter = ("is_published", "created_at", "category", "tags")
     search_fields = ("title", "slug", "writer", "excerpt", "content")
-    filter_horizontal = ("category", "tags")
+    autocomplete_fields = ("category", "tags")
     readonly_fields = (
         "slug",
         "word_counter",
@@ -139,12 +139,12 @@ class ArticleAdmin(admin.ModelAdmin):
             % {"count": updated},
         )
 
-    @admin.action(description=_("Enable reactions on selected articles"))
+    @admin.action(description=_("Enable ratings on selected articles"))
     def enable_reactions(self, request, queryset):
         queryset.update(show_reaction=True)
         self.message_user(request, _("Enabled"))
 
-    @admin.action(description=_("Disable reactions on selected articles"))
+    @admin.action(description=_("Disable ratings on selected articles"))
     def disable_reactions(self, request, queryset):
         queryset.update(show_reaction=False)
         self.message_user(request, _("Disabled"))
@@ -303,7 +303,7 @@ class ArticleReactionVoteAdmin(admin.ModelAdmin):
     date_hierarchy = "updated_at"
     list_select_related = ("article", "user")
 
-    @admin.display(description=_("Reaction"), ordering="reaction")
+    @admin.display(description=_("Rating"), ordering="reaction")
     def reaction_preview(self, obj):
         options = SiteConfiguration.get_config().article_reaction_options
         if obj.reaction >= len(options):

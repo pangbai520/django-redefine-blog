@@ -118,7 +118,7 @@ def article_reactions(request, slug):
             index = None
         if isinstance(index, bool) or not isinstance(index, int):
             return _response(
-                {"detail": "Invalid reaction."},
+                {"detail": "Invalid rating."},
                 request,
                 token,
                 is_new,
@@ -126,7 +126,7 @@ def article_reactions(request, slug):
             )
         if index < 0 or index >= reaction_count:
             return _response(
-                {"detail": "Invalid reaction."},
+                {"detail": "Invalid rating."},
                 request,
                 token,
                 is_new,

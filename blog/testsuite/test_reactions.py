@@ -45,7 +45,7 @@ class ArticleReactionTests(TestCase):
         self.assertContains(response, 'class="wl-reaction"')
         self.assertContains(response, "tieba_agree.png")
         self.assertContains(response, "tieba_sleep.png")
-        self.assertContains(response, "What do you think?")
+        self.assertContains(response, "Rate this article")
         self.assertContains(response, 'referrerpolicy="no-referrer"')
 
     def test_vote_switch(self):

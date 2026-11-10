@@ -6,7 +6,7 @@
        data-article-reaction
        data-api="{% url 'article_reactions' article.slug %}"
        data-path="{{ request.path }}">
-    <div class="wl-reaction-title">{% translate "What do you think?" %}</div>
+    <div class="wl-reaction-title">{% translate "Rate this article" %}</div>
     <ul class="wl-reaction-list">
       {% for option in site.article_reaction_options %}
       <li class="wl-reaction-item" data-reaction-index="{{ forloop.counter0 }}">

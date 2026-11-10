@@ -36,10 +36,15 @@ html[data-theme="light"] {
 
 .editor-image-tools {
   display: flex;
+  width: 100%;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 8px 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--hairline-color);
+  background: var(--darkened-bg);
 }
 
 .editor-image-tools .button {

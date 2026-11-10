@@ -339,7 +339,7 @@ class CommentEmoji(models.Model):
     name = models.CharField(max_length=80)
     image_url = models.URLField()
     reaction_order = models.PositiveSmallIntegerField(
-        _("Article reaction slot"),
+        _("Article rating slot"),
         blank=True,
         null=True,
         validators=[MinValueValidator(1), MaxValueValidator(9)],

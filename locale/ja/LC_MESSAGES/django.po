@@ -2518,3 +2518,45 @@ msgstr "読了時間"
 
 msgid "view count"
 msgstr "閲覧数"
+
+msgid "Article rating"
+msgstr "記事の評価"
+
+msgid "Article ratings"
+msgstr "記事の評価"
+
+msgid "Enable article ratings"
+msgstr "記事の評価を有効化"
+
+msgid "Article rating emoji pack"
+msgstr "記事評価用絵文字パック"
+
+msgid "Show Waline-style ratings below articles. Individual articles can disable them."
+msgstr "記事の下に Waline 形式の評価を表示します。記事ごとに無効化できます。"
+
+msgid "Choose an existing comment emoji pack, such as Bilibili. Then assign rating slots 1 to 9 to the exact emoji in Comment emojis. Leave empty to use Waline's default Tieba rating icons."
+msgstr "Bilibili など既存の絵文字パックを選び、使用する絵文字に評価位置 1〜9 を割り当てます。空欄の場合は Waline 標準の Tieba アイコンを使用します。"
+
+msgid "Enable ratings on selected articles"
+msgstr "選択した記事の評価を有効化"
+
+msgid "Disable ratings on selected articles"
+msgstr "選択した記事の評価を無効化"
+
+msgid "Rating"
+msgstr "評価"
+
+msgid "Article rating slot"
+msgstr "記事評価の位置"
+
+msgid "show rating"
+msgstr "評価を表示"
+
+msgid "Rate this article"
+msgstr "この記事を評価"
+
+msgid "Rating options (JSON array)"
+msgstr "評価オプション（JSON 配列）"
+
+msgid "Enable discussion feedback"
+msgstr "ディスカッションのフィードバックを有効化"

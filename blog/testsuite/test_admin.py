@@ -111,7 +111,9 @@ class AdminExperienceTests(TestCase):
         response = self.client.get(reverse("admin:blog_articlemodel_add"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'class="selectfilter"', count=2)
+        self.assertContains(response, 'class="admin-autocomplete"', count=2)
+        self.assertContains(response, 'id="add_id_category"')
+        self.assertContains(response, 'id="add_id_tags"')
         self.assertNotContains(response, 'type="checkbox" name="category"')
         self.assertNotContains(response, 'type="checkbox" name="tags"')
 
@@ -137,7 +139,7 @@ class AdminExperienceTests(TestCase):
             "启用文章版权覆盖",
             "文章版权类型",
             "显示评论",
-            "显示文章反应",
+            "显示评价",
         ):
             self.assertContains(response, label)
 
