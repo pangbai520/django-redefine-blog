@@ -34,21 +34,33 @@ html[data-theme="light"] {
   --object-tools-hover-bg: var(--redefine-admin-accent-hover);
 }
 
-.editor-image-tools {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
+.editor-image-menu {
+  position: absolute;
+  z-index: 10001;
+  display: grid;
+  width: min(310px, calc(100vw - 16px));
+  gap: 9px;
   box-sizing: border-box;
-  margin: 0;
-  padding: 7px 10px;
-  border-bottom: 1px solid var(--hairline-color);
-  background: var(--darkened-bg);
+  padding: 12px;
+  border: 1px solid var(--redefine-admin-border);
+  border-radius: 8px;
+  background: var(--redefine-admin-surface);
+  box-shadow: var(--redefine-admin-shadow);
 }
 
-.editor-image-tools .button {
+.editor-image-menu[hidden] {
+  display: none;
+}
+
+.editor-image-menu-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.editor-image-menu .button {
   display: inline-flex;
+  flex: 1;
+  justify-content: center;
   align-items: center;
   min-height: 34px;
 }
@@ -85,7 +97,7 @@ html[data-theme="light"] {
   padding: 6px 10px;
 }
 
-.editor-image-tools.is-uploading .button {
+.editor-image-menu.is-uploading .button {
   pointer-events: none;
   opacity: 0.65;
 }

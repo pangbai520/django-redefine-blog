@@ -130,7 +130,12 @@ test("article editors support paste, drop, upload, and reusable image library", 
   assert.match(editorImages, /editor-image-folders/);
   assert.match(editorImages, /editor-image-upload-folder/);
   assert.match(editorImages, /editor-image-move-field/);
-  assert.match(editorImages, /wrapper\.prepend\(tools\)/);
+  assert.match(editorImages, /\.editormd-menu \[name="image"\]/);
+  assert.match(editorImages, /tools\.className = "editor-image-menu"/);
+  assert.match(editorImages, /document\.body\.append\(tools\)/);
+  assert.match(editorImages, /stopImmediatePropagation\(\)/);
+  assert.match(editorImages, /toggleImageMenu\(imageButton, tools\)/);
+  assert.doesNotMatch(editorImages, /wrapper\.prepend\(tools\)/);
   assert.match(editorImages, /image\.move_url/);
   assert.match(editorImages, /image\.delete_url/);
   assert.match(adminTemplate, /redefineEditorImages/);

@@ -6,6 +6,9 @@
 
   var labels = config.labels || {};
   var activeEditor = null;
+  var activeImageMenu = null;
+  var activeImageButton = null;
+  var lastImageTouch = 0;
   var modal = null;
   var grid = null;
   var moreButton = null;
@@ -116,16 +119,19 @@
   }
 
   async function uploadFiles(files, editor, tools) {
+    var succeeded = true;
     tools.classList.add("is-uploading");
     try {
       for (var index = 0; index < files.length; index += 1) {
         await uploadFile(files[index], editor, tools);
       }
     } catch (error) {
+      succeeded = false;
       setStatus(tools, error.message || labels.failed || "Upload failed", true);
     } finally {
       tools.classList.remove("is-uploading");
     }
+    return succeeded;
   }
 
   function makeButton(text, className) {
@@ -161,14 +167,60 @@
     });
   }
 
+  function closeImageMenu() {
+    if (!activeImageMenu) return;
+    activeImageMenu.hidden = true;
+    activeImageButton.setAttribute("aria-expanded", "false");
+    activeImageMenu = null;
+    activeImageButton = null;
+  }
+
+  function placeImageMenu(button, menu) {
+    var rect = button.getBoundingClientRect();
+    menu.hidden = false;
+    var left = window.scrollX + rect.left;
+    var maxLeft = window.scrollX + window.innerWidth - menu.offsetWidth - 8;
+    left = Math.max(window.scrollX + 8, Math.min(left, maxLeft));
+    var top = window.scrollY + rect.bottom + 6;
+    if (rect.bottom + menu.offsetHeight + 6 > window.innerHeight
+        && rect.top - menu.offsetHeight - 6 >= 0) {
+      top = window.scrollY + rect.top - menu.offsetHeight - 6;
+    }
+    menu.style.left = left + "px";
+    menu.style.top = top + "px";
+  }
+
+  function toggleImageMenu(button, menu) {
+    if (activeImageMenu === menu) {
+      closeImageMenu();
+      return;
+    }
+    closeImageMenu();
+    activeImageMenu = menu;
+    activeImageButton = button;
+    button.setAttribute("aria-expanded", "true");
+    placeImageMenu(button, menu);
+  }
+
   function attachTools(wrapper) {
     if (wrapper.dataset.imageToolsReady === "true") return;
     var editor = editorFor(wrapper);
     if (!editor) return;
+    var imageIcon = wrapper.querySelector('.editormd-menu [name="image"]');
+    var imageButton = imageIcon && imageIcon.closest("a");
+    if (!imageButton) return;
     wrapper.dataset.imageToolsReady = "true";
 
     var tools = document.createElement("div");
-    tools.className = "editor-image-tools";
+    tools.className = "editor-image-menu";
+    tools.hidden = true;
+    tools.setAttribute("role", "dialog");
+    tools.setAttribute(
+      "aria-label",
+      imageButton.getAttribute("title") || labels.library || "Image options"
+    );
+    var actions = document.createElement("div");
+    actions.className = "editor-image-menu-actions";
     var upload = makeButton(labels.upload || "Upload image", "button editor-image-upload");
     var library = makeButton(labels.library || "Image library", "button editor-image-library");
     var folderSelect = document.createElement("select");
@@ -191,16 +243,37 @@
     hint.textContent = labels.hint || "Paste or drop images into the editor.";
     var status = document.createElement("span");
     status.className = "editor-image-status";
-    tools.append(upload, library, folderField, input, hint, status);
-    wrapper.prepend(tools);
+    actions.append(upload, library);
+    tools.append(actions, folderField, input, hint, status);
+    document.body.append(tools);
+
+    imageButton.setAttribute("aria-haspopup", "dialog");
+    imageButton.setAttribute("aria-expanded", "false");
+    function handleImageButton(event) {
+      if (event.type === "touchend") {
+        lastImageTouch = Date.now();
+      } else if (Date.now() - lastImageTouch < 500) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      toggleImageMenu(imageButton, tools);
+    }
+    imageButton.addEventListener("click", handleImageButton, true);
+    imageButton.addEventListener("touchend", handleImageButton, true);
 
     upload.addEventListener("click", function () { input.click(); });
-    input.addEventListener("change", function () {
+    input.addEventListener("change", async function () {
       var files = imageFiles(input.files);
-      if (files.length) uploadFiles(files, editor, tools);
+      if (files.length && await uploadFiles(files, editor, tools)) closeImageMenu();
       input.value = "";
     });
-    library.addEventListener("click", function () { openLibrary(editor); });
+    library.addEventListener("click", function () {
+      closeImageMenu();
+      openLibrary(editor);
+    });
 
     wrapper.addEventListener("paste", function (event) {
       var files = imageFiles(event.clipboardData && event.clipboardData.files);
@@ -555,7 +628,17 @@
   var observer = new MutationObserver(discoverEditors);
   observer.observe(document.documentElement, { childList: true, subtree: true });
   document.addEventListener("DOMContentLoaded", discoverEditors);
+  document.addEventListener("click", function (event) {
+    if (!activeImageMenu) return;
+    if (activeImageMenu.contains(event.target) || activeImageButton.contains(event.target)) return;
+    closeImageMenu();
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") closeImageMenu();
+  });
   document.addEventListener("submit", function () { submitting = true; }, true);
+  window.addEventListener("resize", closeImageMenu);
+  window.addEventListener("scroll", closeImageMenu, true);
   window.addEventListener("pagehide", abandonDraft);
   window.setTimeout(discoverEditors, 100);
   window.setTimeout(discoverEditors, 500);
