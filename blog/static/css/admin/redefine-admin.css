@@ -53,6 +53,22 @@ html[data-theme="light"] {
   min-height: 34px;
 }
 
+.editor-image-upload-folder,
+.editor-image-move-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--body-quiet-color);
+  font-size: 0.75rem;
+}
+
+.editor-image-upload-folder {
+  flex-direction: row;
+  align-items: center;
+  gap: 7px;
+}
+
 .editor-image-hint,
 .editor-image-status {
   color: var(--body-quiet-color);
@@ -267,9 +283,13 @@ html[data-theme="light"] {
   gap: 7px;
 }
 
-.editor-image-move {
-  min-width: 0;
+.editor-image-move-field {
   flex: 1;
+}
+
+.editor-image-move {
+  width: 100%;
+  min-width: 0;
 }
 
 .editor-image-usage {

@@ -176,6 +176,11 @@
     folderSelect.setAttribute("aria-label", labels.folder || "Folder");
     fillFolderSelect(folderSelect, "");
     folderSelects.push(folderSelect);
+    var folderField = document.createElement("label");
+    folderField.className = "editor-image-upload-folder";
+    var folderLabel = document.createElement("span");
+    folderLabel.textContent = labels.folder || "Folder";
+    folderField.append(folderLabel, folderSelect);
     var input = document.createElement("input");
     input.type = "file";
     input.accept = "image/jpeg,image/png,image/gif,image/webp";
@@ -186,7 +191,7 @@
     hint.textContent = labels.hint || "Paste or drop images into the editor.";
     var status = document.createElement("span");
     status.className = "editor-image-status";
-    tools.append(upload, library, folderSelect, input, hint, status);
+    tools.append(upload, library, folderField, input, hint, status);
     wrapper.before(tools);
 
     upload.addEventListener("click", function () { input.click(); });
@@ -428,6 +433,11 @@
     move.className = "editor-image-move";
     move.setAttribute("aria-label", labels.moveToFolder || "Move to folder");
     fillFolderSelect(move, image.folder_id);
+    var moveField = document.createElement("label");
+    moveField.className = "editor-image-move-field";
+    var moveLabel = document.createElement("span");
+    moveLabel.textContent = labels.moveToFolder || "Move to folder";
+    moveField.append(moveLabel, move);
     move.addEventListener("change", async function () {
       move.disabled = true;
       try {
@@ -440,7 +450,7 @@
     });
     var actions = document.createElement("div");
     actions.className = "editor-image-card-actions";
-    actions.append(move);
+    actions.append(moveField);
     card.append(insert, meta, actions);
     if (!image.deletable) {
       var used = document.createElement("small");

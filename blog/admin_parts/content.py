@@ -160,9 +160,9 @@ class EditorImageAdmin(admin.ModelAdmin):
     )
     search_fields = ("original_name", "digest", "uploader__username")
     list_filter = ("folder", "created_at")
+    list_editable = ("folder",)
     readonly_fields = (
         "preview",
-        "image",
         "digest",
         "original_name",
         "uploader",
@@ -174,7 +174,6 @@ class EditorImageAdmin(admin.ModelAdmin):
     )
     fields = (
         "preview",
-        "image",
         "digest",
         "original_name",
         "uploader",
@@ -202,10 +201,11 @@ class EditorImageAdmin(admin.ModelAdmin):
         if not obj or not obj.image:
             return "—"
         return format_html(
-            '<a href="{}" target="_blank" rel="noopener">'
+            '<a href="{}" target="_blank" rel="noopener" title="{}">'
             '<img src="{}" alt="" style="width:72px;height:54px;object-fit:cover;'
             'border-radius:6px"></a>',
             obj.image.url,
+            _("Preview"),
             obj.image.url,
         )
 

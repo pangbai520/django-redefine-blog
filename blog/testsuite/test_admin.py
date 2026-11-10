@@ -125,6 +125,11 @@ class AdminExperienceTests(TestCase):
             response,
             reverse("admin:blog_editorimage_delete", args=(image.pk,)),
         )
+        self.assertContains(response, 'name="form-0-folder"')
+        change_page = self.client.get(
+            reverse("admin:blog_editorimage_change", args=(image.pk,))
+        )
+        self.assertContains(change_page, 'target="_blank"')
         delete_page = self.client.get(
             reverse("admin:blog_editorimage_delete", args=(image.pk,))
         )
