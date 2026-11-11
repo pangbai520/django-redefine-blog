@@ -1,4 +1,5 @@
 import json
+import uuid
 from datetime import timedelta
 
 from django.conf import settings
@@ -14,7 +15,14 @@ from ..admin import (
     SiteConfigurationAdmin,
     SiteConfigurationForm,
 )
-from ..models import ArticleModel, Category, EditorImage, SiteConfiguration, Tag
+from ..models import (
+    ArticleModel,
+    Category,
+    EditorImage,
+    EditorImageLease,
+    SiteConfiguration,
+    Tag,
+)
 
 User = get_user_model()
 
@@ -151,6 +159,11 @@ class AdminExperienceTests(TestCase):
             image="content-images/test.png",
             digest="a" * 64,
             original_name="test.png",
+        )
+        EditorImageLease.objects.create(
+            image=image,
+            owner=self.user,
+            draft_id=uuid.uuid4(),
         )
 
         response = self.client.get(reverse("admin:blog_editorimage_changelist"))

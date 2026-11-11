@@ -3,6 +3,44 @@ import re
 from markdown.preprocessors import Preprocessor
 
 
+class FenceContentPreprocessor(Preprocessor):
+    """Keep HTML-looking text inside fenced code as literal code."""
+
+    FENCE_RE = re.compile(r"^ {0,3}(?P<fence>`{3,}|~{3,})(?P<rest>.*)$")
+
+    def run(self, lines):
+        in_fence = False
+        fence_character = ""
+        fence_length = 0
+        protected = []
+        for line in lines:
+            fence_match = self.FENCE_RE.match(line)
+            if not in_fence:
+                if fence_match:
+                    marker = fence_match.group("fence")
+                    in_fence = True
+                    fence_character = marker[0]
+                    fence_length = len(marker)
+                protected.append(line)
+                continue
+
+            if fence_match:
+                marker = fence_match.group("fence")
+                if (
+                    marker[0] == fence_character
+                    and len(marker) >= fence_length
+                    and not fence_match.group("rest").strip()
+                ):
+                    in_fence = False
+                    fence_character = ""
+                    fence_length = 0
+                    protected.append(line)
+                    continue
+
+            protected.append(line.replace("<", "&lt;").replace(">", "&gt;"))
+        return protected
+
+
 class TabMarkerPreprocessor(Preprocessor):
     """Protect Redefine tab comments from Markdown's HTML comment stash."""
 

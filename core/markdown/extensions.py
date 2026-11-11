@@ -15,7 +15,7 @@ from .tree.image_caption import ImageCaptionProcessor, RawImageCaptionPostproces
 from .tree.lazyload import LazyLoadProcessor, RawImageLazyLoadPostprocessor
 from .tree.delete_mask import DeleteMaskPostprocessor
 from .tree.task_lists import TaskListProcessor
-from .preprocessors import TabMarkerPreprocessor
+from .preprocessors import FenceContentPreprocessor, TabMarkerPreprocessor
 
 
 class Extensions(Extension):
@@ -40,6 +40,9 @@ class Extensions(Extension):
 
     def extendMarkdown(self, md):
         md.preprocessors.register(TabMarkerPreprocessor(md), "redefine_tab_markers", 35)
+        md.preprocessors.register(
+            FenceContentPreprocessor(md), "redefine_fence_content", 34
+        )
         md.treeprocessors.register(
             LinkIconProcessor(
                 md,

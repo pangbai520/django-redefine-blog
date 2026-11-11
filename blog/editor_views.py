@@ -17,7 +17,7 @@ from PIL import Image, UnidentifiedImageError
 
 from blog.models import EditorImage, EditorImageFolder
 from blog.services.editor_images import (
-    image_used,
+    image_referenced,
     lease_image,
     release_draft,
     store_image,
@@ -212,7 +212,7 @@ def editor_image_list(request):
                 "created": image.created_at.isoformat(),
                 "ref_count": image.ref_count,
                 "folder_id": image.folder_id,
-                "deletable": image.ref_count == 0 and image.lease_count == 0,
+                "deletable": image.ref_count == 0,
                 "delete_url": reverse("mdeditor_image_delete", args=(image.pk,)),
                 "move_url": reverse("mdeditor_image_move", args=(image.pk,)),
             }
@@ -334,7 +334,7 @@ def editor_image_delete(request, image_id):
     image = EditorImage.objects.filter(pk=image_id).first()
     if image is None:
         return JsonResponse({"detail": str(_("Image not found."))}, status=404)
-    if image_used(image):
+    if image_referenced(image):
         return JsonResponse(
             {"detail": str(_("This image is still used by published content."))},
             status=409,

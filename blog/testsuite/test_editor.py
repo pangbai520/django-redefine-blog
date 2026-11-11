@@ -358,6 +358,7 @@ class EditorUploadSecurityTests(TestCase):
             library = self.client.get(reverse("mdeditor_image_list"))
             self.assertEqual(library.status_code, 200)
             self.assertEqual(library.json()["images"][0]["ref_count"], 1)
+            self.assertFalse(library.json()["images"][0]["deletable"])
             blocked = self.client.post(
                 reverse("mdeditor_image_delete", args=(image.pk,)),
                 HTTP_X_CSRFTOKEN=token,
@@ -375,6 +376,45 @@ class EditorUploadSecurityTests(TestCase):
             self.assertEqual(deleted.status_code, 200)
             self.assertFalse(EditorImage.objects.filter(pk=image.pk).exists())
             self.assertFalse(Path(media_root, image.image.name).exists())
+
+    def test_library_can_delete_image_held_only_by_draft(self):
+        user = User.objects.create_superuser(
+            "draft-delete-editor",
+            email="draft-delete@example.com",
+            password="A-strong-password-123",
+        )
+        self.client.force_login(user)
+        token = self._csrf_token()
+        draft_id = uuid.uuid4()
+
+        with tempfile.TemporaryDirectory(
+            dir=settings.BASE_DIR
+        ) as media_root, override_settings(MEDIA_ROOT=media_root):
+            uploaded = self.client.post(
+                reverse("mdeditor_upload"),
+                {
+                    "editormd-image-file": valid_png(),
+                    "draft_id": str(draft_id),
+                },
+                HTTP_X_CSRFTOKEN=token,
+            )
+            self.assertEqual(uploaded.status_code, 200)
+            image = EditorImage.objects.get()
+            image_path = Path(media_root, image.image.name)
+            self.assertTrue(EditorImageLease.objects.filter(image=image).exists())
+
+            library = self.client.get(reverse("mdeditor_image_list"))
+            self.assertTrue(library.json()["images"][0]["deletable"])
+
+            with self.captureOnCommitCallbacks(execute=True):
+                deleted = self.client.post(
+                    reverse("mdeditor_image_delete", args=(image.pk,)),
+                    HTTP_X_CSRFTOKEN=token,
+                )
+            self.assertEqual(deleted.status_code, 200)
+            self.assertFalse(EditorImage.objects.filter(pk=image.pk).exists())
+            self.assertFalse(EditorImageLease.objects.filter(image_id=image.pk).exists())
+            self.assertFalse(image_path.exists())
 
     def test_orphan_cleanup(self):
         user = User.objects.create_superuser(

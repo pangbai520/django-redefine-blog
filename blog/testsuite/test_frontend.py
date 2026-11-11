@@ -5,6 +5,7 @@ from django.test import RequestFactory, TestCase, override_settings
 from markdown import Markdown
 
 from core.markdown.extensions import get_extensions
+from ..services.html_safety import clean_html
 from ..models import SiteConfiguration
 from ..context_processors import site_processor
 
@@ -313,6 +314,21 @@ class RedefineMarkdownTests(TestCase):
         self.assertIn('class="hljs-built_in">print</span>', html)
         self.assertIn('class="hljs-string">This is a global variable</span>', html)
         self.assertIn('class="hljs-comment"># comment</span>', html)
+
+    def test_fenced_code_keeps_html_like_text_literal(self):
+        source = (
+            "```text\n"
+            "('num',)\n"
+            "(<cell at 0x123: int object at 0x456>,)\n"
+            "<script>alert('no')</script>\n"
+            "```"
+        )
+        html = clean_html(self.render(source))
+
+        self.assertIn("&lt;cell at 0x123: int object at 0x456&gt;", html)
+        self.assertIn("&lt;script&gt;alert('no')&lt;/script&gt;", html)
+        self.assertNotIn("<cell", html)
+        self.assertNotIn("<script>", html)
 
     def test_strikethrough_pipeline(self):
         plain = self.render("~~hidden~~ and <del>raw</del>")

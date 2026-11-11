@@ -198,7 +198,6 @@ class EditorImageAdmin(admin.ModelAdmin):
             "uploader", "folder"
         ).annotate(
             admin_ref_count=models.Count("refs", distinct=True),
-            admin_lease_count=models.Count("leases", distinct=True),
         )
 
     @admin.display(description=_("preview"))
@@ -230,9 +229,7 @@ class EditorImageAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Delete"))
     def delete_button(self, obj):
-        if getattr(obj, "admin_ref_count", 0) or getattr(
-            obj, "admin_lease_count", 0
-        ):
+        if getattr(obj, "admin_ref_count", 0):
             return _("In use")
         return format_html(
             '<a class="button deletelink" href="{}">{}</a>',
@@ -246,9 +243,9 @@ class EditorImageAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         if obj is None:
             return False
-        from blog.services.editor_images import image_used
+        from blog.services.editor_images import image_referenced
 
-        return super().has_delete_permission(request, obj) and not image_used(obj)
+        return super().has_delete_permission(request, obj) and not image_referenced(obj)
 
 
 @admin.register(EditorImageFolder)

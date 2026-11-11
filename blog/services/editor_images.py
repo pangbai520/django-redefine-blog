@@ -180,8 +180,8 @@ def rebuild_refs():
         EditorImageRef.objects.bulk_create(refs, ignore_conflicts=True)
 
 
-def image_used(image):
-    if image.refs.exists() or image.leases.exists():
+def image_referenced(image):
+    if image.refs.exists():
         return True
     digest = image.digest
     return (
@@ -189,6 +189,10 @@ def image_used(image):
         or StandalonePage.objects.filter(content__contains=digest).exists()
         or StandalonePageTranslation.objects.filter(content__contains=digest).exists()
     )
+
+
+def image_used(image):
+    return image_referenced(image) or image.leases.exists()
 
 
 def lease_image(image, user, draft_id):
