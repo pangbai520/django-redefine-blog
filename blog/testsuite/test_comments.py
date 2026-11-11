@@ -111,7 +111,7 @@ class InternalCommentTests(TestCase):
         self.assertEqual(response.status_code, 200)
         html = response.json()["comment"]["content_html"]
         self.assertIn('<pre><code class="hljs language-python">', html)
-        self.assertIn('class="hljs-variable"', html)
+        self.assertIn('class="hljs-built_in"', html)
         self.assertIn('class="hljs-string"', html)
         self.assertNotIn("```", html)
 

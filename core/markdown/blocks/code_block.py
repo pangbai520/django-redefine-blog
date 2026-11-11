@@ -60,11 +60,13 @@ def _token_class(token_type):
         return "hljs-comment"
     if token_type in Keyword:
         return "hljs-keyword"
+    if token_type in Name.Builtin:
+        return "hljs-built_in"
     if token_type in Name.Function:
         return "hljs-title function_"
     if token_type in Name.Class:
         return "hljs-title class_"
-    if token_type in Name:
+    if token_type in Name.Variable:
         return "hljs-variable"
     if token_type in String:
         return "hljs-string"

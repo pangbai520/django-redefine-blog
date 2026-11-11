@@ -291,10 +291,28 @@ class RedefineMarkdownTests(TestCase):
         trailing = self.render("```text\nvalue\n```\n\nAfter")
 
         self.assertIn('data-language="python"', tildes)
-        self.assertIn('class="hljs-variable">print</span>', tildes)
+        self.assertIn('class="hljs-built_in">print</span>', tildes)
         self.assertIn('class="hljs-string">ok</span>', tildes)
         self.assertIn("``` is content", long_fence)
         self.assertIn("<p>After</p>", trailing)
+
+    def test_python_highlight_matches_redefine(self):
+        source = (
+            '```python\n'
+            'global_var = "This is a global variable"  # comment\n'
+            'def func():\n'
+            '    return global_var\n'
+            'print(func())\n'
+            '```'
+        )
+        html = self.render(source)
+
+        self.assertNotIn('class="hljs-variable">global_var</span>', html)
+        self.assertIn('class="hljs-keyword">def</span>', html)
+        self.assertIn('class="hljs-title function_">func</span>', html)
+        self.assertIn('class="hljs-built_in">print</span>', html)
+        self.assertIn('class="hljs-string">This is a global variable</span>', html)
+        self.assertIn('class="hljs-comment"># comment</span>', html)
 
     def test_strikethrough_pipeline(self):
         plain = self.render("~~hidden~~ and <del>raw</del>")
