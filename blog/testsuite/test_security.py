@@ -19,6 +19,10 @@ class HtmlSafetyTests(TestCase):
             slug="unsafe",
             content=(
                 '<script>alert(1)</script>'
+                '<style>body{display:none}</style>'
+                '<iframe src="https://evil.example"></iframe>'
+                '<object data="https://evil.example/payload"></object>'
+                '<link rel="stylesheet" href="https://evil.example/style.css">'
                 '<img src="/safe.png" onerror="alert(2)">'
                 '<a href="javascript:alert(3)">bad</a>'
             ),
@@ -26,6 +30,11 @@ class HtmlSafetyTests(TestCase):
 
         html = str(article.html_content)
         self.assertNotIn("<script", html)
+        self.assertNotIn("<style", html)
+        self.assertNotIn("<iframe", html)
+        self.assertNotIn("<object", html)
+        self.assertNotIn("<link", html)
+        self.assertNotIn("evil.example", html)
         self.assertNotIn("onerror", html)
         self.assertNotIn("javascript:", html)
         self.assertIn('src="/safe.png"', html)
@@ -41,6 +50,40 @@ class HtmlSafetyTests(TestCase):
         self.assertIn('class="content markdown-body"', html)
         self.assertIn('data-tab="one"', html)
         self.assertIn('aria-label="Copy"', html)
+
+    def test_legacy_font_color(self):
+        article = ArticleModel.objects.create(
+            title="Colored text",
+            slug="colored-text",
+            content=(
+                '<font color=FF3030>plain hex</font> '
+                '<font color="#FF3030" onclick="alert(1)" style="display:none">'
+                "hash hex</font>"
+            ),
+        )
+
+        html = str(article.html_content)
+        self.assertIn('<font color="FF3030">plain hex</font>', html)
+        self.assertIn('<font color="#FF3030">hash hex</font>', html)
+        self.assertNotIn("onclick", html)
+        self.assertNotIn("style=", html)
+
+    def test_safe_hexo_html(self):
+        html = clean_html(
+            '<a href="/file.zip" download="file.zip" rel="nofollow">download</a>'
+            '<font color="red" face="serif" size="3">legacy</font>'
+            '<picture><source srcset="/large.webp" type="image/webp">'
+            '<img src="/small.png" alt="sample"></picture>'
+            '<audio src="/song.mp3" controls preload="metadata"></audio>'
+            '<video src="/clip.mp4" controls playsinline width="640"></video>'
+        )
+
+        self.assertIn('download="file.zip"', html)
+        self.assertIn('face="serif"', html)
+        self.assertIn('<picture>', html)
+        self.assertIn('<source srcset="/large.webp" type="image/webp">', html)
+        self.assertIn('<audio src="/song.mp3" controls', html)
+        self.assertIn('<video src="/clip.mp4" controls', html)
 
 
 class RemoteFetchTests(SimpleTestCase):
