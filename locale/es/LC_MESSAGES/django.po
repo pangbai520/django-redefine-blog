@@ -2636,3 +2636,9 @@ msgstr "Introduce una ruta que empiece por / y no contenga consulta ni fragmento
 
 msgid "enabled"
 msgstr "activado"
+
+msgid "An unsaved article draft from %(time)s was found. Restore it?"
+msgstr "Se encontró un borrador de artículo sin guardar del %(time)s. ¿Quieres restaurarlo?"
+
+msgid "Draft restored. Select local files such as the cover again before saving."
+msgstr "Borrador restaurado. Vuelve a seleccionar los archivos locales, como la portada, antes de guardar."

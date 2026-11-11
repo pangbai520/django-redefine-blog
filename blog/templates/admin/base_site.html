@@ -43,6 +43,8 @@
 {% translate "Move to folder" as editor_move_folder %}
 {% translate "Used by an open draft" as editor_in_draft %}
 {% translate "Delete this folder? Its images will remain uncategorized." as editor_delete_folder_confirm %}
+{% translate "An unsaved article draft from %(time)s was found. Restore it?" as article_draft_restore %}
+{% translate "Draft restored. Select local files such as the cover again before saving." as article_draft_restored %}
 <script>
 window.redefineEditorImages = {
     uploadUrl: "{% url 'mdeditor_upload' %}",
@@ -78,8 +80,15 @@ window.redefineEditorImages = {
         deleteFolderConfirm: "{{ editor_delete_folder_confirm|escapejs }}"
     }
 };
+window.redefineArticleDrafts = {
+    labels: {
+        restore: "{{ article_draft_restore|escapejs }}",
+        restored: "{{ article_draft_restored|escapejs }}"
+    }
+};
 </script>
 <script src="{% static 'js/admin/article-images.js' %}" defer></script>
+<script src="{% static 'js/admin/article-drafts.js' %}" defer></script>
 {% endblock %}
 
 {% block branding %}

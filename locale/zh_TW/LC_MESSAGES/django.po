@@ -2586,3 +2586,9 @@ msgstr "請輸入以 / 開頭且不含查詢參數或片段的路徑。"
 
 msgid "enabled"
 msgstr "啟用"
+
+msgid "An unsaved article draft from %(time)s was found. Restore it?"
+msgstr "發現一份儲存於 %(time)s 的未儲存文章草稿。是否復原？"
+
+msgid "Draft restored. Select local files such as the cover again before saving."
+msgstr "草稿已復原。儲存前請重新選擇封面等本機檔案。"

@@ -2644,3 +2644,9 @@ msgstr "Saisissez un chemin commençant par /, sans requête ni fragment."
 
 msgid "enabled"
 msgstr "activé"
+
+msgid "An unsaved article draft from %(time)s was found. Restore it?"
+msgstr "Un brouillon d’article non enregistré datant du %(time)s a été trouvé. Le restaurer ?"
+
+msgid "Draft restored. Select local files such as the cover again before saving."
+msgstr "Brouillon restauré. Sélectionnez de nouveau les fichiers locaux, comme l’image de couverture, avant d’enregistrer."

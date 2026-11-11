@@ -2587,3 +2587,9 @@ msgstr "クエリやフラグメントを含まない、/ で始まるパスを�
 
 msgid "enabled"
 msgstr "有効"
+
+msgid "An unsaved article draft from %(time)s was found. Restore it?"
+msgstr "%(time)s に保存された未保存の記事下書きがあります。復元しますか？"
+
+msgid "Draft restored. Select local files such as the cover again before saving."
+msgstr "下書きを復元しました。保存前にカバー画像などのローカルファイルを選び直してください。"

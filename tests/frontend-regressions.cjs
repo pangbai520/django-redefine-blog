@@ -152,6 +152,26 @@ test("article editors support paste, drop, upload, and reusable image library", 
   assert.match(adminTemplate, /mdeditor_image_folder_create/);
 });
 
+test("article drafts survive browser-side submit failures", () => {
+  const drafts = source("admin/article-drafts.js");
+  const adminTemplate = readFileSync(
+    path.join(blogRoot, "templates/admin/base_site.html"),
+    "utf8",
+  );
+
+  assert.match(drafts, /localStorage\.setItem\(draftKey/);
+  assert.match(drafts, /sessionStorage\.setItem\([\s\S]*?SUBMIT_KEY/);
+  assert.match(drafts, /document\.querySelector\("\.messagelist \.success"\)/);
+  assert.match(drafts, /classList\.contains\("model-articlemodel"\)/);
+  assert.match(drafts, /window\.addEventListener\("beforeunload"/);
+  assert.match(drafts, /form\.addEventListener\("submit", markSubmit\)/);
+  assert.match(drafts, /"category"/);
+  assert.match(drafts, /"tags"/);
+  assert.match(drafts, /field\.multiple/);
+  assert.match(drafts, /Select local files such as the cover again/);
+  assert.match(adminTemplate, /js\/admin\/article-drafts\.js/);
+});
+
 test("custom TOC widths only override the desktop layout", () => {
   const overrides = readFileSync(
     path.join(blogRoot, "templates/components/header/theme-overrides.html"),
