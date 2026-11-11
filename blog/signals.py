@@ -17,6 +17,7 @@ from .models import (
     Font,
     EditorImage,
     EditorImageRef,
+    EmbedProvider,
     MenuLink,
     MenuLinkTranslation,
     SiteConfiguration,
@@ -137,6 +138,13 @@ def invalidate_taxonomy_content(sender, instance, **kwargs):
 
 @receiver([post_save, post_delete], sender=SiteConfiguration)
 def invalidate_site_content(sender, instance, **kwargs):
+    from .cache_utils import invalidate_content_caches
+
+    invalidate_content_caches()
+
+
+@receiver([post_save, post_delete], sender=EmbedProvider)
+def invalidate_embed_providers(sender, instance, **kwargs):
     from .cache_utils import invalidate_content_caches
 
     invalidate_content_caches()

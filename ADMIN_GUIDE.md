@@ -30,6 +30,18 @@ The article list has bulk actions for publishing, withdrawing and changing the
 comment switch. Search and date navigation are usually quicker than editing
 posts one by one.
 
+## Embedded players
+
+Raw `iframe` markup is removed unless its source matches an enabled **Trusted
+embed provider**. Add the exact host and the narrowest useful path in the
+admin, then paste the provider's normal embed code into an article or a custom
+page. For example, Bilibili can use `player.bilibili.com` with
+`/player.html`; YouTube can use `www.youtube.com` with `/embed/`.
+
+Only HTTPS URLs are accepted. Wildcard hosts, arbitrary ports, inline styles,
+scripts and `srcdoc` are discarded. Add each alternate host as a separate
+provider instead of widening an existing rule.
+
 ## Comments
 
 Pending comments can be approved from the list page. Only one comment can be

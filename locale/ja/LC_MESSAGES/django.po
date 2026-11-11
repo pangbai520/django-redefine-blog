@@ -2560,3 +2560,30 @@ msgstr "評価オプション（JSON 配列）"
 
 msgid "Enable discussion feedback"
 msgstr "ディスカッションのフィードバックを有効化"
+
+msgid "allowed host"
+msgstr "許可するホスト"
+
+msgid "Enter an exact host without a scheme, path, port, or wildcard."
+msgstr "スキーム、パス、ポート、ワイルドカードを含まない完全なホスト名を入力してください。"
+
+msgid "allowed path prefix"
+msgstr "許可するパスの接頭辞"
+
+msgid "Only HTTPS iframe URLs on this path are accepted. Use /embed/ for a directory or /player.html for one endpoint."
+msgstr "このパス上の HTTPS iframe URL のみ許可されます。ディレクトリには /embed/、単一のエンドポイントには /player.html を指定してください。"
+
+msgid "trusted embed provider"
+msgstr "信頼済み埋め込み元"
+
+msgid "trusted embed providers"
+msgstr "信頼済み埋め込み元"
+
+msgid "Enter a valid public domain name."
+msgstr "有効な公開ドメイン名を入力してください。"
+
+msgid "Enter a path beginning with / without a query or fragment."
+msgstr "クエリやフラグメントを含まない、/ で始まるパスを入力してください。"
+
+msgid "enabled"
+msgstr "有効"

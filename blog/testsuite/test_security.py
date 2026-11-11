@@ -1,9 +1,10 @@
 import socket
 from unittest.mock import patch
 
+from django.core.exceptions import ValidationError
 from django.test import SimpleTestCase, TestCase
 
-from blog.models import ArticleModel, SiteConfiguration
+from blog.models import ArticleModel, EmbedProvider, SiteConfiguration
 from blog.services.emoji import _link_item
 from blog.services.html_safety import clean_html
 from blog.services.remote import RemoteFetchError, _check_url
@@ -51,7 +52,7 @@ class HtmlSafetyTests(TestCase):
         self.assertIn('data-tab="one"', html)
         self.assertIn('aria-label="Copy"', html)
 
-    def test_legacy_font_color(self):
+    def test_font_color(self):
         article = ArticleModel.objects.create(
             title="Colored text",
             slug="colored-text",
@@ -68,7 +69,7 @@ class HtmlSafetyTests(TestCase):
         self.assertNotIn("onclick", html)
         self.assertNotIn("style=", html)
 
-    def test_safe_hexo_html(self):
+    def test_hexo_html(self):
         html = clean_html(
             '<a href="/file.zip" download="file.zip" rel="nofollow">download</a>'
             '<font color="red" face="serif" size="3">legacy</font>'
@@ -84,6 +85,97 @@ class HtmlSafetyTests(TestCase):
         self.assertIn('<source srcset="/large.webp" type="image/webp">', html)
         self.assertIn('<audio src="/song.mp3" controls', html)
         self.assertIn('<video src="/clip.mp4" controls', html)
+
+    def test_trusted_iframe(self):
+        EmbedProvider.objects.create(
+            name="Bilibili",
+            host="player.bilibili.com",
+            path_prefix="/player.html",
+        )
+
+        html = clean_html(
+            '<iframe src="//player.bilibili.com/player.html?bvid=BV1&amp;p=1" '
+            'width="960" height="540" allow="autoplay; fullscreen; camera" '
+            'allowfullscreen style="position:fixed" srcdoc="bad" '
+            'onload="alert(1)">fallback</iframe>'
+        )
+
+        self.assertIn('<iframe class="trusted-embed"', html)
+        self.assertIn(
+            'src="https://player.bilibili.com/player.html?bvid=BV1&amp;p=1"',
+            html,
+        )
+        self.assertIn('loading="lazy"', html)
+        self.assertIn('referrerpolicy="strict-origin-when-cross-origin"', html)
+        self.assertIn('width="960"', html)
+        self.assertIn('height="540"', html)
+        self.assertIn('allow="autoplay; fullscreen"', html)
+        self.assertIn(" allowfullscreen", html)
+        self.assertNotIn("camera", html)
+        self.assertNotIn("style=", html)
+        self.assertNotIn("srcdoc", html)
+        self.assertNotIn("onload", html)
+        self.assertNotIn("fallback", html)
+
+    def test_untrusted_iframe(self):
+        EmbedProvider.objects.create(
+            name="YouTube",
+            host="www.youtube.com",
+            path_prefix="/embed/",
+        )
+
+        samples = (
+            '<iframe src="https://evil.example/embed/demo">fallback</iframe>',
+            '<iframe src="http://www.youtube.com/embed/demo">fallback</iframe>',
+            '<iframe src="https://www.youtube.com/watch?v=demo">fallback</iframe>',
+            '<iframe src="https://www.youtube.com.evil.example/embed/demo">fallback</iframe>',
+        )
+        for sample in samples:
+            with self.subTest(sample=sample):
+                html = clean_html(sample)
+                self.assertNotIn("<iframe", html)
+                self.assertNotIn("fallback", html)
+
+    def test_provider_cache(self):
+        article = ArticleModel.objects.create(
+            title="Embedded video",
+            slug="embedded-video",
+            content=(
+                '<iframe src="https://www.youtube.com/embed/demo" '
+                'allowfullscreen></iframe>'
+            ),
+        )
+        self.assertNotIn("<iframe", str(article.html_content))
+
+        provider = EmbedProvider.objects.create(
+            name="YouTube",
+            host="www.youtube.com",
+            path_prefix="/embed/",
+        )
+        article = ArticleModel.objects.get(pk=article.pk)
+        self.assertIn("<iframe", str(article.html_content))
+
+        provider.enabled = False
+        provider.save(update_fields=("enabled", "updated_at"))
+        article = ArticleModel.objects.get(pk=article.pk)
+        self.assertNotIn("<iframe", str(article.html_content))
+
+    def test_provider_validation(self):
+        invalid_rules = (
+            ("https://player.example.com", "/embed/"),
+            ("*.example.com", "/embed/"),
+            ("player.example.com", "embed/"),
+            ("player.example.com", "/embed/?unsafe=1"),
+        )
+        for host, path_prefix in invalid_rules:
+            with self.subTest(host=host, path_prefix=path_prefix):
+                provider = EmbedProvider(
+                    name="Invalid",
+                    host=host,
+                    path_prefix=path_prefix,
+                )
+                with self.assertRaises(ValidationError):
+                    provider.full_clean()
 
 
 class RemoteFetchTests(SimpleTestCase):

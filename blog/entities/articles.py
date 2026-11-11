@@ -21,7 +21,7 @@ from markdown import Markdown
 from mdeditor.fields import MDTextField
 
 from core.markdown.extensions import get_extensions
-from blog.services.html_safety import clean_html
+from blog.services.html_safety import clean_html, embed_provider_signature
 from blog.utils.unicode_slugify import unicode_slugify
 from blog.utils.word_counter import reading_time_counter, word_counter
 from blog.validators import validate_theme_image
@@ -312,6 +312,7 @@ class ArticleModel(models.Model):
             "article_lazyload": site.article_lazyload,
             "mermaid_enabled": site.mermaid_enabled,
             "delete_mask": site.delete_mask,
+            "embed_providers": embed_provider_signature(),
         }
         digest = hashlib.sha256(
             (self.content + json.dumps(render_options, sort_keys=True)).encode("utf-8")

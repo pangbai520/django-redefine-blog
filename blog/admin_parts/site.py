@@ -18,6 +18,7 @@ from ..models import (
     CommentEmoji,
     CommentEmojiPack,
     CommentGifSource,
+    EmbedProvider,
     Font,
     MenuLink,
     MenuLinkTranslation,
@@ -28,6 +29,24 @@ admin.site.site_header = "Django Redefine Administration"
 admin.site.site_title = "Django Redefine Admin"
 admin.site.index_title = _("Administration")
 admin.site.site_url = "/"
+
+
+@admin.register(EmbedProvider)
+class EmbedProviderAdmin(admin.ModelAdmin):
+    list_display = ("name", "host", "path_prefix", "enabled", "updated_at")
+    list_editable = ("enabled",)
+    list_filter = ("enabled",)
+    search_fields = ("name", "host", "path_prefix")
+    readonly_fields = ("created_at", "updated_at")
+    fields = (
+        "name",
+        "host",
+        "path_prefix",
+        "enabled",
+        "created_at",
+        "updated_at",
+    )
+    ordering = ("name", "host", "path_prefix")
 
 
 class SiteConfigurationForm(forms.ModelForm):

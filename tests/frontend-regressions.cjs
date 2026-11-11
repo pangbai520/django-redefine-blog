@@ -59,6 +59,15 @@ test("TOC toggle is visible on desktop and hidden where the TOC itself is hidden
   assert.match(styles, /\.page-container \.post-tools \{[\s\S]*?z-index: 1005;/);
 });
 
+test("trusted embeds fill the article width in compiled CSS", () => {
+  const styles = readFileSync(path.join(blogRoot, "static/css/style.css"), "utf8");
+
+  assert.match(
+    styles,
+    /\.markdown-body iframe\.trusted-embed \{[\s\S]*?width: 100%;[\s\S]*?aspect-ratio: 16 \/ 9;/,
+  );
+});
+
 test("standalone-page translation editors initialize existing and newly added inline rows", () => {
   const editor = source("admin/standalone-page-translations.js");
   const listeners = new Map();

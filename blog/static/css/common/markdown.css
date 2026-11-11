@@ -211,6 +211,16 @@ redefine-tablet()
   display: block;
   margin: 1rem auto 1rem;
 }
+.markdown-body iframe.trusted-embed {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  margin: 1rem auto;
+  border: 0;
+  border-radius: $usr-img-border-radius;
+}
 .markdown-body del.mask {
   text-decoration: none !important;
   transition: 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) color, 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) background;

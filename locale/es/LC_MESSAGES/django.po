@@ -2609,3 +2609,30 @@ msgstr "Opciones de valoración (matriz JSON)"
 
 msgid "Enable discussion feedback"
 msgstr "Activar comentarios de la discusión"
+
+msgid "allowed host"
+msgstr "host permitido"
+
+msgid "Enter an exact host without a scheme, path, port, or wildcard."
+msgstr "Introduce un host exacto sin esquema, ruta, puerto ni comodines."
+
+msgid "allowed path prefix"
+msgstr "prefijo de ruta permitido"
+
+msgid "Only HTTPS iframe URLs on this path are accepted. Use /embed/ for a directory or /player.html for one endpoint."
+msgstr "Solo se aceptan URL HTTPS de iframe en esta ruta. Usa /embed/ para un directorio o /player.html para un único endpoint."
+
+msgid "trusted embed provider"
+msgstr "origen de contenido incrustado de confianza"
+
+msgid "trusted embed providers"
+msgstr "orígenes de contenido incrustado de confianza"
+
+msgid "Enter a valid public domain name."
+msgstr "Introduce un nombre de dominio público válido."
+
+msgid "Enter a path beginning with / without a query or fragment."
+msgstr "Introduce una ruta que empiece por / y no contenga consulta ni fragmento."
+
+msgid "enabled"
+msgstr "activado"

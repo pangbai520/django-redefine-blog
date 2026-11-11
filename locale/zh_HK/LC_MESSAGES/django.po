@@ -2559,3 +2559,30 @@ msgstr "評價選項（JSON 陣列）"
 
 msgid "Enable discussion feedback"
 msgstr "啟用討論回饋"
+
+msgid "allowed host"
+msgstr "允許的主機"
+
+msgid "Enter an exact host without a scheme, path, port, or wildcard."
+msgstr "請輸入不含協定、路徑、連接埠或萬用字元的完整主機名稱。"
+
+msgid "allowed path prefix"
+msgstr "允許的路徑前綴"
+
+msgid "Only HTTPS iframe URLs on this path are accepted. Use /embed/ for a directory or /player.html for one endpoint."
+msgstr "只接受此路徑下的 HTTPS iframe URL。目錄請填寫 /embed/，單一端點請填寫 /player.html。"
+
+msgid "trusted embed provider"
+msgstr "可信嵌入來源"
+
+msgid "trusted embed providers"
+msgstr "可信嵌入來源"
+
+msgid "Enter a valid public domain name."
+msgstr "請輸入有效的公開網域名稱。"
+
+msgid "Enter a path beginning with / without a query or fragment."
+msgstr "請輸入以 / 開頭且不含查詢參數或片段的路徑。"
+
+msgid "enabled"
+msgstr "啟用"

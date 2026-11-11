@@ -2556,3 +2556,30 @@ msgstr "评价选项（JSON 数组）"
 
 msgid "Enable discussion feedback"
 msgstr "启用讨论反馈"
+
+msgid "allowed host"
+msgstr "允许的主机"
+
+msgid "Enter an exact host without a scheme, path, port, or wildcard."
+msgstr "请输入不含协议、路径、端口或通配符的完整主机名。"
+
+msgid "allowed path prefix"
+msgstr "允许的路径前缀"
+
+msgid "Only HTTPS iframe URLs on this path are accepted. Use /embed/ for a directory or /player.html for one endpoint."
+msgstr "只接受此路径下的 HTTPS iframe URL。目录请填写 /embed/，单个端点请填写 /player.html。"
+
+msgid "trusted embed provider"
+msgstr "可信嵌入来源"
+
+msgid "trusted embed providers"
+msgstr "可信嵌入来源"
+
+msgid "Enter a valid public domain name."
+msgstr "请输入有效的公共域名。"
+
+msgid "Enter a path beginning with / without a query or fragment."
+msgstr "请输入以 / 开头且不含查询参数或片段的路径。"
+
+msgid "enabled"
+msgstr "启用"

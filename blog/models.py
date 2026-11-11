@@ -34,6 +34,7 @@ from .entities.comments import (
     CommentNotification,
     TrafficModel,
 )
+from .entities.embeds import EmbedProvider
 from .entities.navigation import Font, MenuLink, MenuLinkTranslation
 from .entities.media import (
     EditorImage,

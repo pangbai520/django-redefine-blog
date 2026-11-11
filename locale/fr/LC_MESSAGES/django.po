@@ -2617,3 +2617,30 @@ msgstr "Options d’évaluation (tableau JSON)"
 
 msgid "Enable discussion feedback"
 msgstr "Activer les retours de discussion"
+
+msgid "allowed host"
+msgstr "hôte autorisé"
+
+msgid "Enter an exact host without a scheme, path, port, or wildcard."
+msgstr "Saisissez un nom d’hôte exact, sans protocole, chemin, port ni caractère générique."
+
+msgid "allowed path prefix"
+msgstr "préfixe de chemin autorisé"
+
+msgid "Only HTTPS iframe URLs on this path are accepted. Use /embed/ for a directory or /player.html for one endpoint."
+msgstr "Seules les URL HTTPS d’iframe correspondant à ce chemin sont acceptées. Utilisez /embed/ pour un répertoire ou /player.html pour un point d’accès unique."
+
+msgid "trusted embed provider"
+msgstr "source d’intégration approuvée"
+
+msgid "trusted embed providers"
+msgstr "sources d’intégration approuvées"
+
+msgid "Enter a valid public domain name."
+msgstr "Saisissez un nom de domaine public valide."
+
+msgid "Enter a path beginning with / without a query or fragment."
+msgstr "Saisissez un chemin commençant par /, sans requête ni fragment."
+
+msgid "enabled"
+msgstr "activé"

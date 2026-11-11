@@ -377,7 +377,7 @@ class EditorUploadSecurityTests(TestCase):
             self.assertFalse(EditorImage.objects.filter(pk=image.pk).exists())
             self.assertFalse(Path(media_root, image.image.name).exists())
 
-    def test_library_can_delete_image_held_only_by_draft(self):
+    def test_library_delete(self):
         user = User.objects.create_superuser(
             "draft-delete-editor",
             email="draft-delete@example.com",

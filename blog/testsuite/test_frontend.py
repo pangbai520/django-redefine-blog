@@ -297,7 +297,7 @@ class RedefineMarkdownTests(TestCase):
         self.assertIn("``` is content", long_fence)
         self.assertIn("<p>After</p>", trailing)
 
-    def test_python_highlight_matches_redefine(self):
+    def test_python_highlight(self):
         source = (
             '```python\n'
             'global_var = "This is a global variable"  # comment\n'
@@ -315,7 +315,7 @@ class RedefineMarkdownTests(TestCase):
         self.assertIn('class="hljs-string">This is a global variable</span>', html)
         self.assertIn('class="hljs-comment"># comment</span>', html)
 
-    def test_fenced_code_keeps_html_like_text_literal(self):
+    def test_fenced_literal(self):
         source = (
             "```text\n"
             "('num',)\n"
