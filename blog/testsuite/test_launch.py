@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from PIL import Image
 from django.conf import settings
+from django.contrib.staticfiles import finders
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.core import mail
@@ -42,6 +43,22 @@ class LaunchReadinessTests(TestCase):
             comment_enabled=True,
         )
 
+    def test_vendor_override(self):
+        vendor_root = (settings.BASE_DIR / "vendor_static").resolve()
+        assets = {
+            "mdeditor/js/jquery.min.js": "jQuery v3.7.1",
+            "mdeditor/js/lib/codemirror/codemirror.min.js": "CodeMirror v5.65.21",
+            "mdeditor/js/lib/codemirror/modes.min.js": "CodeMirror modes v5.65.21",
+            "mdeditor/js/lib/codemirror/addons.min.js": "CodeMirror addons v5.65.21",
+            "mdeditor/js/lib/jquery.flowchart.min.js": "window.django&&window.django.jQuery",
+            "mdeditor/js/lib/sequence-diagram.min.js": "window.django&&window.django.jQuery",
+        }
+
+        for asset, marker in assets.items():
+            with self.subTest(asset=asset):
+                found = Path(finders.find(asset)).resolve()
+                self.assertTrue(found.is_relative_to(vendor_root))
+                self.assertIn(marker, found.read_text(encoding="utf-8"))
     def test_health_caching(self):
         response = self.client.get(reverse("health"))
         self.assertEqual(response.status_code, 200)

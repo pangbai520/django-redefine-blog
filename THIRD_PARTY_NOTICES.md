@@ -11,6 +11,11 @@ Mermaid, MiniMasonry, Moment.js, Odometer, Pangu.js, Swup and its plugins,
 Typed.js and Waline. Their upstream copyright headers and licences continue to
 apply.
 
+`vendor_static/mdeditor` supplies project-owned overrides for the stale copies
+bundled by django-mdeditor 0.1.20: jQuery 3.7.1 and CodeMirror 5.65.21. Both are
+distributed under the MIT licence; the full licence texts are in `licenses/`.
+The same directory also carries narrow compatibility overrides that attach
+Editor.md's existing flowchart plugins to Django admin's jQuery namespace.
 ## Font Awesome
 
 The bundled files identify themselves as Font Awesome Pro 6.2.1 and are subject

@@ -214,9 +214,9 @@ if GITHUB_OAUTH_ENABLED:
 
 # separate versioned theme assets from uploaded resources, so deployment can serve them differently
 STATIC_URL = "/static/"
-# blog/static is discovered by Django's app finder; listing it again in
-# STATICFILES_DIRS would collect every theme asset twice
-STATICFILES_DIRS = []
+# blog/static is discovered by Django's app finder. Project-owned vendor
+# overrides live separately so they take precedence over package assets.
+STATICFILES_DIRS = [BASE_DIR / "vendor_static"]
 STATIC_ROOT = Path(os.getenv("STATIC_ROOT", BASE_DIR / "staticfiles"))
 
 MEDIA_URL = "/resources/"
