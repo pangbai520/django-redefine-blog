@@ -76,18 +76,28 @@ domain is only used to read files; uploads and deletes still use the authenticat
 S3 endpoint. Browser CORS rules therefore need only `GET` and `HEAD`, not public
 write methods.
 
-Copy existing local uploads after enabling the backend:
+Run the one-command migration after enabling the backend:
 
 ```bash
 python manage.py migrate_media_storage --dry-run
 python manage.py migrate_media_storage
 ```
 
+The command copies every file under `MEDIA_ROOT`, checks existing objects, and
+rewrites legacy relative `/resources/` links in articles, comments, and custom
+pages only when the matching object was included in the migration. A dry run
+reports the same counts without uploading files or changing the database. Use
+`--skip-url-rewrite` for a copy-only run.
+
 Keep the local files until the public URLs, the image library, audio playback and
 a fresh `backup_blog` archive have all been checked. `backup_blog` reads through
 Django's active storage backend, so remote images and audio remain part of the
 portable archive. The daily orphan cleanup also scans managed remote folders
 after the normal database cleanup.
+
+Local files are retained by default as a rollback copy. Add `--delete-local`
+only after the migrated site and a fresh backup have been verified. Differing
+objects stop the migration unless `--replace` is explicitly supplied.
 
 Advanced deployments may use `MEDIA_STORAGE=custom`, `MEDIA_CUSTOM_BACKEND` and
 `MEDIA_CUSTOM_OPTIONS` to supply another Django storage backend. The options are

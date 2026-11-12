@@ -305,7 +305,9 @@ class MediaStorageCommandTests(TestCase):
             "staticfiles": {
                 "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
             },
-        }
+        },
+        MEDIA_PUBLIC_BASE_URL="https://media.example.com",
+        MEDIA_URL="https://media.example.com/",
     )
     def test_media_migration(self):
         with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as source:
@@ -313,6 +315,18 @@ class MediaStorageCommandTests(TestCase):
             path.parent.mkdir()
             path.write_bytes(b"ID3 test audio")
 
+            article = ArticleModel.objects.create(
+                title="Legacy media",
+                content=(
+                    "[Local](/resources/audio/track.mp3) "
+                    "[Missing](/resources/audio/missing.mp3) "
+                    "[External](https://other.example/resources/audio/track.mp3)"
+                ),
+            )
+            comment = Comment.objects.create(
+                article=article,
+                content="[Audio](/resources/audio/track.mp3)",
+            )
             call_command(
                 "migrate_media_storage",
                 source=source,
@@ -322,6 +336,50 @@ class MediaStorageCommandTests(TestCase):
             self.assertTrue(default_storage.exists("audio/track.mp3"))
             with default_storage.open("audio/track.mp3", "rb") as handle:
                 self.assertEqual(handle.read(), b"ID3 test audio")
+            article.refresh_from_db()
+            self.assertIn(
+                "https://media.example.com/audio/track.mp3",
+                article.content,
+            )
+            self.assertIn(
+                "https://other.example/resources/audio/track.mp3",
+                article.content,
+            )
+            self.assertIn("/resources/audio/missing.mp3", article.content)
+            comment.refresh_from_db()
+            self.assertIn(
+                "https://media.example.com/audio/track.mp3",
+                comment.content,
+            )
+
+    @override_settings(
+        STORAGES={
+            "default": {"BACKEND": "django.core.files.storage.InMemoryStorage"},
+            "staticfiles": {
+                "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+            },
+        },
+        MEDIA_PUBLIC_BASE_URL="https://media.example.com",
+        MEDIA_URL="https://media.example.com/",
+    )
+    def test_dry_run(self):
+        with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as source:
+            path = Path(source, "content-images", "draft.png")
+            path.parent.mkdir()
+            path.write_bytes(b"image")
+            article = ArticleModel.objects.create(
+                title="Dry run",
+                content="![](/resources/content-images/draft.png)",
+            )
+            call_command(
+                "migrate_media_storage",
+                source=source,
+                dry_run=True,
+                stdout=StringIO(),
+            )
+            article.refresh_from_db()
+            self.assertIn("/resources/content-images/draft.png", article.content)
+            self.assertFalse(default_storage.exists("content-images/draft.png"))
 
     @override_settings(
         STORAGES={
