@@ -19,15 +19,26 @@ server {
 
     location /static/ {
         alias /srv/django-redefine-blog/static/;
+        try_files $uri =404;
+        autoindex off;
         access_log off;
         expires 30d;
         add_header Cache-Control "public, immutable";
+        add_header X-Content-Type-Options nosniff always;
     }
     location /resources/ {
         alias /srv/django-redefine-blog/media/;
+        try_files $uri =404;
+        autoindex off;
         access_log off;
         expires 7d;
         add_header X-Content-Type-Options nosniff always;
+    }
+    location ~ (^|/)\.(?!well-known(?:/|$)) {
+        deny all;
+    }
+    location ~* \.(?:bak|conf|env|ini|log|sql|sqlite3?|tmp|ya?ml)$ {
+        deny all;
     }
     location / {
         proxy_pass http://django_redefine_blog;

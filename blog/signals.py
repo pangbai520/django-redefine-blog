@@ -1,5 +1,6 @@
 from django.db.models.signals import m2m_changed, post_delete, post_save, pre_save
 from django.dispatch import receiver
+from django.conf import settings
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
 from django.db.utils import OperationalError, ProgrammingError
@@ -7,6 +8,7 @@ from django.utils import timezone
 
 from .models import (
     ArticleModel,
+    AudioTrack,
     Category,
     CommentImage,
     CommentEmoji,
@@ -27,6 +29,7 @@ from .models import (
     TrafficModel,
     UserProfile,
 )
+from .services.images import clean_field
 
 OWNER_BADGE_TRANSLATIONS = {
     "en": "Blogger",
@@ -37,6 +40,33 @@ OWNER_BADGE_TRANSLATIONS = {
     "zh-hk": "部落客",
     "zh-tw": "部落客",
 }
+
+
+@receiver(pre_save, sender=ArticleModel)
+@receiver(pre_save, sender=SiteConfiguration)
+@receiver(pre_save, sender=AudioTrack)
+def normalize_model_images(sender, instance, **kwargs):
+    """Correct misleading suffixes and remove metadata before public storage."""
+    fields = {
+        ArticleModel: ("writer_avatar", "thumbnail", "cover", "banner"),
+        SiteConfiguration: (
+            "site_avatar",
+            "site_logo",
+            "site_favicon",
+            "og_image",
+            "light_image",
+            "dark_image",
+            "recommendation_placeholder",
+        ),
+        AudioTrack: ("cover_image",),
+    }[sender]
+    for name in fields:
+        clean_field(
+            getattr(instance, name),
+            max_bytes=getattr(settings, "THEME_IMAGE_MAX_BYTES", 5 * 1024 * 1024),
+            max_dimension=getattr(settings, "THEME_IMAGE_MAX_DIMENSION", 8192),
+            max_pixels=getattr(settings, "THEME_IMAGE_MAX_PIXELS", 24_000_000),
+        )
 
 
 @receiver(post_delete, sender=CommentImage)

@@ -37,6 +37,22 @@ def valid_png():
     )
 
 
+def renamed_jpeg():
+    payload = BytesIO()
+    exif = Image.Exif()
+    exif[0x010E] = "private camera note"
+    Image.new("RGB", (8, 8), "#a31f34").save(
+        payload,
+        format="JPEG",
+        exif=exif,
+    )
+    return SimpleUploadedFile(
+        "renamed.png",
+        payload.getvalue(),
+        content_type="image/png",
+    )
+
+
 class EditorUploadSecurityTests(TestCase):
     def setUp(self):
         self.client = Client(enforce_csrf_checks=True)
@@ -100,6 +116,30 @@ class EditorUploadSecurityTests(TestCase):
         self.assertTrue(response.json()["id"])
         self.assertEqual(EditorImage.objects.count(), 1)
         self.assertEqual(response.headers["X-Frame-Options"], "SAMEORIGIN")
+
+    def test_image_normalize(self):
+        user = User.objects.create_superuser(
+            "format-editor",
+            email="format@example.com",
+            password="A-strong-password-123",
+        )
+        self.client.force_login(user)
+        token = self._csrf_token()
+
+        with tempfile.TemporaryDirectory(
+            dir=settings.BASE_DIR
+        ) as media_root, override_settings(MEDIA_ROOT=media_root):
+            response = self.client.post(
+                reverse("mdeditor_upload"),
+                {"editormd-image-file": renamed_jpeg()},
+                HTTP_X_CSRFTOKEN=token,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response.json()["url"].endswith(".jpg"))
+            stored = EditorImage.objects.get()
+            with Image.open(Path(media_root, stored.image.name)) as image:
+                self.assertEqual(image.format, "JPEG")
+                self.assertFalse(image.getexif())
 
     def test_storage_log(self):
         user = User.objects.create_superuser(
@@ -439,11 +479,18 @@ class EditorUploadSecurityTests(TestCase):
             )
             image = EditorImage.objects.get()
             path = Path(media_root, image.image.name)
-            EditorImage.objects.filter(pk=image.pk).update(
-                created_at=timezone.now() - timedelta(days=2)
-            )
+            two_days_ago = timezone.now() - timedelta(days=2)
+            EditorImage.objects.filter(pk=image.pk).update(created_at=two_days_ago)
             EditorImageLease.objects.filter(image=image).update(
-                created_at=timezone.now() - timedelta(days=2)
+                created_at=two_days_ago
+            )
+            call_command("cleanup_orphan_uploads")
+            self.assertTrue(EditorImage.objects.filter(pk=image.pk).exists())
+
+            four_days_ago = timezone.now() - timedelta(days=4)
+            EditorImage.objects.filter(pk=image.pk).update(created_at=four_days_ago)
+            EditorImageLease.objects.filter(image=image).update(
+                created_at=four_days_ago
             )
             with self.captureOnCommitCallbacks(execute=True):
                 call_command("cleanup_orphan_uploads")

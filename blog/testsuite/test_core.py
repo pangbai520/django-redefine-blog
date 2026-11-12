@@ -279,6 +279,29 @@ class ThemeImageValidationTests(TestCase):
         with self.assertRaises(ValidationError):
             validate_theme_image(upload)
 
+    def test_theme_image(self):
+        payload = BytesIO()
+        exif = Image.Exif()
+        exif[0x010E] = "private camera note"
+        Image.new("RGB", (8, 8), "white").save(payload, "JPEG", exif=exif)
+        upload = SimpleUploadedFile(
+            "logo.png",
+            payload.getvalue(),
+            content_type="image/png",
+        )
+
+        with tempfile.TemporaryDirectory(
+            dir=settings.BASE_DIR
+        ) as media_root, override_settings(MEDIA_ROOT=media_root):
+            site = SiteConfiguration.objects.create(
+                config_name="Clean images",
+                site_logo=upload,
+            )
+            self.assertTrue(site.site_logo.name.endswith(".jpg"))
+            with Image.open(site.site_logo.path) as image:
+                self.assertEqual(image.format, "JPEG")
+                self.assertFalse(image.getexif())
+
     def test_fake_audio(self):
         upload = SimpleUploadedFile(
             "track.mp3",

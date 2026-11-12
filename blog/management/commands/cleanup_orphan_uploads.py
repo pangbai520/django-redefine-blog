@@ -15,7 +15,13 @@ class Command(BaseCommand):
             "--older-than-hours",
             type=int,
             default=24,
-            help="Only inspect unattached images older than this many hours (default: 24).",
+            help="Delete unattached comment images after this many hours (default: 24).",
+        )
+        parser.add_argument(
+            "--draft-hours",
+            type=int,
+            default=72,
+            help="Delete unsaved article images after this many hours (default: 72).",
         )
         parser.add_argument(
             "--dry-run",
@@ -25,22 +31,24 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         hours = options["older_than_hours"]
-        if hours < 1:
+        draft_hours = options["draft_hours"]
+        if hours < 1 or draft_hours < 1:
             self.stderr.write(
-                self.style.ERROR("--older-than-hours must be at least 1.")
+                self.style.ERROR("Cleanup periods must be at least 1 hour.")
             )
             return
-        cutoff = timezone.now() - timedelta(hours=hours)
-        EditorImageLease.objects.filter(created_at__lt=cutoff).delete()
+        comment_cutoff = timezone.now() - timedelta(hours=hours)
+        draft_cutoff = timezone.now() - timedelta(hours=draft_hours)
+        EditorImageLease.objects.filter(created_at__lt=draft_cutoff).delete()
         rebuild_refs()
         uploads = CommentImage.objects.filter(
-            comment__isnull=True, created_at__lt=cutoff
+            comment__isnull=True, created_at__lt=comment_cutoff
         )
         comment_count = uploads.count()
         editor_images = [
             image
             for image in EditorImage.objects.filter(
-                refs__isnull=True, created_at__lt=cutoff
+                refs__isnull=True, created_at__lt=draft_cutoff
             ).iterator()
             if not image_used(image)
         ]

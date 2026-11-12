@@ -1,5 +1,4 @@
 import logging
-import hashlib
 import json
 import re
 from datetime import timedelta
@@ -18,7 +17,6 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from PIL import Image, ImageOps, ImageSequence, UnidentifiedImageError
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
 
@@ -39,6 +37,7 @@ from .services.client import client_info
 from .services.comment_render import render_emoji, render_md
 from .services.emoji import emoji_items
 from .services.mail import notify
+from .services.images import ImageUploadError, clean_image
 from .services.throttle import rate_limited as _rate_limited
 
 User = get_user_model()
@@ -668,63 +667,31 @@ def comment_upload(request):
         return _json_error(
             _("Image must be smaller than %(size)s MB.") % {"size": size_mb}
         )
-    allowed = {"image/jpeg", "image/png", "image/gif", "image/webp"}
-    if upload.content_type not in allowed:
-        return _json_error(_("Unsupported image type."))
-    # validate file bytes before storage, because browser MIME types and names
-    # are client-controlled and cannot prove that a file is an image
-    expected_formats = {
-        "image/jpeg": {"JPEG"},
-        "image/png": {"PNG"},
-        "image/gif": {"GIF"},
-        "image/webp": {"WEBP"},
-    }
     try:
-        upload.seek(0)
-        with Image.open(upload) as image:
-            image.verify()
-            detected_format = image.format
-        upload.seek(0)
-        with Image.open(upload) as image:
-            width, height = image.size
-            frames = getattr(image, "n_frames", 1)
-        upload.seek(0)
-    except (UnidentifiedImageError, OSError, ValueError):
-        return _json_error(_("Image data is invalid."))
-    if detected_format not in expected_formats[upload.content_type]:
-        return _json_error(_("Image data does not match its declared type."))
-    if max(width, height) > settings.COMMENT_UPLOAD_MAX_DIMENSION:
-        return _json_error(_("Image dimensions are too large."))
-    if width * height * frames > settings.COMMENT_UPLOAD_MAX_PIXELS:
-        return _json_error(_("Image contains too many pixels or animation frames."))
-    # derive the suffix from the accepted MIME type, so misleading client
-    # extensions cannot create executable-looking filenames
-    extensions = {
-        "image/jpeg": "jpg",
-        "image/png": "png",
-        "image/gif": "gif",
-        "image/webp": "webp",
-    }
-    extension = extensions[upload.content_type]
-    upload.seek(0)
-    digest = hashlib.sha256()
-    with Image.open(upload) as image:
-        digest.update(
-            f"{image.size[0]}x{image.size[1]}:{getattr(image, 'n_frames', 1)}".encode()
+        cleaned = clean_image(
+            upload,
+            max_bytes=max_bytes,
+            max_dimension=settings.COMMENT_UPLOAD_MAX_DIMENSION,
+            max_pixels=settings.COMMENT_UPLOAD_MAX_PIXELS,
         )
-        for frame in ImageSequence.Iterator(image):
-            normalized = ImageOps.exif_transpose(frame).convert("RGBA")
-            digest.update(normalized.tobytes())
-            digest.update(str(frame.info.get("duration", 0)).encode())
-    content_hash = digest.hexdigest()
-    upload.seek(0)
+    except ImageUploadError as exc:
+        messages = {
+            "size": _("Image must be smaller than %(size)s MB.")
+            % {"size": max_bytes // (1024 * 1024)},
+            "dimensions": _("Image dimensions are too large."),
+            "pixels": _("Image contains too many pixels or animation frames."),
+            "type": _("Unsupported image type."),
+            "invalid": _("Image data is invalid."),
+        }
+        return _json_error(messages.get(str(exc), messages["invalid"]))
+    content_hash = cleaned.digest
     existing_path = (
         CommentImage.objects.filter(content_hash=content_hash)
         .exclude(image="")
         .values_list("image", flat=True)
         .first()
     )
-    path = existing_path or f"comment-images/{content_hash}.{extension}"
+    path = existing_path or f"comment-images/{content_hash}.{cleaned.extension}"
     # remove abandoned uploads opportunistically, so cancelled comments cannot
     # accumulate files forever even when no scheduled cleanup job is installed
     CommentImage.objects.filter(
@@ -735,7 +702,7 @@ def comment_upload(request):
         if default_storage.exists(path):
             saved = path
         else:
-            saved = default_storage.save(path, upload)
+            saved = default_storage.save(path, cleaned.file)
             # A storage backend may resolve a simultaneous name collision by
             # returning a suffixed name. The digest path is already the same
             # content, so discard that racing copy and share the canonical

@@ -59,7 +59,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
+    "config.apps.BlogStaticFilesConfig",
     "django.contrib.sitemaps",
     "mdeditor",
     "adminsortable2",

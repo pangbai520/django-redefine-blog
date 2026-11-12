@@ -1,5 +1,6 @@
 import base64
 import tempfile
+from io import BytesIO
 from pathlib import Path
 from unittest.mock import patch
 
@@ -14,6 +15,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from PIL import Image
 
 from ..models import (
     ArticleModel,
@@ -214,6 +216,36 @@ class InternalCommentTests(TestCase):
             self.assertEqual(
                 len(list(Path(media_root, "comment-images").glob("*.png"))), 1
             )
+
+    def test_image_clean(self):
+        user = User.objects.create_user(
+            "metadata-uploader", password="A-strong-password-123"
+        )
+        self.client.force_login(user)
+        payload = BytesIO()
+        exif = Image.Exif()
+        exif[0x010E] = "private camera note"
+        Image.new("RGB", (8, 8), "white").save(payload, "JPEG", exif=exif)
+
+        with tempfile.TemporaryDirectory(
+            dir=settings.BASE_DIR
+        ) as media_root, override_settings(MEDIA_ROOT=media_root):
+            response = self.client.post(
+                reverse("comment_upload"),
+                {
+                    "image": SimpleUploadedFile(
+                        "renamed.png",
+                        payload.getvalue(),
+                        content_type="image/png",
+                    )
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response.json()["url"].endswith(".jpg"))
+            stored = CommentImage.objects.get()
+            with Image.open(Path(media_root, stored.image.name)) as image:
+                self.assertEqual(image.format, "JPEG")
+                self.assertFalse(image.getexif())
 
     def test_uploaded_reference(self):
         user = User.objects.create_user(

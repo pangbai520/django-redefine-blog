@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from PIL import Image
 from django.conf import settings
+from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.cache import cache
@@ -46,6 +47,13 @@ class LaunchReadinessTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok"})
         self.assertIn("no-cache", response.headers["Cache-Control"])
+
+    def test_demo_filter(self):
+        patterns = apps.get_app_config("staticfiles").ignore_patterns
+        self.assertIn(
+            "mdeditor/js/lib/codemirror/mode/*/*.html",
+            patterns,
+        )
 
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_password_addresses(self):

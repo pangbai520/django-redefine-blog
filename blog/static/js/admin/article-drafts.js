@@ -5,6 +5,7 @@
   var SUBMIT_KEY = "django-redefine:article-draft-submit:v1";
   var IGNORE_KEY = "django-redefine:article-draft-ignore:v1";
   var SAVE_DELAY = 600;
+  var MAX_AGE = 3 * 24 * 60 * 60 * 1000;
   var FIELD_NAMES = [
     "title",
     "writer",
@@ -75,6 +76,24 @@
   }
 
   clearSavedDraft();
+
+  function clearExpiredDrafts() {
+    var now = Date.now();
+    try {
+      for (var index = localStorage.length - 1; index >= 0; index -= 1) {
+        var key = localStorage.key(index);
+        if (!key || key.indexOf(KEY_PREFIX) !== 0) continue;
+        var draft = readJson(localStorage, key);
+        if (!draft || !draft.updatedAt || now - draft.updatedAt > MAX_AGE) {
+          removeItem(localStorage, key);
+        }
+      }
+    } catch (error) {
+      // Storage can be disabled by browser privacy settings.
+    }
+  }
+
+  clearExpiredDrafts();
 
   if (
     !document.body.classList.contains("app-blog") ||
@@ -208,6 +227,10 @@
 
     baseline = fieldString();
     var draft = readJson(localStorage, draftKey);
+    if (draft && Date.now() - Number(draft.updatedAt || 0) > MAX_AGE) {
+      removeItem(localStorage, draftKey);
+      draft = null;
+    }
     var ignored = readItem(sessionStorage, IGNORE_KEY);
     if (
       draft &&

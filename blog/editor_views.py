@@ -1,7 +1,5 @@
-import hashlib
 import logging
 import uuid
-import warnings
 from pathlib import Path
 
 from django.conf import settings
@@ -13,8 +11,6 @@ from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.clickjacking import xframe_options_sameorigin
-from PIL import Image, UnidentifiedImageError
-
 from blog.models import EditorImage, EditorImageFolder
 from blog.services.editor_images import (
     image_referenced,
@@ -22,6 +18,7 @@ from blog.services.editor_images import (
     release_draft,
     store_image,
 )
+from blog.services.images import ImageUploadError, clean_image
 
 logger = logging.getLogger(__name__)
 
@@ -90,61 +87,32 @@ def editor_image_upload(request):
             % {"size": max_bytes // (1024 * 1024)}
         )
 
-    suffix = Path(upload.name).suffix.lower()
-    expected_formats = {
-        ".jpg": {"JPEG"},
-        ".jpeg": {"JPEG"},
-        ".png": {"PNG"},
-        ".gif": {"GIF"},
-        ".webp": {"WEBP"},
-    }
-    if suffix not in expected_formats:
-        return _upload_error(_("Unsupported image type."))
-
     try:
-        upload.seek(0)
-        with warnings.catch_warnings():
-            warnings.simplefilter("error", Image.DecompressionBombWarning)
-            with Image.open(upload, formats=("JPEG", "PNG", "GIF", "WEBP")) as image:
-                detected_format = image.format
-                width, height = image.size
-                frames = max(int(getattr(image, "n_frames", 1) or 1), 1)
-                if detected_format not in expected_formats[suffix]:
-                    return _upload_error(
-                        _("Image data does not match its filename extension.")
-                    )
-                if max(width, height) > settings.EDITOR_UPLOAD_MAX_DIMENSION:
-                    return _upload_error(_("Image dimensions are too large."))
-                if width * height * frames > settings.EDITOR_UPLOAD_MAX_PIXELS:
-                    return _upload_error(
-                        _("Image contains too many pixels or animation frames.")
-                    )
-                image.verify()
-        upload.seek(0)
-    except (
-        Image.DecompressionBombError,
-        Image.DecompressionBombWarning,
-        UnidentifiedImageError,
-        OSError,
-        SyntaxError,
-        ValueError,
-    ):
-        return _upload_error(_("Image data is invalid."))
+        cleaned = clean_image(
+            upload,
+            max_bytes=max_bytes,
+            max_dimension=settings.EDITOR_UPLOAD_MAX_DIMENSION,
+            max_pixels=settings.EDITOR_UPLOAD_MAX_PIXELS,
+        )
+    except ImageUploadError as exc:
+        messages = {
+            "size": _("Image must be smaller than %(size)s MB.")
+            % {"size": max_bytes // (1024 * 1024)},
+            "dimensions": _("Image dimensions are too large."),
+            "pixels": _("Image contains too many pixels or animation frames."),
+            "type": _("Unsupported image type."),
+            "invalid": _("Image data is invalid."),
+        }
+        return _upload_error(messages.get(str(exc), messages["invalid"]))
 
-    extension = "jpg" if detected_format == "JPEG" else detected_format.lower()
-    upload.seek(0)
-    digest = hashlib.sha256()
-    for chunk in upload.chunks():
-        digest.update(chunk)
-    upload.seek(0)
     try:
         image = store_image(
-            upload,
-            digest.hexdigest(),
-            extension,
+            cleaned.file,
+            cleaned.digest,
+            cleaned.extension,
             user,
-            width,
-            height,
+            cleaned.width,
+            cleaned.height,
         )
         if draft_uuid:
             lease_image(image, user, draft_uuid)

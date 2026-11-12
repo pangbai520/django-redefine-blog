@@ -1,4 +1,5 @@
 from pathlib import Path
+import warnings
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -6,14 +7,11 @@ from django.core.validators import FileExtensionValidator
 from django.utils.translation import gettext_lazy as _
 from PIL import Image, UnidentifiedImageError
 
-THEME_IMAGE_EXTENSIONS = ("jpg", "jpeg", "png", "gif", "webp")
-PROFILE_AVATAR_EXTENSIONS = ("jpg", "jpeg", "png", "gif", "webp")
 AUDIO_EXTENSIONS = ("aac", "flac", "m4a", "mp3", "ogg", "opus", "wav")
 
 
 def validate_theme_image(upload):
     """Accept bounded raster images; uploaded SVG is active content."""
-    FileExtensionValidator(THEME_IMAGE_EXTENSIONS)(upload)
     # Model validation can receive a stored FieldFile rather than a new upload;
     # the upload itself has already been checked by the form in that case.
     if getattr(upload, "_committed", False):
@@ -25,39 +23,37 @@ def validate_theme_image(upload):
             params={"size": max_bytes // (1024 * 1024)},
         )
 
-    expected_formats = {
-        ".jpg": {"JPEG"},
-        ".jpeg": {"JPEG"},
-        ".png": {"PNG"},
-        ".gif": {"GIF"},
-        ".webp": {"WEBP"},
-    }
-    suffix = Path(upload.name).suffix.lower()
     position = upload.tell()
     try:
         upload.seek(0)
         try:
-            image = Image.open(upload)
-            image_format = (image.format or "").upper()
-            width, height = image.size
-            frames = max(int(getattr(image, "n_frames", 1) or 1), 1)
-            if image_format not in expected_formats.get(suffix, set()):
-                raise ValidationError(
-                    _("Image data does not match its filename extension.")
-                )
-            if max(width, height) > getattr(
-                settings, "THEME_IMAGE_MAX_DIMENSION", 8192
-            ):
-                raise ValidationError(_("Image dimensions are too large."))
-            if width * height * frames > getattr(
-                settings, "THEME_IMAGE_MAX_PIXELS", 24_000_000
-            ):
-                raise ValidationError(
-                    _("Image contains too many pixels or animation frames.")
-                )
-            image.verify()
-        except (UnidentifiedImageError, OSError, SyntaxError) as exc:
-            raise ValidationError("Upload a valid image file.") from exc
+            with warnings.catch_warnings():
+                warnings.simplefilter("error", Image.DecompressionBombWarning)
+                image = Image.open(upload)
+                image_format = (image.format or "").upper()
+                width, height = image.size
+                frames = max(int(getattr(image, "n_frames", 1) or 1), 1)
+                if image_format not in {"JPEG", "PNG", "GIF", "WEBP"}:
+                    raise ValidationError(_("The selected file is not a supported image."))
+                if max(width, height) > getattr(
+                    settings, "THEME_IMAGE_MAX_DIMENSION", 8192
+                ):
+                    raise ValidationError(_("Image dimensions are too large."))
+                if width * height * frames > getattr(
+                    settings, "THEME_IMAGE_MAX_PIXELS", 24_000_000
+                ):
+                    raise ValidationError(
+                        _("Image contains too many pixels or animation frames.")
+                    )
+                image.verify()
+        except (
+            Image.DecompressionBombError,
+            Image.DecompressionBombWarning,
+            UnidentifiedImageError,
+            OSError,
+            SyntaxError,
+        ) as exc:
+            raise ValidationError(_("The selected file is not a supported image.")) from exc
     finally:
         upload.seek(position)
 
@@ -103,7 +99,6 @@ def validate_audio(upload):
 
 def validate_profile_avatar(upload):
     """Accept bounded raster avatars and reject disguised or decompression-heavy files."""
-    FileExtensionValidator(PROFILE_AVATAR_EXTENSIONS)(upload)
     if getattr(upload, "_committed", False):
         return
 
@@ -114,35 +109,35 @@ def validate_profile_avatar(upload):
             params={"size": max_bytes // (1024 * 1024)},
         )
 
-    expected_formats = {
-        ".jpg": {"JPEG"},
-        ".jpeg": {"JPEG"},
-        ".png": {"PNG"},
-        ".gif": {"GIF"},
-        ".webp": {"WEBP"},
-    }
-    suffix = Path(upload.name).suffix.lower()
     position = upload.tell()
     try:
         upload.seek(0)
-        image = Image.open(upload)
-        image_format = (image.format or "").upper()
-        width, height = image.size
-        frames = max(int(getattr(image, "n_frames", 1) or 1), 1)
-        if image_format not in expected_formats.get(suffix, set()):
-            raise ValidationError(
-                _("Avatar image data does not match its filename extension.")
-            )
-        if max(width, height) > getattr(settings, "PROFILE_AVATAR_MAX_DIMENSION", 4096):
-            raise ValidationError(_("Avatar dimensions are too large."))
-        if width * height * frames > getattr(
-            settings, "PROFILE_AVATAR_MAX_PIXELS", 16_000_000
-        ):
-            raise ValidationError(
-                _("Avatar contains too many pixels or animation frames.")
-            )
-        image.verify()
-    except (UnidentifiedImageError, OSError, SyntaxError) as exc:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            image = Image.open(upload)
+            image_format = (image.format or "").upper()
+            width, height = image.size
+            frames = max(int(getattr(image, "n_frames", 1) or 1), 1)
+            if image_format not in {"JPEG", "PNG", "GIF", "WEBP"}:
+                raise ValidationError(_("Upload a valid avatar image."))
+            if max(width, height) > getattr(
+                settings, "PROFILE_AVATAR_MAX_DIMENSION", 4096
+            ):
+                raise ValidationError(_("Avatar dimensions are too large."))
+            if width * height * frames > getattr(
+                settings, "PROFILE_AVATAR_MAX_PIXELS", 16_000_000
+            ):
+                raise ValidationError(
+                    _("Avatar contains too many pixels or animation frames.")
+                )
+            image.verify()
+    except (
+        Image.DecompressionBombError,
+        Image.DecompressionBombWarning,
+        UnidentifiedImageError,
+        OSError,
+        SyntaxError,
+    ) as exc:
         raise ValidationError(_("Upload a valid avatar image.")) from exc
     finally:
         upload.seek(position)
