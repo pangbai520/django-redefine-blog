@@ -32,6 +32,7 @@
 - 自带评论系统：账号资料、显示名称、头像、回复、点赞、审核、徽章、表情、GIF 和图片上传
 - 浅色/深色模式、Swup 无刷新切换和七种界面语言
 - 本地默认 SQLite，部署时可换 PostgreSQL 或 MySQL
+- 上传资源默认保存在本地，也可把图片和 APlayer 音乐接入 S3 兼容存储
 
 不想使用内置评论的话，也可以在后台切换到 Waline、Gitalk、Twikoo 或 Giscus。
 
@@ -69,7 +70,7 @@ python manage.py create_demo
 公开站点不要使用 `runserver`。生产配置全部从环境变量读取，可用变量见
 [.env.example](.env.example)。
 
-[DEPLOYMENT.md](DEPLOYMENT.md) 里有 Gunicorn、systemd 和 Nginx 的部署步骤；Docker Compose、Redis、GitHub 登录等可选项放在
+[DEPLOYMENT.md](DEPLOYMENT.md) 里有 Gunicorn、systemd 和 Nginx 的部署步骤；Docker Compose、Redis、S3 兼容资源存储、GitHub 登录等可选项放在
 [OPTIONAL_FEATURES.md](OPTIONAL_FEATURES.md)。
 
 ## 测试

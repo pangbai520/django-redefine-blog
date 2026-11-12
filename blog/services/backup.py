@@ -11,10 +11,19 @@ from pathlib import Path, PurePosixPath
 from django.apps import apps
 from django.conf import settings
 from django.core.cache import cache
+from django.core.files.storage import default_storage
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.db import transaction
 from django.db.models.signals import post_delete
+
+from .media_storage import (
+    is_local,
+    local_name,
+    restore_directory,
+    rollback_storage,
+    walk_files,
+)
 
 ARCHIVE_FORMAT = "django-redefine-blog-data"
 LEGACY_ARCHIVE_FORMATS = {
@@ -26,15 +35,20 @@ ARCHIVE_VERSION = 1
 
 
 def _media_files(exclude=()):
-    root = Path(settings.MEDIA_ROOT)
-    if not root.exists():
-        return []
-    excluded = {Path(path).resolve() for path in exclude}
-    return [
-        path
-        for path in root.rglob("*")
-        if path.is_file() and not path.is_symlink() and path.resolve() not in excluded
-    ]
+    excluded = {
+        name
+        for path in exclude
+        if (name := local_name(default_storage, Path(path))) is not None
+    }
+    if is_local(default_storage):
+        names = walk_files(default_storage)
+    else:
+        names = (
+            name
+            for prefix in settings.MEDIA_MANAGED_PREFIXES
+            for name in walk_files(default_storage, prefix)
+        )
+    return sorted({name for name in names if name not in excluded})
 
 
 def export_archive(output_path, include_traffic=False):
@@ -55,7 +69,6 @@ def export_archive(output_path, include_traffic=False):
         stdout=serialized,
     )
     payload = serialized.getvalue().encode("utf-8")
-    media_root = Path(settings.MEDIA_ROOT)
     # avoid recursively embedding a previous archive when the destination sits
     # below MEDIA_ROOT, which is convenient but otherwise unsafe on overwrite
     media_files = _media_files(exclude=(output_path,))
@@ -71,8 +84,12 @@ def export_archive(output_path, include_traffic=False):
             "manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2)
         )
         archive.writestr("data.json", payload)
-        for path in media_files:
-            archive.write(path, "media/" + path.relative_to(media_root).as_posix())
+        for name in media_files:
+            with (
+                default_storage.open(name, "rb") as source,
+                archive.open("media/" + name, "w") as target,
+            ):
+                shutil.copyfileobj(source, target, length=1024 * 1024)
     return manifest
 
 
@@ -195,7 +212,10 @@ def import_archive(input_path, replace=False):
         )
 
     media_root = Path(settings.MEDIA_ROOT).resolve()
-    temporary_parent = media_root.parent
+    local_storage = is_local(default_storage)
+    temporary_parent = (
+        media_root.parent if local_storage else Path(tempfile.gettempdir())
+    )
     temporary_parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(
         prefix="django-redefine-import-",
@@ -214,31 +234,47 @@ def import_archive(input_path, replace=False):
         except (OSError, zipfile.BadZipFile) as exc:
             raise CommandError("The archive could not be read completely.") from exc
 
-        # A backup selected from inside MEDIA_ROOT must survive the directory swap.
-        try:
-            archive_relative = input_path.relative_to(media_root)
-        except ValueError:
-            archive_relative = None
-        if archive_relative is not None:
-            preserved_archive = staged_media / archive_relative
-            preserved_archive.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(input_path, preserved_archive)
+        if local_storage:
+            # A backup selected from inside MEDIA_ROOT must survive the directory swap.
+            try:
+                archive_relative = input_path.relative_to(media_root)
+            except ValueError:
+                archive_relative = None
+            if archive_relative is not None:
+                preserved_archive = staged_media / archive_relative
+                preserved_archive.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(input_path, preserved_archive)
 
-        media_swapped = False
-        had_previous_media = False
-        try:
-            with _suspend_cleanup(), transaction.atomic():
-                if replace:
-                    _clear_data()
-                call_command("loaddata", str(fixture), verbosity=0)
-                had_previous_media = _swap_media(
-                    staged_media, media_root, previous_media
+            media_swapped = False
+            had_previous_media = False
+            try:
+                with _suspend_cleanup(), transaction.atomic():
+                    if replace:
+                        _clear_data()
+                    call_command("loaddata", str(fixture), verbosity=0)
+                    had_previous_media = _swap_media(
+                        staged_media, media_root, previous_media
+                    )
+                    media_swapped = True
+            except Exception:
+                if media_swapped:
+                    _rollback_media(media_root, previous_media, had_previous_media)
+                raise
+        else:
+            changes = []
+            try:
+                changes = restore_directory(
+                    staged_media,
+                    default_storage,
+                    temporary_root / "storage-rollback",
                 )
-                media_swapped = True
-        except Exception:
-            if media_swapped:
-                _rollback_media(media_root, previous_media, had_previous_media)
-            raise
+                with _suspend_cleanup(), transaction.atomic():
+                    if replace:
+                        _clear_data()
+                    call_command("loaddata", str(fixture), verbosity=0)
+            except Exception:
+                rollback_storage(changes, default_storage)
+                raise
     cache.delete_many(
         (
             "actived_site_config",

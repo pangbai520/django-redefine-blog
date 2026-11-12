@@ -5,7 +5,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
-COPY requirements.txt requirements-postgresql.txt requirements-production.txt requirements-redis.txt ./
+COPY requirements.txt requirements-postgresql.txt requirements-production.txt requirements-redis.txt requirements-storage.txt ./
 RUN python -m pip install --upgrade pip && \
     python -m pip install -r requirements-production.txt -r requirements-redis.txt
 

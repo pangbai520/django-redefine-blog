@@ -38,6 +38,8 @@ existing Hexo site.
 - light/dark mode, Swup navigation and seven interface languages
 - SQLite for a quick local setup, with PostgreSQL and MySQL configuration for
   deployment
+- local uploads by default, with optional S3-compatible storage for images and
+  APlayer audio
 
 Waline, Gitalk, Twikoo and Giscus can still be used instead of the built-in
 comments.
@@ -80,8 +82,8 @@ Do not use `runserver` for a public site. Production settings are read from the
 environment; [.env.example](.env.example) lists the available variables.
 
 [DEPLOYMENT.md](DEPLOYMENT.md) covers the included Gunicorn, systemd and Nginx
-files. Docker Compose, Redis and GitHub login are described in
-[OPTIONAL_FEATURES.md](OPTIONAL_FEATURES.md).
+files. Docker Compose, Redis, S3-compatible media storage and GitHub login are
+described in [OPTIONAL_FEATURES.md](OPTIONAL_FEATURES.md).
 
 ## Tests
 

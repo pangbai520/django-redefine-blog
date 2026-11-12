@@ -32,6 +32,7 @@
 - 內建留言系統：帳號資料、顯示名稱、頭像、回覆、按讚、審核、徽章、表情、GIF 和圖片上傳
 - 淺色/深色模式、Swup 無重新整理切換和七種介面語言
 - 本機預設 SQLite，部署時可改用 PostgreSQL 或 MySQL
+- 上傳資源預設保存在本機，也可把圖片與 APlayer 音樂接入 S3 相容儲存
 
 若不使用內建留言，也能在後台切換到 Waline、Gitalk、Twikoo 或 Giscus。
 
@@ -69,7 +70,7 @@ python manage.py create_demo
 公開網站不要使用 `runserver`。正式環境設定都從環境變數讀取，可用項目請見
 [.env.example](.env.example)。
 
-[DEPLOYMENT.md](DEPLOYMENT.md) 包含 Gunicorn、systemd 和 Nginx 的部署步驟；Docker Compose、Redis、GitHub 登入等選用功能放在
+[DEPLOYMENT.md](DEPLOYMENT.md) 包含 Gunicorn、systemd 和 Nginx 的部署步驟；Docker Compose、Redis、S3 相容資源儲存、GitHub 登入等選用功能放在
 [OPTIONAL_FEATURES.md](OPTIONAL_FEATURES.md)。
 
 ## 測試

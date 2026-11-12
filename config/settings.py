@@ -10,9 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import json
 import mimetypes
 import os
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -35,6 +37,20 @@ def env_list(name, default=""):
     return [
         item.strip() for item in os.getenv(name, default).split(",") if item.strip()
     ]
+
+
+def env_json(name, default=None):
+    """Read one JSON object from the environment with a useful error."""
+    value = os.getenv(name)
+    if value is None or not value.strip():
+        return {} if default is None else default
+    try:
+        parsed = json.loads(value)
+    except json.JSONDecodeError as exc:
+        raise ImproperlyConfigured(f"{name} must contain valid JSON.") from exc
+    if not isinstance(parsed, dict):
+        raise ImproperlyConfigured(f"{name} must contain a JSON object.")
+    return parsed
 
 
 # read secrets from the environment, while keeping an explicit development-only fallback
@@ -221,6 +237,112 @@ STATIC_ROOT = Path(os.getenv("STATIC_ROOT", BASE_DIR / "staticfiles"))
 
 MEDIA_URL = "/resources/"
 MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT", BASE_DIR / "blog" / "resources"))
+MEDIA_STORAGE = os.getenv("MEDIA_STORAGE", "local").strip().lower()
+MEDIA_PUBLIC_BASE_URL = os.getenv("MEDIA_PUBLIC_BASE_URL", "").strip().rstrip("/")
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+if MEDIA_PUBLIC_BASE_URL:
+    public_url = urlsplit(MEDIA_PUBLIC_BASE_URL)
+    if (
+        public_url.scheme not in {"http", "https"}
+        or not public_url.netloc
+        or public_url.username
+        or public_url.password
+        or public_url.query
+        or public_url.fragment
+    ):
+        raise ImproperlyConfigured(
+            "MEDIA_PUBLIC_BASE_URL must be an absolute HTTP(S) URL."
+        )
+    MEDIA_URL = MEDIA_PUBLIC_BASE_URL + "/"
+
+if MEDIA_STORAGE == "s3":
+    bucket_name = os.getenv("MEDIA_S3_BUCKET_NAME", "").strip()
+    if not bucket_name:
+        raise ImproperlyConfigured(
+            "MEDIA_S3_BUCKET_NAME is required when MEDIA_STORAGE=s3."
+        )
+    access_key = os.getenv("MEDIA_S3_ACCESS_KEY_ID", "").strip()
+    secret_key = os.getenv("MEDIA_S3_SECRET_ACCESS_KEY", "").strip()
+    if bool(access_key) != bool(secret_key):
+        raise ImproperlyConfigured(
+            "MEDIA_S3_ACCESS_KEY_ID and MEDIA_S3_SECRET_ACCESS_KEY must be set together."
+        )
+    endpoint_url = os.getenv("MEDIA_S3_ENDPOINT_URL", "").strip()
+    if endpoint_url:
+        endpoint = urlsplit(endpoint_url)
+        if (
+            endpoint.scheme not in {"http", "https"}
+            or not endpoint.netloc
+            or endpoint.username
+            or endpoint.password
+            or endpoint.query
+            or endpoint.fragment
+        ):
+            raise ImproperlyConfigured(
+                "MEDIA_S3_ENDPOINT_URL must be an absolute HTTP(S) URL."
+            )
+    custom_domain = None
+    if MEDIA_PUBLIC_BASE_URL:
+        public_url = urlsplit(MEDIA_PUBLIC_BASE_URL)
+        if public_url.path not in {"", "/"}:
+            raise ImproperlyConfigured(
+                "MEDIA_PUBLIC_BASE_URL cannot contain a path for S3 storage."
+            )
+        custom_domain = public_url.netloc
+    STORAGES["default"] = {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "access_key": access_key or None,
+            "secret_key": secret_key or None,
+            "bucket_name": bucket_name,
+            "endpoint_url": endpoint_url or None,
+            "region_name": os.getenv("MEDIA_S3_REGION", "").strip() or None,
+            "custom_domain": custom_domain,
+            "url_protocol": f"{public_url.scheme}:"
+            if MEDIA_PUBLIC_BASE_URL
+            else "https:",
+            "querystring_auth": env_bool("MEDIA_S3_QUERYSTRING_AUTH", False),
+            "default_acl": None,
+            "file_overwrite": False,
+            "addressing_style": os.getenv("MEDIA_S3_ADDRESSING_STYLE", "").strip()
+            or None,
+            "signature_version": "s3v4",
+            "object_parameters": {
+                "CacheControl": os.getenv(
+                    "MEDIA_CACHE_CONTROL",
+                    "public, max-age=31536000, immutable",
+                )
+            },
+        },
+    }
+elif MEDIA_STORAGE == "custom":
+    backend = os.getenv("MEDIA_CUSTOM_BACKEND", "").strip()
+    if not backend:
+        raise ImproperlyConfigured(
+            "MEDIA_CUSTOM_BACKEND is required when MEDIA_STORAGE=custom."
+        )
+    STORAGES["default"] = {
+        "BACKEND": backend,
+        "OPTIONS": env_json("MEDIA_CUSTOM_OPTIONS"),
+    }
+elif MEDIA_STORAGE != "local":
+    raise ImproperlyConfigured("MEDIA_STORAGE must be local, s3 or custom.")
+
+MEDIA_MANAGED_PREFIXES = env_list(
+    "MEDIA_MANAGED_PREFIXES",
+    "avatar,logo,favicon,opengraph,banner,recommendation,writer_avatar,"
+    "thumbnails,cover,user-avatars,comment-images,content-images,audio,"
+    "audio_covers",
+)
 BLOG_EXTENSION_MODULES = env_list("BLOG_EXTENSION_MODULES")
 
 # bound request bodies before application code runs, then apply stricter image
@@ -247,7 +369,7 @@ THEME_IMAGE_MAX_BYTES = int(
 THEME_IMAGE_MAX_DIMENSION = int(os.getenv("THEME_IMAGE_MAX_DIMENSION", "8192"))
 THEME_IMAGE_MAX_PIXELS = int(os.getenv("THEME_IMAGE_MAX_PIXELS", "24000000"))
 AUDIO_UPLOAD_MAX_BYTES = int(
-    os.getenv("AUDIO_UPLOAD_MAX_BYTES", str(5 * 1024 * 1024))
+    os.getenv("AUDIO_UPLOAD_MAX_BYTES", str(100 * 1024 * 1024))
 )
 PROFILE_EMAIL_CHANGE_MAX_AGE = int(
     os.getenv("PROFILE_EMAIL_CHANGE_MAX_AGE", str(24 * 60 * 60))

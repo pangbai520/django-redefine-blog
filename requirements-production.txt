@@ -1,2 +1,3 @@
 -r requirements-postgresql.txt
+-r requirements-storage.txt
 gunicorn==26.2.0

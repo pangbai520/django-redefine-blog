@@ -64,7 +64,7 @@ def validate_audio(upload):
     if getattr(upload, "_committed", False):
         return
 
-    max_bytes = getattr(settings, "AUDIO_UPLOAD_MAX_BYTES", 5 * 1024 * 1024)
+    max_bytes = getattr(settings, "AUDIO_UPLOAD_MAX_BYTES", 100 * 1024 * 1024)
     if getattr(upload, "size", 0) > max_bytes:
         raise ValidationError(
             _("Audio files must be no larger than %(size)s MB."),

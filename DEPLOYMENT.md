@@ -69,9 +69,12 @@ sudo systemctl reload nginx
 Check `https://example.com/health/` after each deployment. The endpoint verifies
 that Django can reach the database.
 
-`STATIC_ROOT` and `MEDIA_ROOT` should be outside the checkout and writable by
-the service account. Nginx serves both directly; never configure it to execute
-anything below the media directory.
+`STATIC_ROOT` and a local `MEDIA_ROOT` should be outside the checkout and
+writable by the service account. Nginx serves both directly; never configure it
+to execute anything below the media directory. When an S3-compatible media
+backend is enabled, Nginx continues to serve only static files and Django emits
+media URLs for the configured public domain. See
+[OPTIONAL_FEATURES.md](OPTIONAL_FEATURES.md#s3-compatible-media-storage).
 
 ## Backups
 

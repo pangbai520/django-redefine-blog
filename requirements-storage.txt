@@ -1,0 +1,2 @@
+boto3==1.43.126
+django-storages==1.14.6

@@ -1,5 +1,6 @@
 import re
 import tempfile
+import zipfile
 from datetime import timedelta
 from io import BytesIO, StringIO
 from pathlib import Path
@@ -13,6 +14,7 @@ from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.cache import cache
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -259,3 +261,80 @@ class PortableRestoreTests(TransactionTestCase):
 
             site.refresh_from_db()
             self.assertEqual(site.site_name, "Must survive failed swap")
+
+    @override_settings(
+        STORAGES={
+            "default": {"BACKEND": "django.core.files.storage.InMemoryStorage"},
+            "staticfiles": {
+                "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+            },
+        }
+    )
+    def test_remote_roundtrip(self):
+        with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as temporary:
+            site = SiteConfiguration.objects.create(
+                config_name="Remote portable",
+                site_name="Before backup",
+                is_active=True,
+            )
+            site.site_logo.save("remote.png", ContentFile(make_png()), save=True)
+            stored_name = site.site_logo.name
+            archive = Path(temporary, "remote-backup.zip")
+
+            export_archive(archive)
+            with zipfile.ZipFile(archive) as exported:
+                self.assertIn("media/" + stored_name, exported.namelist())
+
+            site.site_name = "Changed"
+            site.save(update_fields=["site_name"])
+            default_storage.delete(stored_name)
+            default_storage.save(stored_name, ContentFile(b"changed"))
+
+            import_archive(archive, replace=True)
+
+            restored = SiteConfiguration.objects.get(config_name="Remote portable")
+            self.assertEqual(restored.site_name, "Before backup")
+            with default_storage.open(stored_name, "rb") as handle:
+                self.assertEqual(handle.read(), make_png())
+
+
+class MediaStorageCommandTests(TestCase):
+    @override_settings(
+        STORAGES={
+            "default": {"BACKEND": "django.core.files.storage.InMemoryStorage"},
+            "staticfiles": {
+                "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+            },
+        }
+    )
+    def test_media_migration(self):
+        with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as source:
+            path = Path(source, "audio", "track.mp3")
+            path.parent.mkdir()
+            path.write_bytes(b"ID3 test audio")
+
+            call_command(
+                "migrate_media_storage",
+                source=source,
+                stdout=StringIO(),
+            )
+
+            self.assertTrue(default_storage.exists("audio/track.mp3"))
+            with default_storage.open("audio/track.mp3", "rb") as handle:
+                self.assertEqual(handle.read(), b"ID3 test audio")
+
+    @override_settings(
+        STORAGES={
+            "default": {"BACKEND": "django.core.files.storage.InMemoryStorage"},
+            "staticfiles": {
+                "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+            },
+        },
+        MEDIA_MANAGED_PREFIXES=["content-images"],
+    )
+    def test_storage_cleanup(self):
+        default_storage.save("content-images/untracked.png", ContentFile(b"old"))
+        old_time = timezone.now() - timedelta(days=4)
+        with patch.object(default_storage, "get_modified_time", return_value=old_time):
+            call_command("cleanup_orphan_uploads", stdout=StringIO())
+        self.assertFalse(default_storage.exists("content-images/untracked.png"))
