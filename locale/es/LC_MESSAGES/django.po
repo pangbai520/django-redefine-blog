@@ -2657,5 +2657,8 @@ msgstr "El archivo de audio seleccionado supera el límite de carga de %(size)s 
 msgid "Player theme colour"
 msgstr "Color del tema del reproductor"
 
-msgid "Optional hexadecimal colour used by APlayer for this track, for example #00bbfe."
-msgstr "Color hexadecimal opcional que APlayer usa para esta pista, por ejemplo #00bbfe."
+msgid "Leave unset to use the player default colour."
+msgstr "Déjalo sin configurar para usar el color predeterminado del reproductor."
+
+msgid "Use default colour"
+msgstr "Usar el color predeterminado"

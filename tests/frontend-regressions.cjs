@@ -1189,4 +1189,7 @@ test("audio admin blocks oversized files before the form reaches Nginx", () => {
   assert.match(script, /setCustomValidity/);
   assert.match(script, /event\.preventDefault\(\)/);
   assert.match(script, /reportValidity/);
+  assert.match(script, /data-player-colour-picker/);
+  assert.match(script, /hidden\.value = picker\.value/);
+  assert.match(script, /hidden\.value = ""/);
 });

@@ -33,9 +33,37 @@
     });
   };
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bindAudioLimit, { once: true });
-  } else {
+  const bindPlayerColour = () => {
+    const hidden = document.querySelector('input[data-player-colour="true"]');
+    if (!hidden || hidden.dataset.colourBound === "true") return;
+
+    const box = hidden.nextElementSibling;
+    const picker = box?.querySelector("[data-player-colour-picker]");
+    const clear = box?.querySelector("[data-player-colour-clear]");
+    if (!box || !picker || !clear) return;
+
+    hidden.dataset.colourBound = "true";
+    const showState = () => box.classList.toggle("is-default", !hidden.value);
+
+    picker.addEventListener("input", () => {
+      hidden.value = picker.value;
+      showState();
+    });
+    clear.addEventListener("click", () => {
+      hidden.value = "";
+      showState();
+    });
+    showState();
+  };
+
+  const bindControls = () => {
     bindAudioLimit();
+    bindPlayerColour();
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindControls, { once: true });
+  } else {
+    bindControls();
   }
 })();

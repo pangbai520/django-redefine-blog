@@ -1,0 +1,16 @@
+.audio-colour-picker {
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.audio-colour-picker input[type="color"] {
+  block-size: 2.4rem;
+  cursor: pointer;
+  inline-size: 4rem;
+  padding: 0.15rem;
+}
+
+.audio-colour-picker.is-default input[type="color"] {
+  opacity: 0.55;
+}

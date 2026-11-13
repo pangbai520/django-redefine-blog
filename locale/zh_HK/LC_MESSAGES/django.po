@@ -2607,5 +2607,8 @@ msgstr "所選音訊檔案超過 %(size)s MB 的上傳限制。"
 msgid "Player theme colour"
 msgstr "播放器主題顏色"
 
-msgid "Optional hexadecimal colour used by APlayer for this track, for example #00bbfe."
-msgstr "APlayer 用於此曲目的可選十六進位顏色，例如 #00bbfe。"
+msgid "Leave unset to use the player default colour."
+msgstr "留空時使用播放器預設顏色。"
+
+msgid "Use default colour"
+msgstr "使用預設顏色"

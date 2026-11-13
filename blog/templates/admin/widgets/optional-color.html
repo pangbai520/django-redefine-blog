@@ -1,0 +1,5 @@
+{% include "django/forms/widgets/hidden.html" %}
+<div class="audio-colour-picker{% if not widget.value %} is-default{% endif %}" data-player-colour-box>
+  <input type="color" value="{{ widget.picker_value }}" data-player-colour-picker aria-label="{{ widget.picker_label }}">
+  <button type="button" class="button" data-player-colour-clear>{{ widget.clear_label }}</button>
+</div>

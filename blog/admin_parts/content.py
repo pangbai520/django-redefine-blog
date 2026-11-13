@@ -27,10 +27,29 @@ from blog.models import (
 from blog.services.geo import get_ip_location
 
 
+class OptionalColorWidget(forms.HiddenInput):
+    template_name = "admin/widgets/optional-color.html"
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        colour = str(value or "").strip()
+        context["widget"].update(
+            {
+                "picker_value": colour
+                if len(colour) == 7 and colour.startswith("#")
+                else "#b7daff",
+                "picker_label": _("Player theme colour"),
+                "clear_label": _("Use default colour"),
+            }
+        )
+        return context
+
+
 class AudioTrackForm(forms.ModelForm):
     class Meta:
         model = AudioTrack
         fields = "__all__"
+        widgets = {"theme": OptionalColorWidget()}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -53,11 +72,8 @@ class AudioTrackForm(forms.ModelForm):
         )
         theme = self.fields["theme"]
         theme.label = _("Player theme colour")
-        theme.help_text = _(
-            "Optional hexadecimal colour used by APlayer for this track, "
-            "for example #00bbfe."
-        )
-        theme.widget.attrs["placeholder"] = "#00bbfe"
+        theme.help_text = _("Leave unset to use the player default colour.")
+        theme.widget.attrs["data-player-colour"] = "true"
 
 
 @admin.register(ArticleModel)
@@ -380,6 +396,7 @@ class AudioTrackAdmin(admin.ModelAdmin):
     ordering = ("order", "id")
 
     class Media:
+        css = {"all": ("css/admin/audio-track.css",)}
         js = ("js/admin/audio-track.js",)
 
 

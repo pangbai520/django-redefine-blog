@@ -2608,5 +2608,8 @@ msgstr "選択した音声ファイルは %(size)s MB のアップロード上�
 msgid "Player theme colour"
 msgstr "プレーヤーのテーマカラー"
 
-msgid "Optional hexadecimal colour used by APlayer for this track, for example #00bbfe."
-msgstr "この曲で APlayer が使用する任意の16進カラーです（例：#00bbfe）。"
+msgid "Leave unset to use the player default colour."
+msgstr "未設定の場合はプレーヤーのデフォルト色を使用します。"
+
+msgid "Use default colour"
+msgstr "デフォルト色を使用"

@@ -165,11 +165,14 @@ class AdminExperienceTests(TestCase):
         self.assertIn("30 MB", str(audio.help_text))
         self.assertIn("30 MB", audio.widget.attrs["data-size-error"])
         self.assertEqual(str(theme.label), "Player theme colour")
-        self.assertEqual(theme.widget.attrs["placeholder"], "#00bbfe")
-        self.assertIn("#00bbfe", str(theme.help_text))
+        self.assertEqual(theme.widget.input_type, "hidden")
+        self.assertIn("player default colour", str(theme.help_text))
 
         response = self.client.get(reverse("admin:blog_audiotrack_add"))
         self.assertContains(response, "js/admin/audio-track.js")
+        self.assertContains(response, "css/admin/audio-track.css")
+        self.assertContains(response, 'type="color"')
+        self.assertContains(response, "Use default colour")
 
     def test_image_delete(self):
         image = EditorImage.objects.create(
