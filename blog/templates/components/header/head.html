@@ -310,5 +310,9 @@
     {% if request.resolver_match.url_name == 'password_reset_confirm' %}
         <link rel="stylesheet" href="{% static 'css/internal-comments.css' %}">
     {% endif %}
+    {% if TURNSTILE_ENABLED %}
+        <script src="{% static 'js/turnstile.js' %}" defer></script>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=blogTurnstileReady&amp;render=explicit" defer></script>
+    {% endif %}
     {% render_blog_hook "head" %}
 </head>

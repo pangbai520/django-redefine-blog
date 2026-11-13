@@ -38,6 +38,7 @@ from .models import CommentImage, PendingRegistration, SiteConfiguration, UserPr
 from .services.accounts import maybe_clean_unverified
 from .services.mail import send_email_change, send_verify, send_welcome
 from .services.throttle import rate_limited as _rate_limited
+from .services.turnstile import turnstile_error
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -71,6 +72,15 @@ class RateLimitedPasswordResetView(PasswordResetView):
                 None, _("Too many password reset requests. Please try again later.")
             )
             return self.render_to_response(self.get_context_data(form=form), status=429)
+        challenge = turnstile_error(request, "password_reset")
+        if challenge:
+            message, status = challenge
+            form = self.get_form()
+            form.add_error(None, message)
+            return self.render_to_response(
+                self.get_context_data(form=form),
+                status=status,
+            )
         return super().post(request, *args, **kwargs)
 
 
@@ -160,6 +170,16 @@ def register(request):
                 None, _("Too many registration attempts. Please try again later.")
             )
             return render(request, "comments/register.html", {"form": form}, status=429)
+        challenge = turnstile_error(request, "register")
+        if challenge:
+            message, status = challenge
+            form.add_error(None, message)
+            return render(
+                request,
+                "comments/register.html",
+                {"form": form},
+                status=status,
+            )
         if form.is_valid():
             try:
                 user = _create_user(request, form, site)
@@ -313,6 +333,9 @@ def register_ajax(request):
         return _json_error(
             _("Too many registration attempts. Please try again later."), 429
         )
+    challenge = turnstile_error(request, "register")
+    if challenge:
+        return _json_error(*challenge)
     form = CommentRegistrationForm(request.POST)
     if not form.is_valid():
         errors = (

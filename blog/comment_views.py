@@ -39,6 +39,7 @@ from .services.emoji import emoji_items
 from .services.mail import notify
 from .services.images import ImageUploadError, clean_image
 from .services.throttle import rate_limited as _rate_limited
+from .services.turnstile import turnstile_error
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -366,6 +367,8 @@ def create_page_comment(request, slug):
 
 def _create_comment(request, article=None, page=None):
     site = _site()
+    if not _comments_enabled(site, article=article, page=page):
+        return _json_error(_("Comments are disabled for this page."), 403)
     if site.comment_require_login and not request.user.is_authenticated:
         return _json_error(_("Please sign in to comment."), 401)
     if not request.user.is_authenticated and not site.comment_allow_guest:
@@ -375,9 +378,11 @@ def _create_comment(request, article=None, page=None):
         return _json_error(_("Comment length must be between 1 and 5000 characters."))
     if _rate_limited(request, "create"):
         return _json_error(_("Too many comments. Please try again later."), 429)
+    if not request.user.is_authenticated:
+        challenge = turnstile_error(request, "guest_comment")
+        if challenge:
+            return _json_error(*challenge)
 
-    if not _comments_enabled(site, article=article, page=page):
-        return _json_error(_("Comments are disabled for this page."), 403)
     target_filter = _target_filter(article=article, page=page)
     parent = None
     parent_id = request.POST.get("parent_id")

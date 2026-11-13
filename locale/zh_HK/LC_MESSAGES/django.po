@@ -2612,3 +2612,8 @@ msgstr "留空時使用播放器預設顏色。"
 
 msgid "Use default colour"
 msgstr "使用預設顏色"
+msgid "Human verification is temporarily unavailable. Please try again later."
+msgstr "人機驗證暫時無法使用，請稍後再試。"
+
+msgid "Please complete the human verification and try again."
+msgstr "請完成人機驗證後再試。"

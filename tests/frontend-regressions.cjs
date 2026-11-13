@@ -1193,3 +1193,12 @@ test("audio admin blocks oversized files before the form reaches Nginx", () => {
   assert.match(script, /hidden\.value = picker\.value/);
   assert.match(script, /hidden\.value = ""/);
 });
+
+test("Turnstile widgets render after navigation and reset single-use tokens", () => {
+  const helper = source("turnstile.js");
+  const comments = source("comments/internal.js");
+  assert.match(helper, /turnstile\.render/);
+  assert.match(helper, /swup:contentReplaced/);
+  assert.match(comments, /cf-turnstile-response/);
+  assert.match(comments, /blogTurnstile\?\.reset/);
+});

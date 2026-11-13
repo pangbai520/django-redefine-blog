@@ -106,6 +106,9 @@
             {% endif %}
         </div>
     </div>
+    {% if not request.user.is_authenticated and site.comment_allow_guest and not site.comment_require_login %}
+        {% include "components/turnstile.html" with turnstile_action="guest_comment" %}
+    {% endif %}
     <div class="wl-meta-head"><div class="wl-count"><span class="wl-num" data-comment-count>0</span> {% translate "Comments" %}</div><ul class="wl-sort"><li class="active" data-sort="latest">{% translate "Latest" %}</li><li data-sort="oldest">{% translate "Oldest" %}</li><li data-sort="likes">{% translate "Most liked" %}</li></ul></div>
     <div class="wl-cards" data-comments-items><div class="wl-loading">{% translate "Loading comments…" %}</div></div>
     <div class="wl-power">{% translate "Powered by Django" %}</div>
@@ -136,6 +139,7 @@
             <p><label><span class="internal-auth-field-label"><i class="fa-solid fa-envelope" aria-hidden="true"></i>{% translate "Email" %}</span><span class="internal-auth-field"><input name="email" type="email" required autocomplete="email"></span></label></p>
             <p><label><span class="internal-auth-field-label"><i class="fa-solid fa-lock" aria-hidden="true"></i>{% translate "Password" %}</span><span class="internal-auth-field"><input name="password" type="password" minlength="8" required autocomplete="new-password"></span></label></p>
             <p><label><span class="internal-auth-field-label"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>{% translate "Confirm password" %}</span><span class="internal-auth-field"><input name="password_confirm" type="password" minlength="8" required autocomplete="new-password"></span></label></p>
+            {% include "components/turnstile.html" with turnstile_action="register" %}
             <button class="wl-btn primary internal-auth-submit" type="submit"><i class="fa-solid fa-user-plus" aria-hidden="true"></i><span>{% translate "Sign up" %}</span></button>
             <div class="internal-auth-error" role="alert"></div>
         </form>{% endif %}

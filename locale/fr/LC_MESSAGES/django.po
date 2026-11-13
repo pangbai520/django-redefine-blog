@@ -2670,3 +2670,8 @@ msgstr "Laissez ce champ vide pour utiliser la couleur par défaut du lecteur."
 
 msgid "Use default colour"
 msgstr "Utiliser la couleur par défaut"
+msgid "Human verification is temporarily unavailable. Please try again later."
+msgstr "La vérification humaine est temporairement indisponible. Veuillez réessayer plus tard."
+
+msgid "Please complete the human verification and try again."
+msgstr "Veuillez terminer la vérification humaine et réessayer."

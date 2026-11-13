@@ -39,6 +39,8 @@ def site_processor(request):
         "SITE_LANG": lang_map.get(current_lang, current_lang),
         "LANGUAGE_SWITCHER_OPTIONS": language_options,
         "PROJECT_VERSION": getattr(settings, "PROJECT_VERSION", ""),
+        "TURNSTILE_ENABLED": getattr(settings, "TURNSTILE_ENABLED", False),
+        "TURNSTILE_SITE_KEY": getattr(settings, "TURNSTILE_SITE_KEY", ""),
         "github_oauth_url": (
             reverse("github_login")
             if getattr(settings, "GITHUB_OAUTH_ENABLED", False)

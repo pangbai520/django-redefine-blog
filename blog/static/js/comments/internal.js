@@ -222,6 +222,7 @@
         })
         .catch(function (error) { if (errorBox) errorBox.textContent = error.message; })
         .finally(function () {
+          if (isRegister) window.blogTurnstile?.reset(authForm);
           if (submitButton) {
             submitButton.disabled = false;
             submitButton.innerHTML = originalButtonHtml;
@@ -655,11 +656,15 @@
         return;
       }
       node.dataset.submitting = "true";
+      var editId = node.dataset.editId;
       var data = new FormData();
       panel.querySelectorAll("input, textarea").forEach(function (input) { if (input.name) data.append(input.name, input.value); });
+      if (!isAuthenticated && !editId) {
+        var turnstileToken = root.querySelector('[data-action="guest_comment"] input[name="cf-turnstile-response"]');
+        if (turnstileToken) data.set("cf-turnstile-response", turnstileToken.value);
+      }
       String(node.dataset.uploadIds || "").split(",").filter(Boolean).forEach(function (id) { data.append("image_ids", id); });
       submit.disabled = true;
-      var editId = node.dataset.editId;
       var endpoint = editId ? "/api/comments/" + editId + "/edit/" : commentsApiBase + encodeURIComponent(slug) + "/create/";
       fetch(endpoint, { method: "POST", body: data, headers: { "X-CSRFToken": csrf(), Accept: "application/json" }, credentials: "same-origin" })
         .then(function (response) { return parseJsonResponse(response, message("UnableSubmit", "Unable to submit comment")); })
@@ -671,7 +676,11 @@
           draw(); load();
         })
         .catch(function (error) { showToast(error.message, "error"); })
-        .finally(function () { submit.disabled = false; delete node.dataset.submitting; });
+        .finally(function () {
+          if (!isAuthenticated && !editId) window.blogTurnstile?.reset(root);
+          submit.disabled = false;
+          delete node.dataset.submitting;
+        });
     }
     root.addEventListener("click", function (event) {
       var submitButton = event.target.closest(".internal-comment-submit");

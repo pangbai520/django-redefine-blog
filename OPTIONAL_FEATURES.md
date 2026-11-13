@@ -43,6 +43,30 @@ CACHE_BACKEND=redis
 CACHE_URL=redis://127.0.0.1:6379/1
 ```
 
+## Cloudflare Turnstile
+
+Turnstile can protect public account registration, password-reset requests and
+anonymous comments without placing a challenge in front of the whole site.
+Create a Turnstile widget for the public hostname in Cloudflare, then keep its
+secret outside the repository:
+
+```env
+TURNSTILE_ENABLED=1
+TURNSTILE_SITE_KEY=...
+TURNSTILE_SECRET_KEY=...
+TURNSTILE_TIMEOUT=5
+```
+
+Signed-in readers are never challenged when posting comments. The anonymous
+comment widget appears only when guest comments are enabled and sign-in is not
+required. Turning the feature off restores the original forms without needing
+to change templates or database records.
+
+The server verifies every token with Cloudflare and checks the expected action
+name; JavaScript success alone is not trusted. If Cloudflare verification is
+temporarily unavailable, protected submissions fail closed and can be retried
+later.
+
 ## S3-compatible media storage
 
 Uploads use the local `MEDIA_ROOT` unless another backend is selected. The S3

@@ -2613,3 +2613,8 @@ msgstr "未設定の場合はプレーヤーのデフォルト色を使用しま
 
 msgid "Use default colour"
 msgstr "デフォルト色を使用"
+msgid "Human verification is temporarily unavailable. Please try again later."
+msgstr "人間による認証を一時的に利用できません。しばらくしてからもう一度お試しください。"
+
+msgid "Please complete the human verification and try again."
+msgstr "人間による認証を完了してから、もう一度お試しください。"

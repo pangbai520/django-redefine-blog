@@ -2662,3 +2662,8 @@ msgstr "Déjalo sin configurar para usar el color predeterminado del reproductor
 
 msgid "Use default colour"
 msgstr "Usar el color predeterminado"
+msgid "Human verification is temporarily unavailable. Please try again later."
+msgstr "La verificación humana no está disponible temporalmente. Inténtalo de nuevo más tarde."
+
+msgid "Please complete the human verification and try again."
+msgstr "Completa la verificación humana e inténtalo de nuevo."
