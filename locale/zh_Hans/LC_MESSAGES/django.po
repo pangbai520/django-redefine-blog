@@ -2589,3 +2589,20 @@ msgstr "发现一份保存于 %(time)s 的未保存文章草稿。是否恢复�
 
 msgid "Draft restored. Select local files such as the cover again before saving."
 msgstr "草稿已恢复。保存前请重新选择封面等本地文件。"
+
+msgid "Audio file"
+msgstr "音频文件"
+
+#, python-format
+msgid "Upload an MP3, FLAC, M4A, AAC, OGG, OPUS or WAV file up to %(size)s MB."
+msgstr "上传最大 %(size)s MB 的 MP3、FLAC、M4A、AAC、OGG、OPUS 或 WAV 文件。"
+
+#, python-format
+msgid "The selected audio file exceeds the %(size)s MB upload limit."
+msgstr "所选音频文件超过 %(size)s MB 的上传限制。"
+
+msgid "Player theme colour"
+msgstr "播放器主题色"
+
+msgid "Optional hexadecimal colour used by APlayer for this track, for example #00bbfe."
+msgstr "APlayer 用于此曲目的可选十六进制颜色，例如 #00bbfe。"

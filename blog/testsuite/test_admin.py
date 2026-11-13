@@ -15,6 +15,7 @@ from ..admin import (
     SiteConfigurationAdmin,
     SiteConfigurationForm,
 )
+from ..admin_parts.content import AudioTrackForm
 from ..models import (
     ArticleModel,
     Category,
@@ -153,6 +154,22 @@ class AdminExperienceTests(TestCase):
 
         home = self.client.get(reverse("index"))
         self.assertNotContains(home, "This excerpt must stay hidden.")
+
+    @override_settings(AUDIO_UPLOAD_MAX_BYTES=30 * 1024 * 1024)
+    def test_audio_controls(self):
+        form = AudioTrackForm()
+        audio = form.fields["audio_file"]
+        theme = form.fields["theme"]
+
+        self.assertEqual(audio.widget.attrs["data-max-bytes"], str(30 * 1024 * 1024))
+        self.assertIn("30 MB", str(audio.help_text))
+        self.assertIn("30 MB", audio.widget.attrs["data-size-error"])
+        self.assertEqual(str(theme.label), "Player theme colour")
+        self.assertEqual(theme.widget.attrs["placeholder"], "#00bbfe")
+        self.assertIn("#00bbfe", str(theme.help_text))
+
+        response = self.client.get(reverse("admin:blog_audiotrack_add"))
+        self.assertContains(response, "js/admin/audio-track.js")
 
     def test_image_delete(self):
         image = EditorImage.objects.create(

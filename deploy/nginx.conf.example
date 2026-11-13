@@ -15,7 +15,9 @@ server {
     server_name example.com www.example.com;
     ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
-    client_max_body_size 5m;
+    # Keep this slightly above AUDIO_UPLOAD_MAX_BYTES so Django can return a
+    # translated form error instead of Nginx replacing it with a bare 413 page.
+    client_max_body_size 110m;
 
     location /static/ {
         alias /srv/django-redefine-blog/static/;

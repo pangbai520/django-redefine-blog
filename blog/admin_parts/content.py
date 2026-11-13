@@ -1,3 +1,5 @@
+from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.db import models
 from django.urls import reverse
@@ -23,6 +25,39 @@ from blog.models import (
     TrafficModel,
 )
 from blog.services.geo import get_ip_location
+
+
+class AudioTrackForm(forms.ModelForm):
+    class Meta:
+        model = AudioTrack
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        max_bytes = getattr(settings, "AUDIO_UPLOAD_MAX_BYTES", 100 * 1024 * 1024)
+        size_mb = max_bytes // (1024 * 1024)
+        audio = self.fields["audio_file"]
+        audio.label = _("Audio file")
+        audio.help_text = _(
+            "Upload an MP3, FLAC, M4A, AAC, OGG, OPUS or WAV file up to "
+            "%(size)s MB."
+        ) % {"size": size_mb}
+        audio.widget.attrs.update(
+            {
+                "data-max-bytes": str(max_bytes),
+                "data-size-error": _(
+                    "The selected audio file exceeds the %(size)s MB upload limit."
+                )
+                % {"size": size_mb},
+            }
+        )
+        theme = self.fields["theme"]
+        theme.label = _("Player theme colour")
+        theme.help_text = _(
+            "Optional hexadecimal colour used by APlayer for this track, "
+            "for example #00bbfe."
+        )
+        theme.widget.attrs["placeholder"] = "#00bbfe"
 
 
 @admin.register(ArticleModel)
@@ -338,10 +373,14 @@ class ArticleReactionVoteAdmin(admin.ModelAdmin):
 
 @admin.register(AudioTrack)
 class AudioTrackAdmin(admin.ModelAdmin):
+    form = AudioTrackForm
     list_display = ("name", "artist", "enabled", "order")
     list_filter = ("enabled",)
     search_fields = ("name", "artist")
     ordering = ("order", "id")
+
+    class Media:
+        js = ("js/admin/audio-track.js",)
 
 
 @admin.register(Category)

@@ -2642,3 +2642,20 @@ msgstr "Se encontró un borrador de artículo sin guardar del %(time)s. ¿Quiere
 
 msgid "Draft restored. Select local files such as the cover again before saving."
 msgstr "Borrador restaurado. Vuelve a seleccionar los archivos locales, como la portada, antes de guardar."
+
+msgid "Audio file"
+msgstr "Archivo de audio"
+
+#, python-format
+msgid "Upload an MP3, FLAC, M4A, AAC, OGG, OPUS or WAV file up to %(size)s MB."
+msgstr "Sube un archivo MP3, FLAC, M4A, AAC, OGG, OPUS o WAV de hasta %(size)s MB."
+
+#, python-format
+msgid "The selected audio file exceeds the %(size)s MB upload limit."
+msgstr "El archivo de audio seleccionado supera el límite de carga de %(size)s MB."
+
+msgid "Player theme colour"
+msgstr "Color del tema del reproductor"
+
+msgid "Optional hexadecimal colour used by APlayer for this track, for example #00bbfe."
+msgstr "Color hexadecimal opcional que APlayer usa para esta pista, por ejemplo #00bbfe."

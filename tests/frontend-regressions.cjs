@@ -1181,3 +1181,12 @@ test("Mermaid restores source and renders the current page using the active mode
   assert.equal(calls[2][1].theme, "neutral");
   assert.equal(attributes.get("data-original-code"), "graph TD; A-->B");
 });
+
+test("audio admin blocks oversized files before the form reaches Nginx", () => {
+  const script = source("admin/audio-track.js");
+  assert.match(script, /data-max-bytes|dataset\.maxBytes/);
+  assert.match(script, /file\.size > maxBytes/);
+  assert.match(script, /setCustomValidity/);
+  assert.match(script, /event\.preventDefault\(\)/);
+  assert.match(script, /reportValidity/);
+});

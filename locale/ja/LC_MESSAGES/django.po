@@ -2593,3 +2593,20 @@ msgstr "%(time)s に保存された未保存の記事下書きがあります。
 
 msgid "Draft restored. Select local files such as the cover again before saving."
 msgstr "下書きを復元しました。保存前にカバー画像などのローカルファイルを選び直してください。"
+
+msgid "Audio file"
+msgstr "音声ファイル"
+
+#, python-format
+msgid "Upload an MP3, FLAC, M4A, AAC, OGG, OPUS or WAV file up to %(size)s MB."
+msgstr "最大 %(size)s MB の MP3、FLAC、M4A、AAC、OGG、OPUS、WAV ファイルをアップロードします。"
+
+#, python-format
+msgid "The selected audio file exceeds the %(size)s MB upload limit."
+msgstr "選択した音声ファイルは %(size)s MB のアップロード上限を超えています。"
+
+msgid "Player theme colour"
+msgstr "プレーヤーのテーマカラー"
+
+msgid "Optional hexadecimal colour used by APlayer for this track, for example #00bbfe."
+msgstr "この曲で APlayer が使用する任意の16進カラーです（例：#00bbfe）。"

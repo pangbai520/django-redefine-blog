@@ -5,6 +5,12 @@ These files are examples for a small Ubuntu deployment. They use
 file at `/etc/django-redefine-blog.env`. Edit those values before copying the
 files into `/etc`.
 
+The supplied Nginx configuration keeps `client_max_body_size` slightly above
+`AUDIO_UPLOAD_MAX_BYTES`. This lets Django and the admin-side file check show a
+translated validation message instead of Nginx replacing the page with a bare
+413 response. Proxies in front of Nginx may impose a lower independent limit;
+for example, Cloudflare Free and Pro accept request bodies up to 100 MB.
+
 After an update:
 
 ```bash

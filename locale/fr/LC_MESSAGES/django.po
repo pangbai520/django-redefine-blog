@@ -2650,3 +2650,20 @@ msgstr "Un brouillon d’article non enregistré datant du %(time)s a été trou
 
 msgid "Draft restored. Select local files such as the cover again before saving."
 msgstr "Brouillon restauré. Sélectionnez de nouveau les fichiers locaux, comme l’image de couverture, avant d’enregistrer."
+
+msgid "Audio file"
+msgstr "Fichier audio"
+
+#, python-format
+msgid "Upload an MP3, FLAC, M4A, AAC, OGG, OPUS or WAV file up to %(size)s MB."
+msgstr "Importez un fichier MP3, FLAC, M4A, AAC, OGG, OPUS ou WAV de %(size)s Mo maximum."
+
+#, python-format
+msgid "The selected audio file exceeds the %(size)s MB upload limit."
+msgstr "Le fichier audio sélectionné dépasse la limite d’envoi de %(size)s Mo."
+
+msgid "Player theme colour"
+msgstr "Couleur du thème du lecteur"
+
+msgid "Optional hexadecimal colour used by APlayer for this track, for example #00bbfe."
+msgstr "Couleur hexadécimale facultative utilisée par APlayer pour cette piste, par exemple #00bbfe."
