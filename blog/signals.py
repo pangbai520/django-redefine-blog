@@ -45,6 +45,7 @@ OWNER_BADGE_TRANSLATIONS = {
 @receiver(pre_save, sender=ArticleModel)
 @receiver(pre_save, sender=SiteConfiguration)
 @receiver(pre_save, sender=AudioTrack)
+@receiver(pre_save, sender=UserProfile)
 def normalize_model_images(sender, instance, **kwargs):
     """Correct misleading suffixes and remove metadata before public storage."""
     fields = {
@@ -59,13 +60,23 @@ def normalize_model_images(sender, instance, **kwargs):
             "recommendation_placeholder",
         ),
         AudioTrack: ("cover_image",),
+        UserProfile: ("avatar", "pending_avatar"),
     }[sender]
+    profile_image = sender is UserProfile
+    if profile_image:
+        max_bytes = getattr(settings, "PROFILE_AVATAR_MAX_BYTES", 2 * 1024 * 1024)
+        max_dimension = getattr(settings, "PROFILE_AVATAR_MAX_DIMENSION", 4096)
+        max_pixels = getattr(settings, "PROFILE_AVATAR_MAX_PIXELS", 16_000_000)
+    else:
+        max_bytes = getattr(settings, "THEME_IMAGE_MAX_BYTES", 5 * 1024 * 1024)
+        max_dimension = getattr(settings, "THEME_IMAGE_MAX_DIMENSION", 8192)
+        max_pixels = getattr(settings, "THEME_IMAGE_MAX_PIXELS", 24_000_000)
     for name in fields:
         clean_field(
             getattr(instance, name),
-            max_bytes=getattr(settings, "THEME_IMAGE_MAX_BYTES", 5 * 1024 * 1024),
-            max_dimension=getattr(settings, "THEME_IMAGE_MAX_DIMENSION", 8192),
-            max_pixels=getattr(settings, "THEME_IMAGE_MAX_PIXELS", 24_000_000),
+            max_bytes=max_bytes,
+            max_dimension=max_dimension,
+            max_pixels=max_pixels,
         )
 
 

@@ -89,6 +89,12 @@ pages only when the matching object was included in the migration. A dry run
 reports the same counts without uploading files or changing the database. Use
 `--skip-url-rewrite` for a copy-only run.
 
+Uploaded raster images use SHA-256 object names after safe re-encoding. During
+migration, older image objects that still contain an original filename are
+copied to their hash name and their stored model references are updated in the
+same database transaction. The original local file remains available for
+rollback unless `--delete-local` is explicitly used.
+
 Keep the local files until the public URLs, the image library, audio playback and
 a fresh `backup_blog` archive have all been checked. `backup_blog` reads through
 Django's active storage backend, so remote images and audio remain part of the

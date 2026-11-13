@@ -138,7 +138,17 @@ def clean_field(field_file, *, max_bytes, max_dimension, max_pixels):
         max_dimension=max_dimension,
         max_pixels=max_pixels,
     )
-    field_file.name = cleaned.file.name
+    canonical_name = f"{cleaned.digest}.{cleaned.extension}"
+    stored_name = field_file.field.generate_filename(
+        field_file.instance,
+        canonical_name,
+    ).replace("\\", "/")
+    if field_file.storage.exists(stored_name):
+        field_file.name = stored_name
+        field_file._file = None
+        field_file._committed = True
+        return
+    field_file.name = canonical_name
     field_file._file = cleaned.file
     field_file._committed = False
 

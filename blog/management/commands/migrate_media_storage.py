@@ -1,60 +1,18 @@
-import hashlib
-import re
 import shutil
 import tempfile
 from pathlib import Path
-from urllib.parse import unquote
 
 from django.conf import settings
 from django.core.files import File
-from django.core.files.storage import FileSystemStorage, default_storage
+from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand, CommandError
-from django.db import transaction
 
-from blog.models import (
-    ArticleModel,
-    Comment,
-    StandalonePage,
-    StandalonePageTranslation,
+from blog.services.media_migration import (
+    file_digest,
+    prepare_local_media,
+    rewrite_database,
 )
-from blog.services.media_storage import clean_name, is_local, save_exact, walk_files
-
-
-LOCAL_MEDIA_RE = re.compile(
-    r"(?<![A-Za-z0-9])(?P<url>/resources/(?P<name>[^\s\"'<>)}\]\u3002"
-    r"\uff0c\uff1b\uff01\uff1f]+))"
-)
-CONTENT_MODELS = (
-    ArticleModel,
-    Comment,
-    StandalonePage,
-    StandalonePageTranslation,
-)
-
-
-def digest_file(handle):
-    digest = hashlib.sha256()
-    for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-        digest.update(chunk)
-    return digest.digest()
-
-
-def rewrite_content(content, targets):
-    replaced = 0
-
-    def replace(match):
-        nonlocal replaced
-        try:
-            name = clean_name(unquote(match.group("name")))
-        except CommandError:
-            return match.group("url")
-        target = targets.get(name)
-        if not target:
-            return match.group("url")
-        replaced += 1
-        return target
-
-    return LOCAL_MEDIA_RE.sub(replace, content or ""), replaced
+from blog.services.media_storage import is_local, save_exact
 
 
 class Command(BaseCommand):
@@ -101,20 +59,21 @@ class Command(BaseCommand):
                 "Set it or use --skip-url-rewrite."
             )
 
-        source_storage = FileSystemStorage(location=source)
-        files = [source / name for name in sorted(walk_files(source_storage))]
+        path_map, uploads, cleanup = prepare_local_media(
+            source,
+            dry_run=options["dry_run"],
+        )
         copied = []
         skipped = 0
         replaced = 0
-        for path in files:
-            name = path.relative_to(source).as_posix()
+        for name, path in uploads.items():
             exists = default_storage.exists(name)
             if exists:
                 with path.open("rb") as local, default_storage.open(name, "rb") as remote:
-                    identical = digest_file(local) == digest_file(remote)
+                    identical = file_digest(local) == file_digest(remote)
                 if identical:
                     skipped += 1
-                    copied.append(path)
+                    copied.append(name)
                     continue
                 if not options["replace"]:
                     raise CommandError(
@@ -122,7 +81,7 @@ class Command(BaseCommand):
                     )
                 replaced += 1
             if options["dry_run"]:
-                copied.append(path)
+                copied.append(name)
                 continue
             previous = None
             if exists:
@@ -142,43 +101,29 @@ class Command(BaseCommand):
             finally:
                 if previous is not None:
                     previous.close()
-            copied.append(path)
+            copied.append(name)
 
-        changed_rows = 0
-        changed_urls = 0
+        targets = {}
         if rewrite_urls:
-            targets = {}
-            for path in copied:
-                name = clean_name(path.relative_to(source).as_posix())
-                target = default_storage.url(name)
+            for old_name, new_name in path_map.items():
+                if new_name not in copied:
+                    continue
+                target = default_storage.url(new_name)
                 if not target.startswith(("http://", "https://")) or "?" in target:
                     raise CommandError(
                         "Media URLs must be stable public HTTP(S) URLs before content "
                         f"can be rewritten: {target}"
                     )
-                targets[name] = target
-            with transaction.atomic():
-                for model in CONTENT_MODELS:
-                    changed = []
-                    for obj in model.objects.only("pk", "content").iterator(
-                        chunk_size=200
-                    ):
-                        content, count = rewrite_content(obj.content, targets)
-                        if not count:
-                            continue
-                        obj.content = content
-                        changed.append(obj)
-                        changed_urls += count
-                    changed_rows += len(changed)
-                    if changed and not options["dry_run"]:
-                        model.objects.bulk_update(
-                            changed,
-                            ("content",),
-                            batch_size=200,
-                        )
+                targets[old_name] = target
+        changed_refs, changed_rows, changed_urls = rewrite_database(
+            path_map,
+            targets,
+            rewrite_urls=rewrite_urls,
+            dry_run=options["dry_run"],
+        )
 
         if options["delete_local"] and not options["dry_run"]:
-            for path in copied:
+            for path in cleanup:
                 path.unlink(missing_ok=True)
             for folder in sorted(source.rglob("*"), reverse=True):
                 if folder.is_dir():
@@ -192,6 +137,7 @@ class Command(BaseCommand):
             self.style.SUCCESS(
                 f"{action} {len(copied) - skipped} file(s); "
                 f"skipped {skipped} identical file(s); replaced {replaced} file(s); "
-                f"rewrote {changed_urls} URL(s) in {changed_rows} content row(s)."
+                f"updated {changed_refs} stored file reference(s); rewrote "
+                f"{changed_urls} URL(s) in {changed_rows} content row(s)."
             )
         )

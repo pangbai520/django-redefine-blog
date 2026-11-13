@@ -1,3 +1,4 @@
+import re
 import uuid
 from pathlib import Path
 
@@ -12,7 +13,11 @@ from blog.validators import validate_profile_avatar
 
 def avatar_path(instance, filename):
     suffix = Path(filename).suffix.lower()
-    return f"user-avatars/{instance.user_id}/{uuid.uuid4().hex}{suffix}"
+    stem = Path(filename).stem.lower()
+    opaque_name = (
+        stem if re.fullmatch(r"[0-9a-f]{64}", stem) else uuid.uuid4().hex
+    )
+    return f"user-avatars/{instance.user_id}/{opaque_name}{suffix}"
 
 
 class PendingRegistration(models.Model):

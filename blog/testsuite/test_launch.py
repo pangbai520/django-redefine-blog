@@ -1,3 +1,4 @@
+import hashlib
 import re
 import tempfile
 import zipfile
@@ -314,9 +315,18 @@ class MediaStorageCommandTests(TestCase):
             path = Path(source, "audio", "track.mp3")
             path.parent.mkdir()
             path.write_bytes(b"ID3 test audio")
+            cover_data = make_png()
+            old_cover = "cover/private-original-name.png"
+            cover_path = Path(source, old_cover)
+            cover_path.parent.mkdir()
+            cover_path.write_bytes(cover_data)
+            new_cover = (
+                "cover/" + hashlib.sha256(cover_data).hexdigest() + ".png"
+            )
 
             article = ArticleModel.objects.create(
                 title="Legacy media",
+                cover=old_cover,
                 content=(
                     "[Local](/resources/audio/track.mp3) "
                     "[Missing](/resources/audio/missing.mp3) "
@@ -334,9 +344,13 @@ class MediaStorageCommandTests(TestCase):
             )
 
             self.assertTrue(default_storage.exists("audio/track.mp3"))
+            self.assertTrue(default_storage.exists(new_cover))
+            self.assertFalse(default_storage.exists(old_cover))
+            self.assertTrue(Path(source, new_cover).exists())
             with default_storage.open("audio/track.mp3", "rb") as handle:
                 self.assertEqual(handle.read(), b"ID3 test audio")
             article.refresh_from_db()
+            self.assertEqual(article.cover.name, new_cover)
             self.assertIn(
                 "https://media.example.com/audio/track.mp3",
                 article.content,
@@ -364,12 +378,18 @@ class MediaStorageCommandTests(TestCase):
     )
     def test_dry_run(self):
         with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as source:
-            path = Path(source, "content-images", "draft.png")
+            path = Path(source, "content-images", "draft-original.png")
             path.parent.mkdir()
-            path.write_bytes(b"image")
+            draft_data = make_png()
+            path.write_bytes(draft_data)
+            hashed_name = (
+                "content-images/"
+                + hashlib.sha256(draft_data).hexdigest()
+                + ".png"
+            )
             article = ArticleModel.objects.create(
                 title="Dry run",
-                content="![](/resources/content-images/draft.png)",
+                content="![](/resources/content-images/draft-original.png)",
             )
             call_command(
                 "migrate_media_storage",
@@ -378,8 +398,64 @@ class MediaStorageCommandTests(TestCase):
                 stdout=StringIO(),
             )
             article.refresh_from_db()
-            self.assertIn("/resources/content-images/draft.png", article.content)
-            self.assertFalse(default_storage.exists("content-images/draft.png"))
+            self.assertIn(
+                "/resources/content-images/draft-original.png",
+                article.content,
+            )
+            self.assertFalse(default_storage.exists(hashed_name))
+
+    def test_hashed_names(self):
+        with tempfile.TemporaryDirectory(dir=settings.BASE_DIR) as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                image_data = make_png()
+                site = SiteConfiguration.objects.create(
+                    config_name="Hashed upload",
+                    site_name="Hashed upload",
+                    site_logo=SimpleUploadedFile(
+                        "private-original-name.png",
+                        image_data,
+                        content_type="image/png",
+                    ),
+                )
+                self.assertRegex(
+                    site.site_logo.name,
+                    r"^logo/[0-9a-f]{64}\.png$",
+                )
+                article = ArticleModel.objects.create(
+                    title="Hashed cover",
+                    cover=SimpleUploadedFile(
+                        "博客图片模板.png",
+                        image_data,
+                        content_type="image/png",
+                    ),
+                )
+                duplicate = ArticleModel.objects.create(
+                    title="Duplicate cover",
+                    cover=SimpleUploadedFile(
+                        "another-name.png",
+                        image_data,
+                        content_type="image/png",
+                    ),
+                )
+                self.assertRegex(
+                    article.cover.name,
+                    r"^cover/[0-9a-f]{64}\.png$",
+                )
+                self.assertEqual(duplicate.cover.name, article.cover.name)
+                user = User.objects.create_user(
+                    "hashed-avatar",
+                    password="password-for-tests",
+                )
+                user.profile.avatar = SimpleUploadedFile(
+                    "private-avatar-name.png",
+                    make_png(),
+                    content_type="image/png",
+                )
+                user.profile.save(update_fields=("avatar",))
+                self.assertRegex(
+                    user.profile.avatar.name,
+                    rf"^user-avatars/{user.pk}/[0-9a-f]{{64}}\.png$",
+                )
 
     @override_settings(
         STORAGES={
