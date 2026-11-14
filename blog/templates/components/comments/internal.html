@@ -31,6 +31,7 @@
     data-msg-no-gifs="{% translate 'No GIFs found' %}"
     data-msg-comment-length="{% translate 'Comment length must be between 1 and 5000 characters.' %}"
     data-msg-unable-submit="{% translate 'Unable to submit comment' %}"
+    data-msg-human-verification="{% translate 'Please complete the human verification and try again.' %}"
     data-msg-unable-update-pin="{% translate 'Unable to update pin status.' %}"
     data-msg-delete-confirm="{% translate 'Delete this comment?' %}"
     data-msg-unable-delete="{% translate 'Unable to delete comment.' %}"
@@ -145,6 +146,20 @@
         </form>{% endif %}
     </div>
 </div>
+{% if TURNSTILE_ENABLED %}
+<div class="internal-challenge-modal" data-comment-challenge hidden>
+    <button type="button" class="internal-confirm-backdrop" data-challenge-cancel tabindex="-1" aria-label="{% translate 'Cancel' %}"></button>
+    <div class="internal-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="internal-challenge-title">
+        <div class="internal-confirm-icon" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></div>
+        <h2 id="internal-challenge-title">{% translate "Please complete the human verification and try again." %}</h2>
+        {% include "components/turnstile.html" with turnstile_action="member_comment" %}
+        <div class="internal-confirm-actions">
+            <button type="button" class="wl-btn" data-challenge-cancel><i class="fa-solid fa-xmark" aria-hidden="true"></i><span>{% translate "Cancel" %}</span></button>
+            <button type="button" class="wl-btn primary" data-challenge-accept><i class="fa-solid fa-check" aria-hidden="true"></i><span>{% translate "Submit" %}</span></button>
+        </div>
+    </div>
+</div>
+{% endif %}
 <div class="internal-confirm-modal" data-comment-confirm hidden>
     <button type="button" class="internal-confirm-backdrop" data-confirm-cancel tabindex="-1" aria-label="{% translate 'Cancel' %}"></button>
     <div class="internal-confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="internal-confirm-title">

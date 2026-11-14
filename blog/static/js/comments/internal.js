@@ -7,7 +7,7 @@
   function cleanup() {
     lifecycleController.abort();
     cleanupTasks.splice(0).forEach(function (task) { task(); });
-    document.querySelectorAll('[data-auth-modal][data-internal-owned="true"], [data-comment-confirm][data-internal-owned="true"]').forEach(function (modal) {
+    document.querySelectorAll('[data-auth-modal][data-internal-owned="true"], [data-comment-confirm][data-internal-owned="true"], [data-comment-challenge][data-internal-owned="true"]').forEach(function (modal) {
       modal.remove();
     });
   }
@@ -135,10 +135,33 @@
       setTimeout(function () { toast.classList.add("is-leaving"); setTimeout(function () { toast.remove(); }, 180); }, 4200);
     }
     var confirmModal = root.querySelector("[data-comment-confirm]") || document.querySelector("[data-comment-confirm]");
+    var challengeModal = root.querySelector("[data-comment-challenge]") || document.querySelector("[data-comment-challenge]");
     var confirmResolver = null;
     if (confirmModal) {
       confirmModal.dataset.internalOwned = "true";
       if (confirmModal.parentNode !== document.body) document.body.appendChild(confirmModal);
+    }
+    var challengePending = null;
+    if (challengeModal) {
+      challengeModal.dataset.internalOwned = "true";
+      if (challengeModal.parentNode !== document.body) document.body.appendChild(challengeModal);
+    }
+    function closeChallenge(clearPending) {
+      if (!challengeModal) return;
+      challengeModal.hidden = true;
+      if (clearPending !== false) challengePending = null;
+    }
+    function requestChallenge(node, submit) {
+      if (!challengeModal) {
+        showToast(message("HumanVerification", "Please complete the human verification and try again."), "error");
+        return;
+      }
+      challengePending = { node: node, submit: submit };
+      challengeModal.hidden = false;
+      window.blogTurnstile?.reset(challengeModal);
+      window.blogTurnstile?.render(challengeModal);
+      var accept = challengeModal.querySelector("[data-challenge-accept]");
+      if (accept) setTimeout(function () { accept.focus(); }, 0);
     }
     function closeConfirmation(result) {
       if (!confirmModal || confirmModal.hidden) return;
@@ -172,7 +195,8 @@
       authModal.addEventListener("click", function (event) { if (event.target === authModal) authModal.hidden = true; });
       document.addEventListener("keydown", function (event) {
         if (event.key !== "Escape") return;
-        if (confirmModal && !confirmModal.hidden) closeConfirmation(false);
+        if (challengeModal && !challengeModal.hidden) closeChallenge(true);
+        else if (confirmModal && !confirmModal.hidden) closeConfirmation(false);
         else if (!authModal.hidden) authModal.hidden = true;
       }, { signal: lifecycleSignal });
       authModal.querySelectorAll("[data-auth-tab]").forEach(function (tab) { tab.addEventListener("click", function () {
@@ -193,6 +217,22 @@
       confirmModal.querySelectorAll("[data-confirm-cancel]").forEach(function (button) { button.addEventListener("click", function () { closeConfirmation(false); }); });
       var confirmAccept = confirmModal.querySelector("[data-confirm-accept]");
       if (confirmAccept) confirmAccept.addEventListener("click", function () { closeConfirmation(true); });
+    }
+    if (challengeModal) {
+      challengeModal.querySelectorAll("[data-challenge-cancel]").forEach(function (button) {
+        button.addEventListener("click", function () { closeChallenge(true); });
+      });
+      var challengeAccept = challengeModal.querySelector("[data-challenge-accept]");
+      if (challengeAccept) challengeAccept.addEventListener("click", function () {
+        var token = challengeModal.querySelector('input[name="cf-turnstile-response"]');
+        if (!token || !token.value) {
+          showToast(message("HumanVerification", "Please complete the human verification and try again."), "error");
+          return;
+        }
+        var pending = challengePending;
+        closeChallenge(false);
+        if (pending) submitComposer(pending.node, pending.submit);
+      });
     }
     var authForms = authModal ? authModal.querySelectorAll("[data-auth-form]") : [];
     authForms.forEach(function (authForm) { authForm.addEventListener("submit", function (event) {
@@ -474,7 +514,12 @@
       return response.text().then(function (text) {
         var body = {};
         try { body = text ? JSON.parse(text) : {}; } catch (error) { throw new Error(fallbackMessage + " (HTTP " + response.status + ")."); }
-        if (!response.ok) throw new Error(body.error || (fallbackMessage + " (HTTP " + response.status + ")."));
+        if (!response.ok) {
+          var requestError = new Error(body.error || (fallbackMessage + " (HTTP " + response.status + ")."));
+          requestError.payload = body;
+          requestError.status = response.status;
+          throw requestError;
+        }
         return body;
       });
     }
@@ -665,19 +710,27 @@
         var turnstileToken = root.querySelector('[data-action="guest_comment"] input[name="cf-turnstile-response"]');
         if (turnstileToken) data.set("cf-turnstile-response", turnstileToken.value);
       }
+      if (isAuthenticated && !editId && challengeModal) {
+        var memberToken = challengeModal.querySelector('[data-action="member_comment"] input[name="cf-turnstile-response"]');
+        if (memberToken && memberToken.value) data.set("cf-turnstile-response", memberToken.value);
+      }
       String(node.dataset.uploadIds || "").split(",").filter(Boolean).forEach(function (id) { data.append("image_ids", id); });
       submit.disabled = true;
       var endpoint = editId ? "/api/comments/" + editId + "/edit/" : commentsApiBase + encodeURIComponent(slug) + "/create/";
       fetch(endpoint, { method: "POST", body: data, headers: { "X-CSRFToken": csrf(), Accept: "application/json" }, credentials: "same-origin" })
         .then(function (response) { return parseJsonResponse(response, message("UnableSubmit", "Unable to submit comment")); })
         .then(function () {
+          closeChallenge(true);
           node.dataset.uploadIds = "";
           if (node === composer) { var mainEditor = node.querySelector(".wl-editor"); if (mainEditor) { mainEditor.value = ""; mainEditor.dispatchEvent(new Event("input")); } }
           if (node === replyComposer) { replyComposer.remove(); replyComposer = null; replyTarget = null; }
           if (node === editComposer) { editComposer.remove(); editComposer = null; editTarget = null; }
           draw(); load();
         })
-        .catch(function (error) { showToast(error.message, "error"); })
+        .catch(function (error) {
+          if (error.payload && error.payload.turnstile_required) requestChallenge(node, submit);
+          else showToast(error.message, "error");
+        })
         .finally(function () {
           if (!isAuthenticated && !editId) window.blogTurnstile?.reset(root);
           submit.disabled = false;

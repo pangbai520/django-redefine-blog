@@ -1,8 +1,11 @@
+from pathlib import Path
+
 from django.contrib.auth import get_user_model
 from django.template.loader import render_to_string
 from django.test import TestCase
 from django.urls import reverse
 
+from ..admin_parts.site import SiteConfigurationForm
 from ..models import (
     ArticleModel,
     AudioTrack,
@@ -61,6 +64,26 @@ class AudioTrackTests(TestCase):
         self.assertTrue(self.site.aplayer_is_mini)
         self.assertEqual(self.site.aplayer_settings["type"], "mini")
         self.assertTrue(self.site.aplayer_settings["mutex"])
+
+    def test_player_layout(self):
+        base = Path(__file__).parent.parent
+        player_script = (base / "static" / "js" / "plugins" / "aplayer.js").read_text(
+            encoding="utf-8"
+        )
+        utils_script = (base / "static" / "js" / "utils.js").read_text(encoding="utf-8")
+        stylesheet = (base / "static" / "css" / "style.css").read_text(encoding="utf-8")
+        tools = render_to_string("utils/side-tools.html", {"site": self.site})
+
+        self.assertIn('container.classList.toggle("aplayer-floating-mini"', player_script)
+        self.assertIn(".aplayer.aplayer-floating-mini", stylesheet)
+        self.assertNotIn("tool-aplayer", tools)
+        self.assertNotIn('const aplayer = document.getElementById("aplayer")', utils_script)
+
+    def test_player_labels(self):
+        choices = dict(SiteConfigurationForm().fields["aplayer_type"].choices)
+
+        self.assertEqual(str(choices["fixed"]), "Mini player")
+        self.assertEqual(str(choices["mini"]), "Fixed bottom player")
 
     def test_comments_configured(self):
         html = render_to_string("components/comments/comment.html", {"site": self.site})

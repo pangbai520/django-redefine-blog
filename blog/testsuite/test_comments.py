@@ -79,7 +79,7 @@ class InternalCommentTests(TestCase):
         self.assertContains(response, "Sign up")
         self.assertNotContains(response, "modal=1")
         self.assertContains(response, "js/comments/internal.js")
-        self.assertNotContains(response, "internal.js?")
+        self.assertContains(response, "js/comments/internal.js?v=2")
         self.assertContains(response, "data-msg-comment-length=")
         self.assertContains(response, 'data-authenticated="false"')
         self.assertContains(response, 'data-comment-require-login="true"')

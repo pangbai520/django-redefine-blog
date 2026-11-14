@@ -206,14 +206,15 @@ html.dark .internal-password-error { border-color: rgb(248 113 113 / 45%); color
 .internal-comment-toast.is-leaving { animation: internal-comment-toast-leave .18s ease both; }
 @keyframes internal-comment-toast-enter { from { opacity: 0; transform: translateY(-8px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes internal-comment-toast-leave { to { opacity: 0; transform: translateY(-6px) scale(.98); } }
-.internal-confirm-modal { position: fixed; inset: 0; z-index: 10030; display: grid; place-items: center; padding: 20px; }
-.internal-confirm-modal[hidden] { display: none; }
+.internal-confirm-modal, .internal-challenge-modal { position: fixed; inset: 0; z-index: 10030; display: grid; place-items: center; padding: 20px; }
+.internal-confirm-modal[hidden], .internal-challenge-modal[hidden] { display: none; }
 .internal-confirm-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: rgb(17 24 39 / 42%); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
 .internal-confirm-dialog { position: relative; width: min(360px, calc(100vw - 40px)); box-sizing: border-box; padding: 28px; border: 1px solid var(--waline-border-color); border-radius: 18px; color: var(--default-text-color); background: var(--background-color); box-shadow: var(--redefine-box-shadow-flat-hover); text-align: center; animation: internal-auth-dialog-enter .18s ease both; }
 .internal-confirm-icon { display: grid; place-items: center; width: 54px; height: 54px; margin: 0 auto 14px; border-radius: 16px; color: var(--waline-theme-color); background: var(--second-background-color); box-shadow: var(--redefine-box-shadow); font-size: 1.35rem; }
 .internal-confirm-dialog h2 { margin: 0; color: var(--second-text-color); font-size: 1.15rem; font-weight: 650; }
 .internal-confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 22px; }
 .internal-confirm-actions .wl-btn { display: inline-flex; align-items: center; justify-content: center; gap: .45em; min-height: 42px; }
+.internal-challenge-modal .blog-turnstile { display: flex; justify-content: center; min-height: 65px; margin: 20px 0 0; }
 @media (max-width: 580px) { .internal-auth-dialog { padding: 26px 22px 22px; border-radius: 16px; } }
 @media (max-width: 580px) { .internal-comment-toast-region { top: 70px; } .internal-confirm-dialog { padding: 24px 20px; border-radius: 16px; } }
 @media (max-width: 580px) {

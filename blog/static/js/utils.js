@@ -160,30 +160,18 @@ export default function initUtils() {
       const toolList = document.getElementsByClassName(
         "right-side-tools-container",
       );
-      const aplayer = document.getElementById("aplayer");
-
       for (let i = 0; i < toolList.length; i++) {
         const tools = toolList[i];
         if (y <= 100) {
           if (isHomeFirstPage()) {
             tools.classList.add("hide");
-            if (aplayer !== null) {
-              aplayer.classList.add("hide");
-            }
           } else {
             tools.classList.remove("hide");
-            aplayer?.classList.remove("hide");
           }
         } else if (y + windowHeight >= height - 20) {
           tools.classList.add("hide");
-          if (aplayer !== null) {
-            aplayer.classList.add("hide");
-          }
         } else {
           tools.classList.remove("hide");
-          if (aplayer !== null) {
-            aplayer.classList.remove("hide");
-          }
         }
       }
     },

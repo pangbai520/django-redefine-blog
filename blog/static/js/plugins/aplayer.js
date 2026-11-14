@@ -43,6 +43,7 @@
 
   const player = new window.APlayer(options);
   window.aplayer = player;
+  container.classList.toggle("aplayer-floating-mini", type === "mini");
 
   if (type === "fixed") {
     // restore the info panel in fixed mode, because this bundled APlayer hides it by default

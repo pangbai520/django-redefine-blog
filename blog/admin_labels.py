@@ -231,8 +231,8 @@ SITE_CONFIGURATION_CHOICE_LABELS = {
     },
     "code_block_style": {"mac": _("macOS window"), "simple": _("Simple")},
     "aplayer_type": {
-        "fixed": _("Fixed bottom player"),
-        "mini": _("Mini player"),
+        "fixed": _("Mini player"),
+        "mini": _("Fixed bottom player"),
     },
     "friends_page_columns": {2: _("2 columns"), 3: _("3 columns")},
     "tags_page_style": {"blur": _("Blur"), "cloud": _("Tag cloud")},

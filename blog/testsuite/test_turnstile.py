@@ -127,6 +127,48 @@ class TurnstileTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(Comment.objects.filter(author=user).exists())
 
+    @patch("blog.comment_views._rate_limited", return_value=True)
+    @patch("blog.services.turnstile.urlopen")
+    def test_member_challenge(self, mocked_open, _limited):
+        user = User.objects.create_user("busy-reader", password="password-for-tests")
+        self.client.force_login(user)
+        endpoint = reverse("comment_create", args=[self.article.slug])
+        page = self.client.get(reverse("article", args=[self.article.slug]))
+
+        self.assertContains(page, 'data-action="member_comment"')
+
+        challenged = self.client.post(endpoint, {"content": "Too fast"})
+
+        self.assertEqual(challenged.status_code, 429)
+        self.assertTrue(challenged.json()["turnstile_required"])
+        self.assertFalse(Comment.objects.exists())
+
+        mocked_open.return_value = _VerificationResponse(
+            {"success": True, "action": "member_comment"}
+        )
+        accepted = self.client.post(
+            endpoint,
+            {"content": "Verified", "cf-turnstile-response": "valid-token"},
+        )
+
+        self.assertEqual(accepted.status_code, 200)
+        self.assertTrue(Comment.objects.filter(author=user, content="Verified").exists())
+
+    @override_settings(TURNSTILE_ENABLED=False)
+    @patch("blog.comment_views._rate_limited", return_value=True)
+    def test_member_limit(self, _limited):
+        user = User.objects.create_user("limited-reader", password="password-for-tests")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("comment_create", args=[self.article.slug]),
+            {"content": "Still limited"},
+        )
+
+        self.assertEqual(response.status_code, 429)
+        self.assertNotIn("turnstile_required", response.json())
+        self.assertFalse(Comment.objects.exists())
+
     def test_public_forms(self):
         register = self.client.get(reverse("comment_register"))
         reset = self.client.get(reverse("password_reset"))

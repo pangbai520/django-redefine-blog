@@ -1203,4 +1203,7 @@ test("Turnstile widgets render after navigation and reset single-use tokens", ()
   assert.match(comments, /cf-turnstile-response/);
   assert.match(comments, /blogTurnstile\?\.render\(authModal\)/);
   assert.match(comments, /blogTurnstile\?\.reset/);
+  assert.match(comments, /turnstile_required/);
+  assert.match(comments, /data-action="member_comment/);
+  assert.match(comments, /requestChallenge\(node, submit\)/);
 });

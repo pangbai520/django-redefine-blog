@@ -4177,6 +4177,14 @@ body.language-switcher-open {
 .aplayer.aplayer-narrow .aplayer-list {
   display: none;
 }
+.aplayer.aplayer-floating-mini {
+  position: fixed;
+  bottom: 30.4px;
+  left: 30.4px;
+  z-index: 99;
+  margin: 0;
+  overflow: visible;
+}
 .aplayer.aplayer-fixed {
   position: fixed;
   bottom: 30.400000000000002px;

@@ -156,8 +156,8 @@ def _target_title(article=None, page=None):
     return article.title if article is not None else page.localized_title()
 
 
-def _json_error(message, status=400):
-    return JsonResponse({"ok": False, "error": message}, status=status)
+def _json_error(message, status=400, **extra):
+    return JsonResponse({"ok": False, "error": message, **extra}, status=status)
 
 
 def _validation_message(exc):
@@ -377,7 +377,17 @@ def _create_comment(request, article=None, page=None):
     if not content or len(content) > 5000:
         return _json_error(_("Comment length must be between 1 and 5000 characters."))
     if _rate_limited(request, "create"):
-        return _json_error(_("Too many comments. Please try again later."), 429)
+        if request.user.is_authenticated and settings.TURNSTILE_ENABLED:
+            challenge = turnstile_error(request, "member_comment")
+            if challenge:
+                message, status = challenge
+                return _json_error(
+                    message,
+                    status if status == 503 else 429,
+                    turnstile_required=status != 503,
+                )
+        else:
+            return _json_error(_("Too many comments. Please try again later."), 429)
     if not request.user.is_authenticated:
         challenge = turnstile_error(request, "guest_comment")
         if challenge:
