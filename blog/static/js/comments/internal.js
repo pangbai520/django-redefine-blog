@@ -101,6 +101,7 @@
       requestedTab = authModal.querySelector('[data-auth-tab="' + requestedPanel + '"]');
       if (requestedTab) requestedTab.click();
       authModal.hidden = false;
+      window.blogTurnstile?.render(authModal);
       var first = authModal.querySelector('[data-auth-panel="' + requestedPanel + '"] input');
       if (first) setTimeout(function () { first.focus(); }, 0);
     }
@@ -185,6 +186,7 @@
           headingIcon.classList.remove("fa-right-to-bracket", "fa-user-plus");
           headingIcon.classList.add(tab.dataset.authIcon || "fa-right-to-bracket");
         }
+        if (!authModal.hidden) window.blogTurnstile?.render(authModal);
       }); });
     }
     if (confirmModal) {

@@ -3,6 +3,7 @@
     if (!window.turnstile) return;
     (scope || document).querySelectorAll("[data-turnstile]").forEach(function (node) {
       if (node.dataset.turnstileId) return;
+      if (!node.isConnected || node.closest("[hidden]") || !node.getClientRects().length) return;
       var widgetId = window.turnstile.render(node, {
         sitekey: node.dataset.sitekey,
         action: node.dataset.action,
