@@ -602,6 +602,9 @@ class UserProfileTests(TestCase):
             '<link rel="stylesheet" href="/static/css/profile.css">\n<div', html
         )
 
+        index_html = self.client.get(reverse("index")).content.decode()
+        self.assertLess(index_html.index("css/profile.css"), index_html.index("</head>"))
+
     def test_profile_fields2(self):
         stylesheet = (
             Path(__file__).parent.parent / "static" / "css" / "profile.css"
