@@ -2667,3 +2667,21 @@ msgstr "La verificación humana no está disponible temporalmente. Inténtalo de
 
 msgid "Please complete the human verification and try again."
 msgstr "Completa la verificación humana e inténtalo de nuevo."
+
+msgid "Admin login record"
+msgstr "Registro de acceso administrativo"
+
+msgid "Admin login records"
+msgstr "Registros de acceso administrativo"
+
+msgid "IP address"
+msgstr "Dirección IP"
+
+msgid "User agent"
+msgstr "Agente de usuario"
+
+msgid "Location"
+msgstr "Ubicación"
+
+msgid "Unknown"
+msgstr "Desconocido"

@@ -9,6 +9,7 @@ class BlogConfig(AppConfig):
 
     def ready(self):
         from . import signals  # noqa: F401
+        from .services import admin_audit  # noqa: F401
         from .extensions import load_blog_extensions
 
         load_blog_extensions()

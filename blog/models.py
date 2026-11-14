@@ -5,6 +5,7 @@ imports and migration references can continue to use ``blog.models``.
 """
 
 from .entities.accounts import PendingRegistration, UserProfile, avatar_path
+from .entities.audit import AdminLoginRecord
 from .entities.articles import (
     ArticleModel,
     ArticleQuerySet,

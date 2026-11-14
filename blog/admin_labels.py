@@ -9,6 +9,10 @@ from django.utils.translation import gettext_lazy as _
 
 
 MODEL_LABELS = {
+    "AdminLoginRecord": (
+        _("Admin login record"),
+        _("Admin login records"),
+    ),
     "ArticleModel": (_("Article"), _("Articles")),
     "ArticleReactionVote": (_("Article rating"), _("Article ratings")),
     "AudioTrack": (_("Audio track"), _("Audio tracks")),

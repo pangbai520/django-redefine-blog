@@ -2617,3 +2617,21 @@ msgstr "人機驗證暫時無法使用，請稍後再試。"
 
 msgid "Please complete the human verification and try again."
 msgstr "請完成人機驗證後再試。"
+
+msgid "Admin login record"
+msgstr "後台登入紀錄"
+
+msgid "Admin login records"
+msgstr "後台登入紀錄"
+
+msgid "IP address"
+msgstr "IP 位址"
+
+msgid "User agent"
+msgstr "使用者代理"
+
+msgid "Location"
+msgstr "位置"
+
+msgid "Unknown"
+msgstr "未知"

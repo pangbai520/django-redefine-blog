@@ -65,6 +65,7 @@ CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 # trust proxy-provided client addresses only when the deployment owns and
 # sanitizes the forwarding proxy in front of Django
 TRUST_X_FORWARDED_FOR = env_bool("TRUST_X_FORWARDED_FOR")
+ADMIN_LOGIN_RETENTION_DAYS = int(os.getenv("ADMIN_LOGIN_RETENTION_DAYS", "180"))
 
 
 # keep framework and blog applications declared here, so runtime wiring stays project-owned

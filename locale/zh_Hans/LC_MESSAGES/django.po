@@ -2614,3 +2614,21 @@ msgstr "人机验证暂时不可用，请稍后重试。"
 
 msgid "Please complete the human verification and try again."
 msgstr "请完成人机验证后重试。"
+
+msgid "Admin login record"
+msgstr "后台登录记录"
+
+msgid "Admin login records"
+msgstr "后台登录记录"
+
+msgid "IP address"
+msgstr "IP 地址"
+
+msgid "User agent"
+msgstr "用户代理"
+
+msgid "Location"
+msgstr "归属地"
+
+msgid "Unknown"
+msgstr "未知"

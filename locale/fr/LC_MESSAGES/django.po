@@ -2675,3 +2675,21 @@ msgstr "La vérification humaine est temporairement indisponible. Veuillez rées
 
 msgid "Please complete the human verification and try again."
 msgstr "Veuillez terminer la vérification humaine et réessayer."
+
+msgid "Admin login record"
+msgstr "Connexion à l’administration"
+
+msgid "Admin login records"
+msgstr "Connexions à l’administration"
+
+msgid "IP address"
+msgstr "Adresse IP"
+
+msgid "User agent"
+msgstr "Agent utilisateur"
+
+msgid "Location"
+msgstr "Localisation"
+
+msgid "Unknown"
+msgstr "Inconnu"

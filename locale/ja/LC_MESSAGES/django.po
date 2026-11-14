@@ -2618,3 +2618,21 @@ msgstr "人間による認証を一時的に利用できません。しばらく
 
 msgid "Please complete the human verification and try again."
 msgstr "人間による認証を完了してから、もう一度お試しください。"
+
+msgid "Admin login record"
+msgstr "管理画面ログイン記録"
+
+msgid "Admin login records"
+msgstr "管理画面ログイン記録"
+
+msgid "IP address"
+msgstr "IPアドレス"
+
+msgid "User agent"
+msgstr "ユーザーエージェント"
+
+msgid "Location"
+msgstr "場所"
+
+msgid "Unknown"
+msgstr "不明"
