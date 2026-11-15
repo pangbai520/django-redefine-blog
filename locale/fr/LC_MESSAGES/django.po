@@ -2693,3 +2693,34 @@ msgstr "Localisation"
 
 msgid "Unknown"
 msgstr "Inconnu"
+
+msgid "preferred language"
+msgstr "langue préférée"
+
+#, python-format
+msgid "%(actor_name)s replied to your comment"
+msgstr "%(actor_name)s a répondu à votre commentaire"
+
+#, python-format
+msgid "%(actor_name)s liked your comment"
+msgstr "%(actor_name)s a aimé votre commentaire"
+
+#, python-format
+msgid "%(actor_name)s replied to your comment on “%(target_title)s”."
+msgstr "%(actor_name)s a répondu à votre commentaire sur « %(target_title)s »."
+
+#, python-format
+msgid "%(actor_name)s liked your comment on “%(target_title)s”."
+msgstr "%(actor_name)s a aimé votre commentaire sur « %(target_title)s »."
+
+msgid "New reply to your comment"
+msgstr "Nouvelle réponse à votre commentaire"
+
+msgid "Your comment received a like"
+msgstr "Votre commentaire a reçu une mention J’aime"
+
+msgid "View comment"
+msgstr "Voir le commentaire"
+
+msgid "You received this email because comment notifications are enabled for your account."
+msgstr "Vous recevez cet e-mail car les notifications de commentaires sont activées pour votre compte."

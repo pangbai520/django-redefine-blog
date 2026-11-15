@@ -2635,3 +2635,34 @@ msgstr "位置"
 
 msgid "Unknown"
 msgstr "未知"
+
+msgid "preferred language"
+msgstr "偏好語言"
+
+#, python-format
+msgid "%(actor_name)s replied to your comment"
+msgstr "%(actor_name)s 回覆了您的留言"
+
+#, python-format
+msgid "%(actor_name)s liked your comment"
+msgstr "%(actor_name)s 給您的留言讚好"
+
+#, python-format
+msgid "%(actor_name)s replied to your comment on “%(target_title)s”."
+msgstr "%(actor_name)s 回覆了您在「%(target_title)s」中的留言。"
+
+#, python-format
+msgid "%(actor_name)s liked your comment on “%(target_title)s”."
+msgstr "%(actor_name)s 給您在「%(target_title)s」中的留言讚好。"
+
+msgid "New reply to your comment"
+msgstr "您的留言有了新回覆"
+
+msgid "Your comment received a like"
+msgstr "您的留言獲得讚好"
+
+msgid "View comment"
+msgstr "查看留言"
+
+msgid "You received this email because comment notifications are enabled for your account."
+msgstr "您收到此電郵，是因為您的帳戶已啟用留言通知。"

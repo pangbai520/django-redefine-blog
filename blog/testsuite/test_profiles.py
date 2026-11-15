@@ -48,6 +48,15 @@ class UserProfileTests(TestCase):
         self.assertTrue(UserProfile.objects.filter(user=self.user).exists())
         self.assertEqual(self.user.profile.resolved_display_name, "reader")
 
+    def test_email_language(self):
+        self.client.force_login(self.user)
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = "zh-hans"
+
+        self.client.get(reverse("comment_profile"))
+
+        self.user.profile.refresh_from_db()
+        self.assertEqual(self.user.profile.language_code, "zh-hans")
+
     def test_profile_sign(self):
         response = self.client.get(reverse("comment_profile"))
 

@@ -47,6 +47,12 @@ class UserProfile(models.Model):
     )
     display_name = models.CharField(_("display name"), max_length=80, blank=True)
     website = models.URLField(_("personal website"), blank=True)
+    language_code = models.CharField(
+        _("preferred language"),
+        max_length=16,
+        choices=settings.LANGUAGES,
+        default=settings.LANGUAGE_CODE,
+    )
     avatar = models.ImageField(
         _("avatar"),
         upload_to=avatar_path,

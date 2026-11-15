@@ -449,12 +449,11 @@ def _create_comment(request, article=None, page=None):
 
     if comment.is_approved and parent and parent.author_id:
         notify(
+            request,
             parent.author,
             request.user if request.user.is_authenticated else None,
             comment,
             CommentNotification.REPLY,
-            "Someone replied to your comment",
-            f"{comment.display_name} replied to your comment on {_target_title(article, page)}.",
         )
     if not comment.is_approved:
         return JsonResponse({"ok": True, "pending": True})
@@ -484,17 +483,12 @@ def toggle_like(request, comment_id):
     if not created:
         like.delete()
     elif comment.author_id:
-        target_title = _target_title(comment.article, comment.page)
-        message = (
-            f"{request.user.get_username()} liked your comment on " f"{target_title}."
-        )
         notify(
+            request,
             comment.author,
             request.user,
             comment,
             CommentNotification.LIKE,
-            "Someone liked your comment",
-            message,
         )
     return JsonResponse(
         {"ok": True, "liked": created, "like_count": comment.like_count}

@@ -2632,3 +2632,34 @@ msgstr "归属地"
 
 msgid "Unknown"
 msgstr "未知"
+
+msgid "preferred language"
+msgstr "首选语言"
+
+#, python-format
+msgid "%(actor_name)s replied to your comment"
+msgstr "%(actor_name)s 回复了您的评论"
+
+#, python-format
+msgid "%(actor_name)s liked your comment"
+msgstr "%(actor_name)s 点赞了您的评论"
+
+#, python-format
+msgid "%(actor_name)s replied to your comment on “%(target_title)s”."
+msgstr "%(actor_name)s 回复了您在“%(target_title)s”中的评论。"
+
+#, python-format
+msgid "%(actor_name)s liked your comment on “%(target_title)s”."
+msgstr "%(actor_name)s 点赞了您在“%(target_title)s”中的评论。"
+
+msgid "New reply to your comment"
+msgstr "您的评论有了新回复"
+
+msgid "Your comment received a like"
+msgstr "您的评论收到了点赞"
+
+msgid "View comment"
+msgstr "查看评论"
+
+msgid "You received this email because comment notifications are enabled for your account."
+msgstr "您收到此邮件，是因为您的账号已启用评论通知。"

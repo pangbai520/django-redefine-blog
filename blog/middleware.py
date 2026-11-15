@@ -8,7 +8,7 @@ from django.core.cache import cache
 from django.middleware.locale import LocaleMiddleware
 from django.utils import timezone, translation
 from django.utils.cache import patch_vary_headers
-from .models import TrafficModel
+from .models import TrafficModel, UserProfile
 
 logger = logging.getLogger(__name__)
 
@@ -170,6 +170,31 @@ class RegionLocaleMiddleware(LocaleMiddleware):
         region_header = getattr(request, "_region_language_header", "")
         if region_header:
             patch_vary_headers(response, (region_header,))
+        return response
+
+
+class LanguagePreferenceMiddleware:
+    """Remember the active interface language for account email."""
+
+    session_key = "blog_profile_language"
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if not request.user.is_authenticated:
+            return response
+
+        language = (translation.get_language() or settings.LANGUAGE_CODE).lower()
+        supported = {code.lower() for code, _name in settings.LANGUAGES}
+        if language not in supported or request.session.get(self.session_key) == language:
+            return response
+
+        UserProfile.objects.filter(user_id=request.user.pk).exclude(
+            language_code=language
+        ).update(language_code=language)
+        request.session[self.session_key] = language
         return response
 
 

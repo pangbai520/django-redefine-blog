@@ -2636,3 +2636,34 @@ msgstr "場所"
 
 msgid "Unknown"
 msgstr "不明"
+
+msgid "preferred language"
+msgstr "優先言語"
+
+#, python-format
+msgid "%(actor_name)s replied to your comment"
+msgstr "%(actor_name)sさんがあなたのコメントに返信しました"
+
+#, python-format
+msgid "%(actor_name)s liked your comment"
+msgstr "%(actor_name)sさんがあなたのコメントに「いいね」しました"
+
+#, python-format
+msgid "%(actor_name)s replied to your comment on “%(target_title)s”."
+msgstr "%(actor_name)sさんが「%(target_title)s」であなたのコメントに返信しました。"
+
+#, python-format
+msgid "%(actor_name)s liked your comment on “%(target_title)s”."
+msgstr "%(actor_name)sさんが「%(target_title)s」であなたのコメントに「いいね」しました。"
+
+msgid "New reply to your comment"
+msgstr "コメントに新しい返信がありました"
+
+msgid "Your comment received a like"
+msgstr "コメントに「いいね」が付きました"
+
+msgid "View comment"
+msgstr "コメントを見る"
+
+msgid "You received this email because comment notifications are enabled for your account."
+msgstr "アカウントでコメント通知が有効になっているため、このメールをお送りしています。"

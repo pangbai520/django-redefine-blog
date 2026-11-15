@@ -1,0 +1,7 @@
+{% load i18n %}{{ notification_text }}
+
+{{ comment_preview }}
+
+{% translate "View comment" %}: {{ comment_url }}
+
+{% translate "You received this email because comment notifications are enabled for your account." %}
