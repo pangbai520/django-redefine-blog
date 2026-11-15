@@ -43,11 +43,17 @@ class ArticleReactionTests(TestCase):
         with translation.override("en"):
             response = self.client.get(reverse("article", args=[self.article.slug]))
 
-        self.assertContains(response, 'class="wl-reaction"')
+        self.assertContains(response, 'class="wl-reaction" data-waline')
         self.assertContains(response, "tieba_agree.png")
         self.assertContains(response, "tieba_sleep.png")
-        self.assertContains(response, "Rate this article")
+        self.assertContains(response, "What do you think?")
         self.assertContains(response, 'referrerpolicy="no-referrer"')
+
+        with translation.override("zh-hans"):
+            self.assertEqual(
+                translation.gettext("What do you think?"),
+                "你认为这篇文章怎么样？",
+            )
 
     def test_vote_switch(self):
         initial = self.client.get(self.url)
@@ -96,6 +102,12 @@ class ArticleReactionTests(TestCase):
         self.assertNotContains(response, "https://example.com/bili-1.png")
         self.assertContains(response, "https://example.com/bili-2.png")
         self.assertNotContains(response, "tieba_agree.png")
+        self.assertNotContains(response, ">Bili 0<")
+        self.assertContains(
+            response,
+            '<div class="wl-reaction-text"></div>',
+            count=2,
+        )
 
         counts = self.client.get(self.url)
         self.assertEqual(counts.json()["counts"], [0, 0])
