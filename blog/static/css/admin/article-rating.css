@@ -1,0 +1,40 @@
+#id_emoji {
+  display: grid;
+  gap: 1rem;
+  max-width: 70rem;
+}
+
+#id_emoji fieldset > div {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: .5rem;
+  margin-top: .5rem;
+}
+
+#id_emoji label {
+  align-items: center;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: .5rem;
+  cursor: pointer;
+  display: flex;
+  gap: .4rem;
+  min-height: 3rem;
+  padding: .4rem .55rem;
+}
+
+#id_emoji label:has(input:checked) {
+  border-color: var(--primary, #417690);
+  box-shadow: 0 0 0 1px var(--primary, #417690);
+}
+
+#id_emoji img {
+  height: 2rem;
+  object-fit: contain;
+  width: 2rem;
+}
+
+#id_emoji span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

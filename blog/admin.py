@@ -14,6 +14,7 @@ from .admin_parts import audit as _audit  # noqa: F401
 from .admin_parts import comments as _comments  # noqa: F401
 from .admin_parts import content as _content  # noqa: F401
 from .admin_parts import pages as _pages  # noqa: F401
+from .admin_parts import reactions as _reactions  # noqa: F401
 from .admin_parts import site as _site  # noqa: F401
 
 ArticleAdmin = _content.ArticleAdmin

@@ -2663,3 +2663,30 @@ msgstr "查看评论"
 
 msgid "You received this email because comment notifications are enabled for your account."
 msgstr "您收到此邮件，是因为您的账号已启用评论通知。"
+
+msgid "Article rating emoji"
+msgstr "文章评价表情"
+
+msgid "Article rating emojis"
+msgstr "文章评价表情"
+
+msgid "Rating position"
+msgstr "评价位置"
+
+msgid "Choose an emoji"
+msgstr "选择表情"
+
+msgid "Current selection"
+msgstr "当前选择"
+
+msgid "No enabled emoji pack contains selectable emojis. Add or enable a comment emoji pack first."
+msgstr "已启用的表情包中没有可选表情。请先添加或启用评论表情包。"
+
+msgid "Select a valid emoji."
+msgstr "请选择有效的表情。"
+
+msgid "Article ratings can use at most 9 emojis."
+msgstr "文章评价最多可使用 9 个表情。"
+
+msgid "Show Waline-style ratings below articles. Choose the exact icons in Article rating emojis; individual articles can disable ratings."
+msgstr "在文章下方显示 Waline 风格的评价。请在“文章评价表情”中选择具体图标；也可为单篇文章关闭评价。"

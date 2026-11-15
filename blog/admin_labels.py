@@ -116,7 +116,6 @@ SITE_CONFIGURATION_FIELD_LABELS = {
     "sidebar_on_mobile": _("Show sidebar on mobile"),
     "comment_enabled": _("Enable comments"),
     "article_reaction_enabled": _("Enable article ratings"),
-    "article_reaction_emoji_pack": _("Article rating emoji pack"),
     "comment_system": _("Comment provider"),
     "comment_require_login": _("Require sign-in to comment"),
     "comment_auto_approve": _("Approve new comments automatically"),
@@ -196,12 +195,8 @@ SITE_CONFIGURATION_HELP_TEXTS = {
     "site_keywords": _("Separate keywords with commas."),
     "colour_primary": _("Used by links, buttons, pagination, and status indicators."),
     "article_reaction_enabled": _(
-        "Show Waline-style ratings below articles. Individual articles can disable them."
-    ),
-    "article_reaction_emoji_pack": _(
-        "Choose an existing comment emoji pack, such as Bilibili. "
-        "Then assign rating slots 1 to 9 to the exact emoji in Comment emojis. "
-        "Leave empty to use Waline's default Tieba rating icons."
+        "Show Waline-style ratings below articles. Choose the exact icons in "
+        "Article rating emojis; individual articles can disable ratings."
     ),
     "navbar_lcolor": _("The navigation gradient is independent of the primary colour."),
     "navbar_rcolor": _("The navigation gradient is independent of the primary colour."),

@@ -14,11 +14,12 @@ from blog.management.commands.install_ip_geolocation import (
 )
 from blog.models import (
     ArticleModel,
+    ArticleRatingEmoji,
     ArticleReactionVote,
-    CommentEmoji,
     CommentEmojiPack,
     SiteConfiguration,
 )
+from blog.admin_parts.reactions import ArticleRatingEmojiForm, emoji_key
 from blog.services.geo import get_ip_location
 
 
@@ -76,21 +77,19 @@ class ArticleReactionTests(TestCase):
         self.assertEqual(cancelled.json(), {"counts": [0, 0, 0, 0, 0, 0], "active": None})
         self.assertFalse(ArticleReactionVote.objects.exists())
 
-    def test_pack_customization(self):
-        pack = CommentEmojiPack.objects.create(
+    def test_custom_rating_emojis(self):
+        ArticleRatingEmoji.objects.create(
             config=self.site,
-            name="Bilibili",
+            name="Bili 0",
+            image_url="https://example.com/bili-0.png",
+            position=1,
         )
-        for index in range(3):
-            CommentEmoji.objects.create(
-                pack=pack,
-                name=f"Bili {index}",
-                image_url=f"https://example.com/bili-{index}.png",
-                order=index,
-                reaction_order=index + 1 if index != 1 else None,
-            )
-        self.site.article_reaction_emoji_pack = pack
-        self.site.save()
+        ArticleRatingEmoji.objects.create(
+            config=self.site,
+            name="Bili 2",
+            image_url="https://example.com/bili-2.png",
+            position=2,
+        )
 
         response = self.client.get(reverse("article", args=[self.article.slug]))
         self.assertContains(response, "https://example.com/bili-0.png")
@@ -107,23 +106,46 @@ class ArticleReactionTests(TestCase):
         )
         self.assertEqual(invalid.status_code, 400)
 
-    def test_pack_scope(self):
+    def test_rating_emoji_scope(self):
         other = SiteConfiguration.objects.create(config_name="Other")
-        pack = CommentEmojiPack.objects.create(config=other, name="Foreign")
-        CommentEmoji.objects.create(
-            pack=pack,
+        ArticleRatingEmoji.objects.create(
+            config=other,
             name="Foreign emoji",
             image_url="https://example.com/foreign.png",
-            reaction_order=1,
-        )
-        SiteConfiguration.objects.filter(pk=self.site.pk).update(
-            article_reaction_emoji_pack=pack
+            position=1,
         )
         cache.clear()
 
         response = self.client.get(reverse("article", args=[self.article.slug]))
         self.assertNotContains(response, "https://example.com/foreign.png")
         self.assertContains(response, "tieba_agree.png")
+
+    @patch("blog.admin_parts.reactions.emoji_items")
+    def test_admin_form_selects_an_item_from_a_remote_pack(self, mocked_items):
+        pack = CommentEmojiPack.objects.create(
+            config=self.site,
+            name="Bilibili",
+            base_url="https://example.com/bilibili",
+        )
+        mocked_items.return_value = [
+            {"name": "doge", "url": "https://example.com/bilibili/doge.png"}
+        ]
+        form = ArticleRatingEmojiForm(
+            data={
+                "position": 1,
+                "emoji": emoji_key("https://example.com/bilibili/doge.png"),
+            }
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        selected = form.save()
+        self.assertEqual(selected.config, self.site)
+        self.assertEqual(selected.name, "doge")
+        self.assertEqual(
+            selected.image_url,
+            "https://example.com/bilibili/doge.png",
+        )
+        self.assertIn("doge.png", form.as_p())
 
     def test_vote_audit(self):
         user = get_user_model().objects.create_user(

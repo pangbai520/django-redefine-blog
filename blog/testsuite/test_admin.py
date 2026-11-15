@@ -229,6 +229,24 @@ class AdminExperienceTests(TestCase):
         self.assertIn("waline_server_url", form.errors)
         self.assertIn("waline_emoji", form.errors)
 
+    def test_site_admin_save_after_rating_config_was_separated(self):
+        form = SiteConfigurationForm(
+            data=self.configuration_form_data(article_reaction_enabled=True),
+            instance=self.site,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        obj = form.save(commit=False)
+
+        SiteConfigurationAdmin(SiteConfiguration, admin.site).save_model(
+            None,
+            obj,
+            form,
+            True,
+        )
+
+        self.site.refresh_from_db()
+        self.assertTrue(self.site.article_reaction_enabled)
+
     def test_switching_settings(self):
         self.site.comment_config = {
             "gitalk": {"repo": "preserved-repository"},

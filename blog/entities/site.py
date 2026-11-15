@@ -188,13 +188,6 @@ class SiteConfiguration(models.Model):
     sidebar_on_mobile = models.BooleanField(default=True)
     comment_enabled = models.BooleanField(default=False)
     article_reaction_enabled = models.BooleanField(default=False)
-    article_reaction_emoji_pack = models.ForeignKey(
-        "blog.CommentEmojiPack",
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        related_name="reaction_sites",
-    )
     comment_system = models.CharField(
         max_length=20,
         choices=[
@@ -519,17 +512,10 @@ class SiteConfiguration(models.Model):
     @cached_property
     def article_reaction_options(self):
         """Return Waline-compatible reaction icons for the active site."""
-        if self.pk and self.article_reaction_emoji_pack_id:
-            from blog.models import CommentEmoji
-
-            items = CommentEmoji.objects.filter(
-                pack_id=self.article_reaction_emoji_pack_id,
-                pack__config_id=self.pk,
-                pack__enabled=True,
-                reaction_order__isnull=False,
-            ).order_by("reaction_order", "id")
+        if self.pk:
             options = [
-                {"image_url": item.image_url, "name": item.name} for item in items
+                {"image_url": item.image_url, "name": item.name}
+                for item in self.article_rating_emojis.all()
             ]
             if options:
                 return options
@@ -649,16 +635,6 @@ class SiteConfiguration(models.Model):
             errors["icp_number"] = (
                 "An ICP number is required when ICP information is enabled."
             )
-        if self.article_reaction_emoji_pack_id and self.pk:
-            valid_pack = self.comment_emoji_packs.filter(
-                pk=self.article_reaction_emoji_pack_id,
-                enabled=True,
-            ).exists()
-            if not valid_pack:
-                errors["article_reaction_emoji_pack"] = (
-                    "请选择属于当前站点且已启用的表情包。"
-                )
-
         ranges = {
             "navbar_transparency": (0, 100),
             "toc_max_depth": (1, 6),

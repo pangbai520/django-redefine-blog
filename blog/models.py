@@ -44,7 +44,7 @@ from .entities.media import (
     EditorImageRef,
 )
 from .entities.pages import StandalonePage, StandalonePageTranslation
-from .entities.reactions import ArticleReactionVote
+from .entities.reactions import ArticleRatingEmoji, ArticleReactionVote
 from .entities.site import SiteConfiguration
 
 
