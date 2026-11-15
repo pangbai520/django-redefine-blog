@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="{% static 'css/internal-comments.css' %}">
 <div id="comments" class="internal-comments" data-comments-slug="{{ comments_slug }}"
     data-comments-api-base="{% if standalone_page %}/api/page-comments/{% else %}/api/comments/{% endif %}"
+    data-default-avatar="{% static 'images/default-comment-avatar.webp' %}"
     data-authenticated="{{ request.user.is_authenticated|yesno:'true,false' }}"
     data-comment-require-login="{{ site.comment_require_login|yesno:'true,false' }}"
     data-msg-unable-register="{% translate 'Unable to register.' %}"
@@ -44,7 +45,7 @@
             {% firstof request.user.profile.display_name request.user.get_full_name request.user.get_username as current_display_name %}
             <div class="wl-login-info">
                 {% if request.user.profile.avatar %}<img class="wl-avatar internal-login-avatar" src="{{ request.user.profile.avatar.url }}" alt="">
-                {% else %}<span class="internal-avatar-fallback wl-avatar" aria-hidden="true">{{ current_display_name|first|upper }}</span>{% endif %}
+                {% else %}<img class="wl-avatar internal-login-avatar internal-default-avatar" src="{% static 'images/default-comment-avatar.webp' %}" alt="" aria-hidden="true">{% endif %}
                 <div class="wl-login-details">
                     {% if request.user.profile.website %}<a class="wl-login-nick" href="{{ request.user.profile.website }}" target="_blank" rel="nofollow noopener noreferrer">{{ current_display_name }}</a>
                     {% else %}<span class="wl-login-nick">{{ current_display_name }}</span>{% endif %}

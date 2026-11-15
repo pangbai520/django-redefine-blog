@@ -64,12 +64,12 @@
 .internal-gif-results { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; max-height: 220px; overflow-y: auto; }
 .internal-gif-results button { width: 84px; height: 64px; overflow: hidden; border: 1px solid var(--waline-border-color); border-radius: 4px; }
 .internal-gif-results img { width: 100%; height: 100%; object-fit: cover; }
-.internal-avatar-fallback { display: inline-flex; align-items: center; justify-content: center; width: var(--waline-avatar-size); height: var(--waline-avatar-size); border-radius: var(--waline-avatar-radius); background: var(--waline-theme-color); color: var(--waline-white); font-size: 1.4em; font-weight: 600; line-height: 1; overflow: hidden; box-shadow: var(--redefine-box-shadow-flat); }
 .wl-login-info { flex: 0 0 80px; width: 80px; max-width: none; margin-top: .75em; text-align: center; }
 .wl-login-details { display: flex; flex-direction: column; align-items: center; gap: .35em; max-width: 100%; }
 .wl-login-info .wl-avatar { display: inline-flex; align-items: center; justify-content: center; margin: 0 auto .35em; border: 0; }
 .wl-login-info img.wl-avatar { object-fit: cover; box-shadow: var(--redefine-box-shadow-flat); }
 .internal-comments img.wl-avatar, .internal-comments img.wl-user-avatar { background: var(--background-color); }
+.internal-comments img.internal-default-avatar { box-sizing: border-box; object-fit: contain; padding: 3px; background: var(--second-background-color); }
 .wl-login-info .wl-btn { margin-top: 0; padding: .35em .8em; font-size: .7em; }
 .wl-login-info form { margin: 0; }
 .wl-card .wl-comment-actions button + button { margin-inline-start: 0; }
@@ -89,8 +89,6 @@
 .internal-reply-quote > .internal-reply-card-item .wl-comment-actions button { font-size: 1em; }
 .internal-reply-quote > .internal-reply-card-item .wl-comment-actions svg { width: 24px; height: 24px; }
 .internal-reply-mention { color: var(--waline-theme-color); text-decoration: none; }
-.internal-reply-quote .internal-avatar-fallback { width: var(--waline-m-avatar-size); height: var(--waline-m-avatar-size); font-size: 1.1em; }
-@media (max-width: 720px) { .internal-avatar-fallback { width: var(--waline-m-avatar-size); height: var(--waline-m-avatar-size); } }
 .internal-comment-toolbar .wl-info { gap: .75em; }
 .internal-comment-panel .wl-editor { min-height: 8.75em; }
 .internal-comment-panel.is-locked {
@@ -143,8 +141,6 @@
 .internal-comments .internal-comment-auth-link:hover { text-decoration: underline; }
 .internal-comment-auth-separator { color: var(--waline-info-color); }
 .internal-comment-count { margin-inline-end: .5em; }
-.internal-avatar-fallback { display: flex; align-items: center; justify-content: center; width: var(--waline-avatar-size); height: var(--waline-avatar-size); border-radius: var(--waline-avatar-radius); background: var(--waline-theme-color); color: var(--waline-white); font-size: 1.4em; font-weight: 600; line-height: 1; overflow: hidden; box-shadow: var(--redefine-box-shadow-flat); }
-@media (max-width: 720px) { .internal-avatar-fallback { width: var(--waline-m-avatar-size); height: var(--waline-m-avatar-size); } }
 .internal-auth-form { max-width: 520px; padding: 24px; border: var(--waline-border); border-radius: .75em; background: var(--background-color); }
 .internal-auth-form p { margin: 0 0 14px; }
 .internal-auth-form label { display: block; margin-bottom: 5px; }

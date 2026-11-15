@@ -67,6 +67,7 @@
     }
     var slug = root.dataset.commentsSlug;
     var commentsApiBase = root.dataset.commentsApiBase || "/api/comments/";
+    var defaultAvatar = root.dataset.defaultAvatar || "";
     var editor = root.querySelector(".wl-editor");
     var form = root.querySelector(".wl-panel");
     var composer = root.querySelector(":scope > .wl-comment");
@@ -453,7 +454,9 @@
       var groups = {};
       visible.forEach(function (item) { (groups[item.parent_id || "root"] ||= []).push(item); });
       function card(item, isReply, nestedReplies) {
-          var avatarImage = item.avatar ? '<img class="wl-user-avatar" src="' + escapeHtml(item.avatar) + '" alt="">' : '<span class="internal-avatar-fallback">' + escapeHtml(String(item.author || "").slice(0, 1).toUpperCase()) + '</span>';
+          var avatarUrl = item.avatar || defaultAvatar;
+          var avatarClass = item.avatar ? "wl-user-avatar" : "wl-user-avatar internal-default-avatar";
+          var avatarImage = '<img class="' + avatarClass + '" src="' + escapeHtml(avatarUrl) + '" alt="" aria-hidden="true">';
           var avatar = '<div class="wl-user" aria-hidden="true">' + avatarImage + (item.verified ? icon("verified") : "") + '</div>';
           var meta = [["addr", item.ip_address], ["browser", item.browser], ["os", item.operating_system]]
             .filter(function (entry) { return Boolean(entry[1]); })

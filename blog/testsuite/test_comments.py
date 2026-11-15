@@ -79,7 +79,9 @@ class InternalCommentTests(TestCase):
         self.assertContains(response, "Sign up")
         self.assertNotContains(response, "modal=1")
         self.assertContains(response, "js/comments/internal.js")
-        self.assertContains(response, "js/comments/internal.js?v=2")
+        self.assertContains(response, "js/comments/internal.js")
+        self.assertContains(response, "images/default-comment-avatar.webp")
+        self.assertContains(response, "data-default-avatar=")
         self.assertContains(response, "data-msg-comment-length=")
         self.assertContains(response, 'data-authenticated="false"')
         self.assertContains(response, 'data-comment-require-login="true"')
@@ -102,6 +104,21 @@ class InternalCommentTests(TestCase):
             "setTimeout(function () { openAuthModal(requestedPanel); }, 0)", source
         )
         self.assertIn('root.dataset.authHandlerVersion = "delegated-v3"', source)
+        self.assertIn("var defaultAvatar = root.dataset.defaultAvatar", source)
+        self.assertNotIn("slice(0, 1).toUpperCase()", source)
+
+    def test_user_without_avatar_uses_default_image(self):
+        user = User.objects.create_user(
+            "reader",
+            email="reader@example.com",
+            password="A-strong-password-123",
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("article", args=[self.article.slug]))
+
+        self.assertContains(response, "internal-default-avatar")
+        self.assertContains(response, "images/default-comment-avatar.webp")
 
     def test_fenced_palette(self):
         source = '```python\nprint("hello world")\n```'
