@@ -21,6 +21,12 @@
   --waline-color: var(--default-text-color);
   --waline-dark-grey: var(--third-text-color);
 }
+
+/* Waline's loading icon uses stroke="currentColor". Keep the inherited
+   loading colour aligned with Waline/Redefine instead of body text colour. */
+.internal-comments .wl-loading {
+  color: var(--waline-light-grey);
+}
 .internal-comments .wl-content a {
   color: var(--waline-theme-color);
   text-decoration: none;

@@ -113,6 +113,8 @@
     {% endif %}
     <div class="wl-meta-head"><div class="wl-count"><span class="wl-num" data-comment-count>0</span> {% translate "Comments" %}</div><ul class="wl-sort"><li class="active" data-sort="latest">{% translate "Latest" %}</li><li data-sort="oldest">{% translate "Oldest" %}</li><li data-sort="likes">{% translate "Most liked" %}</li></ul></div>
     <div class="wl-cards" data-comments-items><div class="wl-loading">{% translate "Loading comments…" %}</div></div>
+    <div class="wl-loading" data-comments-loading-more hidden><svg width="30" height="30" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" aria-hidden="true"><circle cx="50" cy="50" fill="none" stroke="currentColor" stroke-width="4" r="40" stroke-dasharray="85 30"><animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform></circle></svg></div>
+    <div class="wl-operation" data-comments-more hidden><button type="button" class="wl-btn" data-load-more>{% translate "Load more" %}...</button></div>
     <div class="wl-power">{% translate "Powered by Django" %}</div>
     <div class="internal-comment-toast-region" data-comment-toasts aria-live="polite" aria-atomic="false"></div>
 </div>

@@ -279,6 +279,46 @@ def _target_comments(request, article=None, page=None):
     ).distinct():
         grant_owner_badge(owner, site)
 
+    try:
+        page_number = min(max(int(request.GET.get("page", "1")), 1), 100000)
+    except (TypeError, ValueError):
+        page_number = 1
+    sort = request.GET.get("sort", "latest")
+    if sort not in {"latest", "oldest", "likes"}:
+        sort = "latest"
+    page_size = site.comment_page_size
+    base_qs = Comment.objects.filter(is_approved=True, **target_filter)
+    total_count = base_qs.count()
+    root_qs = base_qs.filter(parent__isnull=True).annotate(
+        page_like_total=Count("likes")
+    )
+    ordering = {
+        "latest": ("-is_sticky", "-created_at", "-pk"),
+        "oldest": ("-is_sticky", "created_at", "pk"),
+        "likes": ("-is_sticky", "-page_like_total", "-created_at", "-pk"),
+    }[sort]
+    offset = (page_number - 1) * page_size
+    root_ids = []
+    if offset < total_count:
+        root_ids = list(
+            root_qs.order_by(*ordering).values_list("pk", flat=True)[
+                offset : offset + page_size + 1
+            ]
+        )
+    has_more = len(root_ids) > page_size
+    root_ids = root_ids[:page_size]
+
+    selected_ids = set(root_ids)
+    frontier = set(root_ids)
+    while frontier:
+        children = set(
+            base_qs.filter(parent_id__in=frontier).values_list("pk", flat=True)
+        ) - selected_ids
+        if not children:
+            break
+        selected_ids.update(children)
+        frontier = children
+
     badge_prefetch = Prefetch(
         "author__comment_badges",
         queryset=CommentBadgeAssignment.objects.filter(badge__enabled=True)
@@ -287,7 +327,7 @@ def _target_comments(request, article=None, page=None):
         to_attr="visible_comment_badges",
     )
     qs = (
-        Comment.objects.filter(is_approved=True, **target_filter)
+        base_qs.filter(pk__in=selected_ids)
         .select_related("author", "author__profile")
         .prefetch_related(badge_prefetch)
         .annotate(like_total=Count("likes"))
@@ -300,7 +340,15 @@ def _target_comments(request, article=None, page=None):
             )
         )
     comments = [_comment_payload(item, request) for item in qs]
-    return JsonResponse({"ok": True, "comments": comments})
+    return JsonResponse(
+        {
+            "ok": True,
+            "comments": comments,
+            "count": total_count,
+            "page": page_number,
+            "has_more": has_more,
+        }
+    )
 
 
 @require_POST

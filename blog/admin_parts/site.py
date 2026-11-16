@@ -570,7 +570,11 @@ class SiteConfigurationAdmin(SortableAdminBase, admin.ModelAdmin):
                 "fields": (
                     ("comment_enabled", "comment_system"),
                     ("comment_require_login", "comment_allow_guest"),
-                    ("comment_auto_approve", "comment_allow_likes"),
+                    (
+                        "comment_auto_approve",
+                        "comment_allow_likes",
+                        "comment_page_size",
+                    ),
                     (
                         "comment_email_notifications",
                         "comment_emoji_enabled",

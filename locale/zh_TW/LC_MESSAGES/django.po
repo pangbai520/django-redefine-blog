@@ -2666,3 +2666,9 @@ msgstr "查看留言"
 
 msgid "You received this email because comment notifications are enabled for your account."
 msgstr "您收到此郵件，是因為您的帳號已啟用留言通知。"
+
+msgid "Comments per load"
+msgstr "每次載入的留言數"
+
+msgid "Number of top-level comment threads loaded initially and each time visitors choose Load more."
+msgstr "首次載入及訪客每次選擇「載入更多」時載入的頂層留言串數量。"

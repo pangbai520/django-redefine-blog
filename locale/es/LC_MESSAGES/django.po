@@ -2716,3 +2716,9 @@ msgstr "Ver comentario"
 
 msgid "You received this email because comment notifications are enabled for your account."
 msgstr "Has recibido este correo porque las notificaciones de comentarios están activadas en tu cuenta."
+
+msgid "Comments per load"
+msgstr "Comentarios por carga"
+
+msgid "Number of top-level comment threads loaded initially and each time visitors choose Load more."
+msgstr "Número de hilos de comentarios principales que se cargan al inicio y cada vez que los visitantes eligen Cargar más."

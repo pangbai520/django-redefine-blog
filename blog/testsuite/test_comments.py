@@ -79,7 +79,7 @@ class InternalCommentTests(TestCase):
         self.assertContains(response, "Sign up")
         self.assertNotContains(response, "modal=1")
         self.assertContains(response, "js/comments/internal.js")
-        self.assertContains(response, "js/comments/internal.js")
+        self.assertNotContains(response, "js/comments/internal.js?v=")
         self.assertContains(response, "images/default-comment-avatar.webp")
         self.assertContains(response, "data-default-avatar=")
         self.assertContains(response, "data-msg-comment-length=")
@@ -87,6 +87,10 @@ class InternalCommentTests(TestCase):
         self.assertContains(response, 'data-comment-require-login="true"')
         self.assertContains(response, "data-comment-toasts")
         self.assertContains(response, "data-comment-confirm")
+        self.assertContains(response, "data-comments-more")
+        self.assertContains(response, "data-load-more")
+        self.assertContains(response, "data-comments-loading-more")
+        self.assertContains(response, 'stroke-dasharray="85 30"')
         self.assertContains(response, 'class="internal-auth-heading-icon"')
         self.assertContains(response, "fa-solid fa-right-to-bracket")
         self.assertContains(response, "fa-solid fa-user-plus")
@@ -197,6 +201,66 @@ class InternalCommentTests(TestCase):
         ).json()
 
         self.assertEqual(payload["comments"][0]["badges"][0]["name"], "博主")
+
+    def test_comment_list_paginates_root_threads_and_keeps_replies_together(self):
+        self.site.comment_page_size = 2
+        self.site.save(update_fields=["comment_page_size"])
+        oldest = Comment.objects.create(
+            article=self.article, nickname="Oldest", content="Oldest root"
+        )
+        middle = Comment.objects.create(
+            article=self.article, nickname="Middle", content="Middle root"
+        )
+        newest = Comment.objects.create(
+            article=self.article, nickname="Newest", content="Newest root"
+        )
+        reply = Comment.objects.create(
+            article=self.article,
+            parent=newest,
+            nickname="Reply",
+            content="Reply to newest",
+        )
+
+        first = self.client.get(
+            reverse("comment_list", args=[self.article.slug]),
+            {"page": 1, "sort": "latest"},
+        ).json()
+        second = self.client.get(
+            reverse("comment_list", args=[self.article.slug]),
+            {"page": 2, "sort": "latest"},
+        ).json()
+
+        self.assertEqual(first["count"], 4)
+        self.assertTrue(first["has_more"])
+        self.assertEqual(
+            {item["id"] for item in first["comments"]},
+            {middle.pk, newest.pk, reply.pk},
+        )
+        self.assertEqual(second["page"], 2)
+        self.assertFalse(second["has_more"])
+        self.assertEqual(
+            {item["id"] for item in second["comments"]},
+            {oldest.pk},
+        )
+
+    def test_comment_list_sort_is_applied_before_pagination(self):
+        self.site.comment_page_size = 1
+        self.site.save(update_fields=["comment_page_size"])
+        oldest = Comment.objects.create(
+            article=self.article, nickname="Oldest", content="Oldest root"
+        )
+        Comment.objects.create(
+            article=self.article, nickname="Newest", content="Newest root"
+        )
+
+        payload = self.client.get(
+            reverse("comment_list", args=[self.article.slug]),
+            {"sort": "oldest"},
+        ).json()
+
+        roots = [item for item in payload["comments"] if item["parent_id"] is None]
+        self.assertEqual([item["id"] for item in roots], [oldest.pk])
+        self.assertTrue(payload["has_more"])
 
     def test_identical_object(self):
         user = User.objects.create_user(
@@ -455,6 +519,13 @@ class InternalCommentTests(TestCase):
             '!isAuthenticated ? " internal-auth-open"',
             "extractFencedCodeBlocks(value)",
             'fetch("/api/comments/preview/"',
+            'event.target.closest("[data-load-more]")',
+            '"&sort=" + encodeURIComponent(sort)',
+            "hasMore = Boolean(data.has_more)",
+            "loadingMore = Boolean(append)",
+            "spinner.hidden = !loadingMore",
+            'spinner.querySelector("animateTransform")',
+            "animation.beginElement()",
         ):
             self.assertIn(marker, source)
         self.assertNotIn("alert(", source)
@@ -488,11 +559,25 @@ class InternalCommentTests(TestCase):
         self.assertIn("background: var(--third-background-color);", source)
         self.assertIn("--waline-badge-color: var(--waline-theme-color);", source)
         self.assertNotIn("--waline-badge-color: #3498db;", source)
+        self.assertIn(".internal-comments .wl-loading", source)
+        self.assertIn("color: var(--waline-light-grey);", source)
         self.assertIn(".internal-comments .wl-preview > hr", source)
         self.assertIn("border-top: 1px dashed var(--waline-border-color);", source)
         self.assertNotIn("--selected-highlight", palette)
         self.assertIn(':root[data-theme="dark"] body.dark-mode', palette)
         self.assertIn("--highlight-background: inherit;", palette)
+
+    def test_static_assets_do_not_use_manual_query_parameters(self):
+        template_root = Path(__file__).parent.parent / "templates"
+        offenders = []
+        for template in template_root.rglob("*.html"):
+            for line_number, line in enumerate(
+                template.read_text(encoding="utf-8").splitlines(), start=1
+            ):
+                if "{% static " in line and "%}?" in line:
+                    offenders.append(f"{template.relative_to(template_root)}:{line_number}")
+
+        self.assertEqual(offenders, [])
 
     def test_comment_metadata(self):
         response = self.client.post(

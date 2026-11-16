@@ -2690,3 +2690,9 @@ msgstr "文章评价最多可使用 9 个表情。"
 
 msgid "Show Waline-style ratings below articles. Choose the exact icons in Article rating emojis; individual articles can disable ratings."
 msgstr "在文章下方显示 Waline 风格的评价。请在“文章评价表情”中选择具体图标；也可为单篇文章关闭评价。"
+
+msgid "Comments per load"
+msgstr "每次加载的评论数"
+
+msgid "Number of top-level comment threads loaded initially and each time visitors choose Load more."
+msgstr "首次加载及访客每次选择“加载更多”时载入的顶层评论串数量。"

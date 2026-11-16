@@ -2667,3 +2667,9 @@ msgstr "コメントを見る"
 
 msgid "You received this email because comment notifications are enabled for your account."
 msgstr "アカウントでコメント通知が有効になっているため、このメールをお送りしています。"
+
+msgid "Comments per load"
+msgstr "1回に読み込むコメント数"
+
+msgid "Number of top-level comment threads loaded initially and each time visitors choose Load more."
+msgstr "初回および訪問者が「さらに読み込む」を選択するたびに読み込む最上位コメントスレッドの数。"

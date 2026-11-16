@@ -85,6 +85,11 @@
     });
     var comments = [];
     var sort = "latest";
+    var page = 1;
+    var hasMore = false;
+    var totalCount = 0;
+    var commentsLoading = false;
+    var loadingMore = false;
     var assetsPromise = null;
     var imageInput = root.querySelector("[data-comment-image]");
     var preview = root.querySelector(".internal-comment-preview");
@@ -449,7 +454,7 @@
         if (sort === "likes") return b.like_count - a.like_count;
         return new Date(b.created_at) - new Date(a.created_at);
       });
-      root.querySelector("[data-comment-count]").textContent = comments.length;
+      root.querySelector("[data-comment-count]").textContent = totalCount;
       if (!visible.length) { list.innerHTML = '<div class="wl-empty">' + escapeHtml(message("NoComments", "No comments yet.")) + '</div>'; mountComposer(list); return; }
       var groups = {};
       visible.forEach(function (item) { (groups[item.parent_id || "root"] ||= []).push(item); });
@@ -507,11 +512,54 @@
       }).join("");
       mountComposer(list);
     }
-    function load() {
-      fetch(commentsApiBase + encodeURIComponent(slug) + "/", { headers: { Accept: "application/json" } })
-        .then(function (response) { return response.json(); })
-        .then(function (data) { comments = data.comments || []; draw(); })
-        .catch(function () { root.querySelector("[data-comments-items]").innerHTML = '<div class="wl-empty">' + escapeHtml(message("UnableLoadComments", "Unable to load comments.")) + '</div>'; });
+    function updateLoadMore() {
+      var operation = root.querySelector("[data-comments-more]");
+      var button = root.querySelector("[data-load-more]");
+      var spinner = root.querySelector("[data-comments-loading-more]");
+      if (!operation || !button || !spinner) return;
+      operation.hidden = commentsLoading || !hasMore;
+      spinner.hidden = !loadingMore;
+      if (loadingMore) {
+        var animation = spinner.querySelector("animateTransform");
+        if (animation && typeof animation.beginElement === "function") {
+          animation.beginElement();
+        }
+      }
+      button.disabled = commentsLoading;
+    }
+    function load(append) {
+      if (commentsLoading) return;
+      if (!append) {
+        page = 1;
+        hasMore = false;
+        comments = [];
+        root.querySelector("[data-comments-items]").innerHTML = '<div class="wl-loading">' + escapeHtml(message("Loading", "Loading…")) + '</div>';
+      }
+      commentsLoading = true;
+      loadingMore = Boolean(append);
+      updateLoadMore();
+      var query = "?page=" + encodeURIComponent(page) + "&sort=" + encodeURIComponent(sort);
+      fetch(commentsApiBase + encodeURIComponent(slug) + "/" + query, { headers: { Accept: "application/json" } })
+        .then(function (response) { return parseJsonResponse(response, message("UnableLoadComments", "Unable to load comments.")); })
+        .then(function (data) {
+          var incoming = data.comments || [];
+          if (append) {
+            var known = new Set(comments.map(function (item) { return String(item.id); }));
+            comments = comments.concat(incoming.filter(function (item) { return !known.has(String(item.id)); }));
+          } else {
+            comments = incoming;
+          }
+          totalCount = Number(data.count || 0);
+          page = Number(data.page || page);
+          hasMore = Boolean(data.has_more);
+          draw();
+        })
+        .catch(function () {
+          if (append) page = Math.max(1, page - 1);
+          if (!append) root.querySelector("[data-comments-items]").innerHTML = '<div class="wl-empty">' + escapeHtml(message("UnableLoadComments", "Unable to load comments.")) + '</div>';
+          else showToast(message("UnableLoadComments", "Unable to load comments."), "error");
+        })
+        .finally(function () { commentsLoading = false; loadingMore = false; updateLoadMore(); });
     }
     function parseJsonResponse(response, fallbackMessage) {
       return response.text().then(function (text) {
@@ -797,8 +845,10 @@
         if (!actionPreview.hidden) renderPreviewFor(actionComposer);
         return;
       }
+      var loadMoreButton = event.target.closest("[data-load-more]");
+      if (loadMoreButton) { if (hasMore && !commentsLoading) { page += 1; load(true); } return; }
       var sortButton = event.target.closest("[data-sort]");
-      if (sortButton) { sort = sortButton.dataset.sort; root.querySelectorAll("[data-sort]").forEach(function (node) { node.classList.toggle("active", node === sortButton); }); draw(); return; }
+      if (sortButton) { sort = sortButton.dataset.sort; root.querySelectorAll("[data-sort]").forEach(function (node) { node.classList.toggle("active", node === sortButton); }); load(false); return; }
       var replyButton = event.target.closest("[data-reply]");
       if (replyButton) {
         if (!isAuthenticated && commentRequiresLogin) {

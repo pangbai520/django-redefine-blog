@@ -4,6 +4,7 @@ from functools import cached_property
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
@@ -209,6 +210,15 @@ class SiteConfiguration(models.Model):
         "Auto approve comments",
         default=True,
         help_text="Disable this to review new comments in the admin site first.",
+    )
+    comment_page_size = models.PositiveSmallIntegerField(
+        _("Comments per load"),
+        default=10,
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        help_text=_(
+            "Number of top-level comment threads loaded initially and each time "
+            "visitors choose Load more."
+        ),
     )
     comment_email_notifications = models.BooleanField(
         "Email notifications",
