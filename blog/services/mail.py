@@ -1,7 +1,6 @@
 import logging
 
 from django.conf import settings
-from django.contrib.auth.tokens import default_token_generator
 from django.core import signing
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
@@ -12,6 +11,7 @@ from django.utils import translation
 from django.utils.translation import gettext as _
 
 from blog.models import CommentNotification, SiteConfiguration
+from blog.services.tokens import registration_token_generator
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +104,7 @@ def notify(request, recipient, actor, comment, kind):
 def send_verify(request, user):
     """Send an activation link or raise when the mail backend rejects it."""
     uid = urlsafe_base64_encode(force_bytes(user.pk))
-    token = default_token_generator.make_token(user)
+    token = registration_token_generator.make_token(user)
     verify_url = request.build_absolute_uri(
         reverse("comment_verify", kwargs={"uidb64": uid, "token": token})
     )

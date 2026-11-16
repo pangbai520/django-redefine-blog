@@ -117,6 +117,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "blog.auth_middleware.AuthenticationRateLimitMiddleware",
     "blog.middleware.LanguagePreferenceMiddleware",
     *(["allauth.account.middleware.AccountMiddleware"] if GITHUB_OAUTH_ENABLED else []),
     "django.contrib.messages.middleware.MessageMiddleware",
