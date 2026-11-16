@@ -2730,3 +2730,36 @@ msgstr "Commentaires par chargement"
 
 msgid "Number of top-level comment threads loaded initially and each time visitors choose Load more."
 msgstr "Nombre de fils de commentaires principaux chargés initialement et chaque fois que les visiteurs choisissent Charger plus."
+
+msgid "Name"
+msgstr "Nom"
+
+msgid "Image URL"
+msgstr "URL de l’image"
+
+msgid "Article rating emoji"
+msgstr "Emoji d’évaluation de l’article"
+
+msgid "Article rating emojis"
+msgstr "Emojis d’évaluation de l’article"
+
+msgid "Article ratings can use at most 9 emojis."
+msgstr "Les évaluations d’article peuvent utiliser au maximum 9 emojis."
+
+msgid "Choose an emoji"
+msgstr "Choisir un emoji"
+
+msgid "Current selection"
+msgstr "Sélection actuelle"
+
+msgid "No enabled emoji pack contains selectable emojis. Add or enable a comment emoji pack first."
+msgstr "Aucun pack d’emojis activé ne contient d’emojis sélectionnables. Ajoutez ou activez d’abord un pack d’emojis de commentaire."
+
+msgid "Rating position"
+msgstr "Position de l’évaluation"
+
+msgid "Select a valid emoji."
+msgstr "Sélectionnez un emoji valide."
+
+msgid "Show Waline-style ratings below articles. Choose the exact icons in Article rating emojis; individual articles can disable ratings."
+msgstr "Affiche les évaluations de style Waline sous les articles. Choisissez les icônes exactes dans « Emojis d’évaluation de l’article » ; chaque article peut désactiver les évaluations."

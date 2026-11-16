@@ -176,7 +176,7 @@ class AdminExperienceTests(TestCase):
         self.assertContains(response, 'type="color"')
         self.assertContains(response, "Use default colour")
 
-    def test_article_edit_refreshes_update_time(self):
+    def test_update_time(self):
         article = ArticleModel.objects.create(
             title="Automatic update time",
             content="Original content",
@@ -197,7 +197,7 @@ class AdminExperienceTests(TestCase):
         self.assertGreaterEqual(article.updated_at, saved_after)
         self.assertLessEqual(article.updated_at, timezone.now())
 
-    def test_article_edit_keeps_explicit_update_time(self):
+    def test_explicit_time(self):
         article = ArticleModel.objects.create(
             title="Manual update time",
             content="Original content",
@@ -273,7 +273,7 @@ class AdminExperienceTests(TestCase):
         self.assertIn("waline_server_url", form.errors)
         self.assertIn("waline_emoji", form.errors)
 
-    def test_site_admin_save_after_rating_config_was_separated(self):
+    def test_rating_save(self):
         form = SiteConfigurationForm(
             data=self.configuration_form_data(article_reaction_enabled=True),
             instance=self.site,

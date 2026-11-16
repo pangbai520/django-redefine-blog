@@ -47,7 +47,7 @@ def _browser_label(user_agent):
     return UNKNOWN_BROWSER
 
 
-def _operating_system_label(user_agent, platform_version=""):
+def _os_label(user_agent, platform_version=""):
     match = re.search(r"Windows NT ([\d.]+)", user_agent, re.IGNORECASE)
     if match:
         raw_version = match.group(1)
@@ -97,5 +97,5 @@ def parse_user_agent(user_agent, *, platform_version=""):
     value = str(user_agent or "")
     return (
         _browser_label(value)[:120],
-        _operating_system_label(value, platform_version)[:120],
+        _os_label(value, platform_version)[:120],
     )

@@ -4,7 +4,7 @@ from blog.services.user_agent import parse_user_agent
 
 
 class UserAgentTests(SimpleTestCase):
-    def test_matches_waline_mobile_safari_fallback(self):
+    def test_mobile_safari(self):
         user_agent = (
             "Mozilla/5.0 (iPhone; CPU iPhone OS 15_6_1 like Mac OS X) "
             "AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 "
@@ -15,7 +15,7 @@ class UserAgentTests(SimpleTestCase):
             ("Mobile Safari", "iOS 15.6.1"),
         )
 
-    def test_matches_waline_version_format(self):
+    def test_waline_version(self):
         user_agent = (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             "AppleWebKit/537.36 Chrome/145.0.7632.117 Safari/537.36 "
@@ -23,7 +23,7 @@ class UserAgentTests(SimpleTestCase):
         )
         self.assertEqual(parse_user_agent(user_agent), ("Edge145.0", "Windows 10"))
 
-    def test_uses_platform_hint_for_windows_11(self):
+    def test_windows_platform(self):
         self.assertEqual(
             parse_user_agent(
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/145.0.0.0",
@@ -32,11 +32,11 @@ class UserAgentTests(SimpleTestCase):
             ("Chrome145.0", "Windows 11"),
         )
 
-    def test_preserves_linux_architecture(self):
+    def test_linux_architecture(self):
         user_agent = "Mozilla/5.0 (X11; Linux x86_64) Firefox/145.0"
         self.assertEqual(parse_user_agent(user_agent), ("Firefox145.0", "Linux x86_64"))
 
-    def test_recognizes_waline_browser_families_before_chromium(self):
+    def test_browser_precedence(self):
         examples = (
             ("Mozilla/5.0 Android 15 Chrome/120.0 MiuiBrowser/19.3.2", "MIUI Browser19.3"),
             ("Mozilla/5.0 Windows NT 10.0 Chrome/120.0 QuarkPC/4.3.0", "Quark4.3"),
@@ -52,7 +52,7 @@ class UserAgentTests(SimpleTestCase):
             with self.subTest(expected=expected):
                 self.assertEqual(parse_user_agent(user_agent)[0], expected)
 
-    def test_edge_marker_takes_precedence_over_embedded_quark_marker(self):
+    def test_edge_precedence(self):
         user_agent = (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/132.0.0.0 "
             "Safari/537.36 Edg/132.0.0.0 Edge QuarkPC/2.0.1"

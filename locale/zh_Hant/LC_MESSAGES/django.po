@@ -2672,3 +2672,36 @@ msgstr "每次載入的留言數"
 
 msgid "Number of top-level comment threads loaded initially and each time visitors choose Load more."
 msgstr "首次載入及訪客每次選擇「載入更多」時載入的頂層留言串數量。"
+
+msgid "Name"
+msgstr "名稱"
+
+msgid "Image URL"
+msgstr "圖片網址"
+
+msgid "Article rating emoji"
+msgstr "文章評價表情"
+
+msgid "Article rating emojis"
+msgstr "文章評價表情"
+
+msgid "Article ratings can use at most 9 emojis."
+msgstr "文章評價最多可使用 9 個表情。"
+
+msgid "Choose an emoji"
+msgstr "選擇表情"
+
+msgid "Current selection"
+msgstr "目前選擇"
+
+msgid "No enabled emoji pack contains selectable emojis. Add or enable a comment emoji pack first."
+msgstr "目前沒有已啟用且可選擇的表情包。請先新增或啟用留言表情包。"
+
+msgid "Rating position"
+msgstr "評價位置"
+
+msgid "Select a valid emoji."
+msgstr "請選擇有效的表情。"
+
+msgid "Show Waline-style ratings below articles. Choose the exact icons in Article rating emojis; individual articles can disable ratings."
+msgstr "在文章下方顯示 Waline 風格的評價。請在「文章評價表情」中選擇具體圖示；亦可為單篇文章停用評價。"

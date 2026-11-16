@@ -83,7 +83,7 @@ class ArticleReactionTests(TestCase):
         self.assertEqual(cancelled.json(), {"counts": [0, 0, 0, 0, 0, 0], "active": None})
         self.assertFalse(ArticleReactionVote.objects.exists())
 
-    def test_custom_rating_emojis(self):
+    def test_custom_emojis(self):
         ArticleRatingEmoji.objects.create(
             config=self.site,
             name="Bili 0",
@@ -118,7 +118,7 @@ class ArticleReactionTests(TestCase):
         )
         self.assertEqual(invalid.status_code, 400)
 
-    def test_rating_emoji_scope(self):
+    def test_emoji_scope(self):
         other = SiteConfiguration.objects.create(config_name="Other")
         ArticleRatingEmoji.objects.create(
             config=other,
@@ -133,7 +133,7 @@ class ArticleReactionTests(TestCase):
         self.assertContains(response, "tieba_agree.png")
 
     @patch("blog.admin_parts.reactions.emoji_items")
-    def test_admin_form_selects_an_item_from_a_remote_pack(self, mocked_items):
+    def test_remote_pack(self, mocked_items):
         pack = CommentEmojiPack.objects.create(
             config=self.site,
             name="Bilibili",

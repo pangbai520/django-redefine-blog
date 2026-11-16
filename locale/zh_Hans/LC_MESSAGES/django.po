@@ -2696,3 +2696,9 @@ msgstr "每次加载的评论数"
 
 msgid "Number of top-level comment threads loaded initially and each time visitors choose Load more."
 msgstr "首次加载及访客每次选择“加载更多”时载入的顶层评论串数量。"
+
+msgid "Name"
+msgstr "名称"
+
+msgid "Image URL"
+msgstr "图片网址"

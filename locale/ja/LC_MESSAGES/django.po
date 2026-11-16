@@ -2673,3 +2673,36 @@ msgstr "1回に読み込むコメント数"
 
 msgid "Number of top-level comment threads loaded initially and each time visitors choose Load more."
 msgstr "初回および訪問者が「さらに読み込む」を選択するたびに読み込む最上位コメントスレッドの数。"
+
+msgid "Name"
+msgstr "名前"
+
+msgid "Image URL"
+msgstr "画像URL"
+
+msgid "Article rating emoji"
+msgstr "記事評価絵文字"
+
+msgid "Article rating emojis"
+msgstr "記事評価絵文字"
+
+msgid "Article ratings can use at most 9 emojis."
+msgstr "記事の評価には最大9個の絵文字を使用できます。"
+
+msgid "Choose an emoji"
+msgstr "絵文字を選択"
+
+msgid "Current selection"
+msgstr "現在の選択"
+
+msgid "No enabled emoji pack contains selectable emojis. Add or enable a comment emoji pack first."
+msgstr "有効な絵文字パックに選択可能な絵文字がありません。先にコメント絵文字パックを追加または有効化してください。"
+
+msgid "Rating position"
+msgstr "評価位置"
+
+msgid "Select a valid emoji."
+msgstr "有効な絵文字を選択してください。"
+
+msgid "Show Waline-style ratings below articles. Choose the exact icons in Article rating emojis; individual articles can disable ratings."
+msgstr "記事の下にWaline風の評価を表示します。「記事評価絵文字」で使用するアイコンを選択できます。記事ごとに評価を無効にすることもできます。"

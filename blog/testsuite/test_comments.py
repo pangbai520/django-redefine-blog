@@ -111,7 +111,7 @@ class InternalCommentTests(TestCase):
         self.assertIn("var defaultAvatar = root.dataset.defaultAvatar", source)
         self.assertNotIn("slice(0, 1).toUpperCase()", source)
 
-    def test_user_without_avatar_uses_default_image(self):
+    def test_default_avatar(self):
         user = User.objects.create_user(
             "reader",
             email="reader@example.com",
@@ -202,7 +202,7 @@ class InternalCommentTests(TestCase):
 
         self.assertEqual(payload["comments"][0]["badges"][0]["name"], "博主")
 
-    def test_comment_list_paginates_root_threads_and_keeps_replies_together(self):
+    def test_thread_pagination(self):
         self.site.comment_page_size = 2
         self.site.save(update_fields=["comment_page_size"])
         oldest = Comment.objects.create(
@@ -243,7 +243,7 @@ class InternalCommentTests(TestCase):
             {oldest.pk},
         )
 
-    def test_comment_list_sort_is_applied_before_pagination(self):
+    def test_pagination_sort(self):
         self.site.comment_page_size = 1
         self.site.save(update_fields=["comment_page_size"])
         oldest = Comment.objects.create(
@@ -567,7 +567,7 @@ class InternalCommentTests(TestCase):
         self.assertIn(':root[data-theme="dark"] body.dark-mode', palette)
         self.assertIn("--highlight-background: inherit;", palette)
 
-    def test_static_assets_do_not_use_manual_query_parameters(self):
+    def test_static_queries(self):
         template_root = Path(__file__).parent.parent / "templates"
         offenders = []
         for template in template_root.rglob("*.html"):
@@ -1001,7 +1001,7 @@ class InternalCommentTests(TestCase):
         ).json()["comments"][0]
         self.assertEqual(payload["badges"], [{"name": "Theme badge", "color": ""}])
 
-    def test_owner_badge_always_inherits_theme(self):
+    def test_owner_badge(self):
         user = User.objects.create_user(
             "owner-badge-reader", password="A-strong-password-123"
         )
