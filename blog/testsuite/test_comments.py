@@ -1001,6 +1001,27 @@ class InternalCommentTests(TestCase):
         ).json()["comments"][0]
         self.assertEqual(payload["badges"], [{"name": "Theme badge", "color": ""}])
 
+    def test_owner_badge_always_inherits_theme(self):
+        user = User.objects.create_user(
+            "owner-badge-reader", password="A-strong-password-123"
+        )
+        badge = CommentBadge.objects.create(
+            config=self.site,
+            name="Blogger",
+            color="#ff0000",
+            is_owner_badge=True,
+        )
+        CommentBadgeAssignment.objects.create(
+            user=user, badge=badge, color_override="#00ff00"
+        )
+        Comment.objects.create(article=self.article, author=user, content="Hello")
+
+        payload = self.client.get(
+            reverse("comment_list", args=[self.article.slug])
+        ).json()["comments"][0]
+
+        self.assertEqual(payload["badges"], [{"name": "Blogger", "color": ""}])
+
     def test_internal_frontend(self):
         html = render_to_string(
             "components/comments/comment.html",

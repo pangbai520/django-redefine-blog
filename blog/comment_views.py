@@ -198,7 +198,11 @@ def _comment_payload(comment, request):
         badges = [
             {
                 "name": assignment.badge.localized_name(),
-                "color": assignment.color_override or assignment.badge.color,
+                # The owner badge identifies the site owner, so it always
+                # follows the active theme instead of a stale saved colour.
+                "color": ""
+                if assignment.badge.is_owner_badge
+                else assignment.color_override or assignment.badge.color,
             }
             for assignment in assignments
         ]
