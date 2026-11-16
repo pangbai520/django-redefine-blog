@@ -21,6 +21,14 @@
   --waline-color: var(--default-text-color);
   --waline-dark-grey: var(--third-text-color);
 }
+.internal-comments .wl-content a {
+  color: var(--waline-theme-color);
+  text-decoration: none;
+  overflow-wrap: break-word;
+}
+.internal-comments .wl-content a:hover {
+  color: var(--waline-active-color);
+}
 /* use the article code-block palette here too, Waline's fixed dark surface
    otherwise combines a dark background with light-mode token colours */
 .internal-comments .wl-content pre,
