@@ -1,4 +1,4 @@
 -r requirements-postgresql.txt
 -r requirements-redis.txt
 -r requirements-storage.txt
-gunicorn==26.2.0
+gunicorn==27.0.1
