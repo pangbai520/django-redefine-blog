@@ -1,8 +1,10 @@
 import json
 import uuid
 from datetime import timedelta
+from types import SimpleNamespace
 
 from django.conf import settings
+from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.forms.models import model_to_dict
 from django.test import TestCase, override_settings
@@ -173,6 +175,48 @@ class AdminExperienceTests(TestCase):
         self.assertContains(response, "css/admin/audio-track.css")
         self.assertContains(response, 'type="color"')
         self.assertContains(response, "Use default colour")
+
+    def test_article_edit_refreshes_update_time(self):
+        article = ArticleModel.objects.create(
+            title="Automatic update time",
+            content="Original content",
+            updated_at=timezone.now() - timedelta(days=7),
+        )
+        article.title = "Edited later"
+        saved_after = timezone.now()
+
+        ArticleAdmin(ArticleModel, admin.site).save_model(
+            None,
+            article,
+            SimpleNamespace(changed_data=("title",)),
+            True,
+        )
+
+        article.refresh_from_db()
+        self.assertEqual(article.title, "Edited later")
+        self.assertGreaterEqual(article.updated_at, saved_after)
+        self.assertLessEqual(article.updated_at, timezone.now())
+
+    def test_article_edit_keeps_explicit_update_time(self):
+        article = ArticleModel.objects.create(
+            title="Manual update time",
+            content="Original content",
+            updated_at=timezone.now() - timedelta(days=7),
+        )
+        manual_time = timezone.now() - timedelta(days=3)
+        article.title = "Edited with manual time"
+        article.updated_at = manual_time
+
+        ArticleAdmin(ArticleModel, admin.site).save_model(
+            None,
+            article,
+            SimpleNamespace(changed_data=("title", "updated_at")),
+            True,
+        )
+
+        article.refresh_from_db()
+        self.assertEqual(article.title, "Edited with manual time")
+        self.assertLess(abs((article.updated_at - manual_time).total_seconds()), 1)
 
     def test_image_delete(self):
         image = EditorImage.objects.create(
